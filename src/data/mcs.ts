@@ -105,6 +105,10 @@ export const brandColors = {
 
 export const brandAssets = [
   {
+    name: "Logo MCS 1",
+    src: "/logos/mcs-logo.svg",
+  },
+  {
     name: "Logo SMKN 20 Jakarta",
     src: "/logos/smkn20.png",
   },

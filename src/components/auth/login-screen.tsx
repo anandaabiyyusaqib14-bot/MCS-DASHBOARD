@@ -96,7 +96,7 @@ export function LoginScreen() {
             <span className="truncate">Back to Landing Page</span>
           </Link>
 
-          <div className="w-full min-w-0 px-[44px] sm:px-[56px] lg:max-w-[420px] lg:px-0">
+          <div className="box-border w-full min-w-0 px-[44px] sm:px-[56px] lg:max-w-[420px] lg:px-0">
             <McsWordmark />
 
             <div className="mt-9">
@@ -108,7 +108,7 @@ export function LoginScreen() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-10">
+            <form onSubmit={handleSubmit} className="mt-10 w-[270px] min-[430px]:w-[320px] sm:w-full">
               <div className="grid gap-5">
                 <div className="grid gap-2">
                   <label htmlFor="email" className="text-sm font-semibold text-[#07111d]">
@@ -189,7 +189,7 @@ export function LoginScreen() {
               </p>
             </form>
 
-            <div className="mt-9 border-t border-[#07111d]/10 pt-5">
+            <div className="mt-9 w-[270px] border-t border-[#07111d]/10 pt-5 min-[430px]:w-[320px] sm:w-full">
               <p className="font-sport text-[0.68rem] font-black uppercase tracking-[0.18em] text-[#07111d]/36">
                 Authorized Roles
               </p>
@@ -210,16 +210,23 @@ export function LoginScreen() {
 }
 
 function McsWordmark() {
+  const mcsLogo = brandAssets.find((a) => a.src.includes("mcs-logo"))
+
   return (
     <div className="inline-flex items-center gap-4">
-      <div className="grid size-14 place-items-center rounded-md bg-[color:var(--mcs-red)] text-white">
-        <span className="font-display text-3xl leading-none">MCS</span>
-      </div>
-      <div>
-        <p className="font-sport text-[0.68rem] font-black uppercase tracking-[0.22em] text-[#07111d]/42">
+      {mcsLogo ? (
+        <Image src={mcsLogo.src} alt={mcsLogo.name} width={56} height={56} className="rounded-md object-contain" />
+      ) : (
+        <div className="grid size-14 place-items-center rounded-md bg-[color:var(--mcs-red)] text-white">
+          <span className="font-display text-3xl leading-none">MCS</span>
+        </div>
+      )}
+
+      <div className="min-w-0">
+        <p className="font-sport text-[0.68rem] font-black uppercase tracking-[0.22em] text-[#07111d]/42 truncate">
           {event.shortName}
         </p>
-        <p className="mt-1 text-sm font-semibold text-[#07111d]">{event.organizer}</p>
+        <p className="mt-1 text-sm font-semibold text-[#07111d] truncate">{event.organizer}</p>
       </div>
     </div>
   )
