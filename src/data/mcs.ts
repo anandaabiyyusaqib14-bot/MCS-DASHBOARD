@@ -3,7 +3,6 @@ export type CompetitionKind =
   | "esport"
   | "art"
   | "media"
-  | "supporter"
 
 export type Competition = {
   id: string
@@ -13,6 +12,28 @@ export type Competition = {
   category: string
   venue: string
   pj: string[]
+}
+
+export type JuknisSection = {
+  title: string
+  items: string[]
+}
+
+export type JuknisDocument = {
+  id: string
+  competitionId: string
+  title: string
+  shortName: string
+  status: "Published"
+  registrationStart: string
+  registrationEnd: string
+  registrationPeriod: string
+  contacts: string[]
+  teamFormat: string
+  format: string
+  summary: string
+  sections: JuknisSection[]
+  criteria?: string[]
 }
 
 export type ScheduleItem = {
@@ -104,10 +125,6 @@ export const brandColors = {
 }
 
 export const brandAssets = [
-  {
-    name: "Logo MCS 1",
-    src: "/logos/mcs-logo.svg",
-  },
   {
     name: "Logo SMKN 20 Jakarta",
     src: "/logos/smkn20.png",
@@ -311,16 +328,16 @@ export const competitions: Competition[] = [
   },
   {
     id: "basket",
-    name: "Perlombaan Basket",
-    shortName: "Basket",
+    name: "Perlombaan Basket 3x3",
+    shortName: "Basket 3x3",
     kind: "sport",
-    category: "Putra",
+    category: "3x3 Campuran",
     venue: "Lapangan A",
     pj: ["Muhammad Hablil Jidda", "Gladies"],
   },
   {
     id: "volly",
-    name: "Perlombaan Volly",
+    name: "Perlombaan Voli",
     shortName: "Voli",
     kind: "sport",
     category: "Putra/Putri",
@@ -341,7 +358,7 @@ export const competitions: Competition[] = [
     name: "Perlombaan Badminton",
     shortName: "Badminton",
     kind: "sport",
-    category: "Ganda Putra",
+    category: "Ganda Campuran",
     venue: "Lapangan B",
     pj: ["Ananda Abiyyu Saqib", "Naura"],
   },
@@ -381,21 +398,607 @@ export const competitions: Competition[] = [
     venue: "Media Center",
     pj: ["Stefani Octa", "Alif"],
   },
+]
+
+export const juknisPdf = {
+  title: "JUKNIS Lomba MCS 1",
+  href: "/docs/juknis-mcs-1.pdf",
+  sourceLabel: "JUKNIS MELATI CHAMPIONSHIP SERIES.pdf",
+}
+
+export const competitionJuknis: JuknisDocument[] = [
   {
-    id: "best-supporter",
-    name: "Perlombaan Best Supporter",
-    shortName: "Best Supporter",
-    kind: "supporter",
-    category: "Supporter",
-    venue: "Lapangan Utama",
-    pj: ["Tiara Oktavia", "Elmo Alvian"],
+    id: "juknis-futsal",
+    competitionId: "futsal",
+    title: "JUKNIS Lomba Futsal",
+    shortName: "Futsal",
+    status: "Published",
+    registrationStart: "31 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "31 Mei 2026 - 12 Juni 2026",
+    contacts: ["Sayyidina: 0859-6065-4175"],
+    teamFormat: "5 pemain inti dan 2 cadangan",
+    format: "Sistem gugur",
+    summary:
+      "Lomba futsal untuk perwakilan resmi kelas, memakai sistem gugur dengan durasi bertahap sampai final.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Peserta merupakan perwakilan resmi dari masing-masing kelas di SMKN 20 Jakarta.",
+          "Setiap kelas diperbolehkan mengirim 1 tim futsal.",
+          "Pendaftaran dimulai dari tanggal 31 Mei 2026 sampai tanggal 12 Juni 2026.",
+          "Pendaftaran dilakukan melalui penanggung jawab lomba.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Setiap tim terdiri dari 5 orang pemain inti dan 2 cadangan.",
+          "Setiap pemain hanya boleh bermain untuk 1 tim atau kelas.",
+          "Pemain wajib menggunakan sepatu futsal dan pakaian olahraga yang rapi dan sopan.",
+          "Pemain dilarang menggunakan aksesoris berbahaya seperti gelang dan jam tangan.",
+          "Seluruh peserta wajib menjaga sportivitas dan nama baik sekolah.",
+          "Jika ditemukan pemain tidak sah atau bukan berasal dari tim, tim langsung didiskualifikasi.",
+          "Jurusan MP, AK, dan XI BD yang mengalami keterbatasan pemain hanya dapat mendapat bantuan pemain dari jurusan yang sama dengan pengawasan panitia.",
+          "Pemain cadangan bantuan tidak boleh bermain sebagai tim inti. Pelanggaran aturan ini berakibat diskualifikasi.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Pertandingan menggunakan peraturan futsal umum yang disesuaikan oleh panitia.",
+          "Setiap pertandingan dimainkan oleh 5 pemain di lapangan termasuk kiper.",
+          "Sistem pertandingan menggunakan sistem gugur.",
+          "Babak 16 besar dimainkan 2 x 7 menit.",
+          "Babak 8 besar dimainkan 2 x 10 menit.",
+          "Babak semifinal dimainkan 2 x 10 menit.",
+          "Babak final dimainkan 2 x 15 menit.",
+          "Pergantian pemain dilakukan bebas dengan rolling substitution.",
+          "Tim wajib hadir 10 menit sebelum pertandingan dimulai.",
+          "Toleransi keterlambatan adalah 5 menit. Jika melewati toleransi, tim dinyatakan WO.",
+          "Keputusan wasit dan panitia bersifat mutlak dan tidak dapat diganggu gugat.",
+          "Dilarang melakukan provokasi, perkelahian, dan tindakan sejenis.",
+          "Pemain yang mendapat 2 kartu kuning langsung diberikan kartu merah.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Technical meeting dilaksanakan tanggal 22 Mei.",
+          "Pengundian jadwal pertandingan dilakukan oleh panitia saat technical meeting.",
+          "Jika skor seri hingga waktu selesai, pertandingan dilanjutkan dengan adu pinalti.",
+          "Sebelum pertandingan dimulai akan ada konferensi pers di dalam ruangan.",
+          "Pemain yang bermain bagus dan berkontribusi penuh dapat memperoleh MOTM dan diwawancarai setelah pertandingan.",
+          "Panitia berhak memberhentikan pertandingan jika kondisi tidak kondusif.",
+          "Supporter wajib menjaga ketertiban dan keamanan selama perlombaan berlangsung.",
+        ],
+      },
+    ],
   },
+  {
+    id: "juknis-basket",
+    competitionId: "basket",
+    title: "JUKNIS Lomba Basket 3x3",
+    shortName: "Basket 3x3",
+    status: "Published",
+    registrationStart: "31 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "31 Mei 2026 - 12 Juni 2026",
+    contacts: ["Jidda: 0895-3265-11862", "Gladies: 0815-2323-600"],
+    teamFormat: "3 pemain inti dan 2 cadangan, minimal 1 pemain perempuan",
+    format: "Basket 3x3 sistem gugur",
+    summary:
+      "Lomba basket dimainkan 3 lawan 3 pada setengah lapangan dengan sistem gugur sampai final.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Lomba bersifat kelompok yang terdiri dari 5 orang per tim, yaitu 3 pemain inti dan 2 cadangan.",
+          "Setiap tim wajib memiliki jumlah pemain sesuai ketentuan agar pertandingan berjalan seimbang.",
+          "Pendaftaran dimulai dari tanggal 31 Mei 2026 sampai tanggal 12 Juni 2026.",
+          "Pendaftaran dilakukan melalui penanggung jawab lomba.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Dalam satu tim harus memiliki minimal 1 pemain perempuan.",
+          "Pemain yang bertanding dan pemain cadangan harus sesuai dengan data nama anggota yang sudah dikirim ke panitia.",
+          "Pemain cedera akan ditangani oleh tim PMR.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Pertandingan dilakukan dengan sistem gugur.",
+          "Pertandingan terdiri dari kualifikasi, quarter final, semi final, dan final.",
+          "Babak kualifikasi sampai semifinal menggunakan waktu 2 x 5 menit.",
+          "Babak final menggunakan waktu 2 x 8 menit.",
+          "Toleransi keterlambatan peserta adalah 5 menit. Jika melebihi waktu, peserta dinyatakan kalah dan lawan mendapat kemenangan WO.",
+          "Peserta tidak diperkenankan menggunakan aksesoris berbahaya seperti jam tangan dan cincin, serta tidak diperbolehkan memiliki kuku panjang.",
+          "Peserta dilarang bermain menggunakan kekerasan yang menyebabkan offensive foul atau defensive foul.",
+          "Peserta wajib memahami dan mengikuti peraturan dasar basket 3x3 seperti traveling, double dribble, foul, dan out ball.",
+          "Keputusan wasit dan panitia bersifat mutlak dan tidak dapat diganggu gugat.",
+          "Setiap tim wajib menjaga sportivitas selama pertandingan berlangsung.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Khusus kelas AK dan MP, pemain yang diperbolehkan membantu kelas sejurusan hanya pemain cadangan.",
+          "Konferensi pers bidang olahraga basket dilaksanakan sebelum pertandingan dimulai.",
+          "Pertandingan menggunakan sistem 3 lawan 3 pada setengah lapangan basket.",
+          "Pergantian pemain hanya dapat dilakukan saat dead ball atau sebelum check ball.",
+          "Permainan dimulai dengan coin toss atau suit untuk menentukan penguasaan bola pertama.",
+          "Setelah terjadi poin, permainan dilanjutkan oleh tim lawan dari bawah ring tanpa check ball.",
+          "Setelah rebound atau steal, bola wajib dibawa keluar garis two point sebelum tim dapat melakukan serangan.",
+          "Tembakan di dalam garis two point bernilai 1 poin.",
+          "Tembakan di luar garis two point bernilai 2 poin.",
+          "Tim yang mencapai 12 poin sebelum waktu pertandingan berakhir langsung dinyatakan menang.",
+          "Jika skor imbang pada akhir pertandingan, overtime dilakukan sampai tim pertama memperoleh 2 poin.",
+          "Setiap tim diperbolehkan meminta 1 kali time out selama pertandingan.",
+          "Team foul dihitung dan jika mencapai batas foul akan diberlakukan free throw sesuai peraturan basket 3x3.",
+          "Tindakan tidak sportif, kekerasan, atau protes berlebihan dapat dikenakan technical foul hingga diskualifikasi.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "juknis-volly",
+    competitionId: "volly",
+    title: "JUKNIS Lomba Voli",
+    shortName: "Voli",
+    status: "Published",
+    registrationStart: "31 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "31 Mei 2026 - 12 Juni 2026",
+    contacts: ["Gilang: 0821-2537-7283", "Zahira: 0899-7556-403"],
+    teamFormat: "6 pemain inti dan 2 cadangan, minimal 1 pemain perempuan",
+    format: "Sistem gugur",
+    summary:
+      "Lomba voli dimainkan per kelas dengan sistem gugur, 1 set pada penyisihan sampai semifinal dan 2 sampai 3 set pada final.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Satu tim terdiri dari 1 kelas.",
+          "Lomba bersifat kelompok yang terdiri dari 8 orang per tim, yaitu 6 pemain inti dan 2 cadangan.",
+          "Pendaftaran dimulai dari tanggal 31 Mei 2026 sampai tanggal 12 Juni 2026.",
+          "Pendaftaran dilakukan melalui PJ lomba.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Dalam 1 tim harus memiliki minimal 1 pemain perempuan.",
+          "Pemain yang bertanding dan pemain cadangan harus sesuai dengan data nama anggota yang sudah dikirim ke panitia.",
+          "Peserta tidak diperkenankan menggunakan aksesoris yang membahayakan diri sendiri atau orang lain, seperti jam tangan dan cincin.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Pertandingan dilaksanakan dengan sistem gugur.",
+          "Babak penyisihan sampai semifinal dilaksanakan 1 set.",
+          "Babak final dilaksanakan 2 set. Jika seri, ditambahkan 1 set sebagai babak penentuan.",
+          "Babak penyisihan 1 set mencapai 25 poin dengan durasi 15 menit.",
+          "Babak final 2 sampai 3 set, masing-masing set 25 poin dengan durasi 15 menit.",
+          "Jika final seri sampai set kedua, set ketiga dimainkan sampai 15 poin.",
+          "Jika waktu habis dan poin belum mencapai ketentuan, tim dengan poin tertinggi dinyatakan sebagai pemenang.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Setiap tim maksimal menyentuh bola sebanyak 3 kali sebelum dikembalikan ke lawan.",
+          "Pemain tidak boleh menyentuh net, melewati garis tengah, atau melakukan double.",
+          "Pergantian pemain maksimal 6 kali dalam satu set.",
+          "Servis dilakukan dari belakang garis lapangan. Menyentuh garis saat servis otomatis menjadi poin untuk lawan.",
+          "Jika tim penerima servis mendapatkan poin, tim tersebut berpindah servis dan melakukan rotasi searah jarum jam.",
+          "Posisi pemain harus sesuai urutan rotasi saat servis dilakukan.",
+          "Bola dinyatakan masuk jika menyentuh garis lapangan.",
+          "Bola keluar jika jatuh di luar garis lapangan atau menyentuh benda di luar area permainan.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "juknis-badminton",
+    competitionId: "badminton",
+    title: "JUKNIS Lomba Badminton",
+    shortName: "Badminton",
+    status: "Published",
+    registrationStart: "31 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "31 Mei 2026 - 12 Juni 2026",
+    contacts: ["Abiyyu: 0856-5908-5578", "Naura: 0881-0240-06703"],
+    teamFormat: "1 putra dan 1 putri sebagai tim ganda campuran",
+    format: "Ganda campuran sistem gugur",
+    summary:
+      "Lomba badminton memakai format ganda campuran dengan sistem gugur dan best of 3 set.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Setiap kelas hanya diperbolehkan mengirim 1 putri dan 1 putra sebagai 1 tim ganda campuran.",
+          "Pendaftaran dilakukan melalui panitia classmeet sesuai jadwal yang ditentukan.",
+          "Peserta wajib mengisi formulir pendaftaran dengan lengkap.",
+          "Tidak diperbolehkan mengganti pemain setelah technical meeting berlangsung.",
+          "Untuk kelas AK, MP, dan XI BD, pemain yang diperbolehkan membantu kelas sejurusan hanya pemain cadangan.",
+          "Waktu pendaftaran 31 Mei sampai 12 Juni.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Peserta wajib memakai baju olahraga dan sepatu olahraga.",
+          "Peserta harus hadir 15 menit sebelum pertandingan dimulai.",
+          "Pemain wajib menjaga sportivitas selama pertandingan berlangsung.",
+          "Dilarang berkata kasar, mengejek lawan, atau membuat keributan.",
+          "Peserta yang terlambat lebih dari 10 menit dinyatakan WO.",
+          "Keputusan wasit dan panitia bersifat mutlak dan tidak dapat diganggu gugat.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Sistem pertandingan menggunakan sistem gugur.",
+          "Pertandingan dimainkan dalam format ganda campuran.",
+          "Setiap pertandingan menggunakan 21 poin rally point.",
+          "Setiap pertandingan menggunakan best of 3 set.",
+          "Jika skor 20-20, berlaku deuce hingga selisih 2 poin.",
+          "Shuttlecock disediakan oleh panitia.",
+          "Peserta wajib menjaga kebersihan area pertandingan.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Undian pertandingan dilakukan saat technical meeting.",
+          "Pemanasan maksimal 3 menit sebelum pertandingan dimulai.",
+          "Pergantian lapangan dilakukan sesuai aturan badminton.",
+          "Jika terjadi cedera, pemain diberikan waktu istirahat maksimal 5 menit.",
+          "Tim atau pemain yang melakukan kecurangan akan didiskualifikasi.",
+          "Juara ditentukan berdasarkan hasil akhir pertandingan.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "juknis-mobile-legends",
+    competitionId: "mobile-legends",
+    title: "JUKNIS Lomba Mobile Legends",
+    shortName: "Mobile Legends",
+    status: "Published",
+    registrationStart: "30 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "30 Mei 2026 - 12 Juni 2026",
+    contacts: ["Adly: 0812-6218-2408", "Zalva: 0858-9029-7648"],
+    teamFormat: "5 pemain inti dan 1 cadangan",
+    format: "Sistem gugur BO1, BO3, dan BO5",
+    summary:
+      "Lomba Mobile Legends memakai sistem gugur dengan format BO1 sampai 8 besar, BO3 pada semifinal dan perebutan juara 3, serta BO5 pada final.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Pendaftaran dibuka pada tanggal 30 Mei 2026 sampai 12 Juni 2026.",
+          "Satu tim terdiri dari 1 kelas.",
+          "Setiap kelas harus mengirim anggota inti dan cadangan.",
+          "Pendaftaran dilakukan melalui penanggung jawab lomba.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Setiap kelas atau tim wajib mengirim 5 anggota tim inti dan 1 anggota tim cadangan.",
+          "Pemain inti dan cadangan yang bertanding harus sesuai dengan data yang dikirim ke penanggung jawab lomba.",
+          "Pemain dilarang keras menggunakan cheat atau perbuatan curang lain. Jika terbukti curang, tim langsung didiskualifikasi.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Dalam 1 game, masing-masing tim mendapat hak meminta pause game sebanyak 3 kali.",
+          "Pergantian pemain hanya diizinkan 1 kali dalam 1 match dan pemain pengganti harus sesuai data panitia.",
+          "Pemain dilarang melakukan chat all.",
+          "Taunting diizinkan selama tidak berlebihan seperti provokasi, berkata kasar, atau mengejek SARA.",
+          "Taunting berlebihan diberikan peringatan. Jika peringatan mencapai 3 kali, tim didiskualifikasi.",
+          "Keputusan panitia atau penanggung jawab perlombaan bersifat mutlak dan tidak dapat diganggu gugat.",
+          "Panitia berhak mengubah peraturan jika diperlukan dalam kondisi tertentu.",
+          "Pemain harus mempunyai akses internet sendiri karena panitia tidak menyediakan akses internet.",
+          "Pemain harus memastikan baterai handphone tidak lowbat saat digunakan bertanding.",
+          "Tim yang terlambat hadir diberikan waktu tambahan selama 2 menit.",
+          "Jika tim terlambat atau anggota belum lengkap sampai waktu yang ditentukan, kemenangan diberikan kepada lawan dengan sistem WO.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Aplikasi yang digunakan adalah Mobile Legends: Bang Bang.",
+          "Pertandingan dilaksanakan dengan sistem gugur: penyisihan, 8 besar, semifinal, perebutan juara 3, dan final.",
+          "Babak penyisihan sampai 8 besar menggunakan sistem BO1.",
+          "Babak semifinal dan perebutan juara 3 menggunakan sistem BO3.",
+          "Babak final menggunakan sistem BO5.",
+          "Pemenang adalah tim yang pertama kali menghancurkan base lawan.",
+          "Suporter yang menonton pertandingan wajib menjaga ketertiban, keamanan, dan kebersihan ruangan.",
+          "Suporter dari tim yang sedang bertanding lebih diprioritaskan.",
+          "MVP Final diberikan kepada satu pemain dari tim pemenang final yang menunjukkan performa luar biasa, tidak hanya dinilai dari skor.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "juknis-canvas-drawing",
+    competitionId: "canvas-drawing",
+    title: "JUKNIS Lomba Canvas Drawing",
+    shortName: "Canvas Drawing",
+    status: "Published",
+    registrationStart: "31 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "31 Mei 2026 - 12 Juni 2026",
+    contacts: ["Grace: +62 889-0587-5208", "Asyila: +62 877-8122-1080"],
+    teamFormat: "1 peserta per kelas",
+    format: "Penilaian karya",
+    summary:
+      "Lomba canvas drawing diikuti 1 perwakilan kelas dengan karya pada media talenan sesuai tema yang ditentukan panitia.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Pendaftaran dimulai dari tanggal 31 Mei 2026 sampai tanggal 12 Juni 2026.",
+          "Pendaftaran dapat melalui PJ lomba Canvas Drawing.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Tiap kelas wajib mengirimkan 1 perwakilan untuk mengikuti lomba canvas drawing.",
+          "Peserta wajib melukis menggunakan alat dan bahan pribadi berupa kuas, pensil, penghapus, dan cat akrilik.",
+          "Peserta tidak diperkenankan meminjam alat ke peserta lainnya.",
+          "Peserta wajib menggambar sesuai tema yang ditentukan panitia.",
+          "Peserta diperkenankan membawa sarung tangan atau celemek agar baju tidak terkena noda.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Peserta wajib hadir di ruang lomba, yaitu ruang 201 lantai 2.",
+          "Peserta wajib hadir maksimal 5 menit sebelum lomba dimulai.",
+          "Waktu melukis adalah 1 jam 30 menit.",
+          "Peserta wajib melukis di media canvas yang ditentukan panitia, yaitu talenan, sesuai tema melukis hal bernuansa maskot.",
+          "Peserta diperbolehkan menggambar sketsa terlebih dahulu menggunakan pensil.",
+          "Peserta wajib melukis menggunakan kuas dan cat akrilik.",
+          "Peserta tidak boleh meniru atau menjiplak karya milik orang lain.",
+          "Setiap peserta wajib memberikan pesan atau makna dari lukisan.",
+          "Hasil karya harus segera dikumpulkan ketika waktu habis dan tidak ada tambahan waktu.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Peserta memasuki ruang 201 dengan membawa peralatan lukis dan duduk sesuai tempat yang ditentukan PJ lomba.",
+          "Peserta tidak diperkenankan melihat referensi melalui Google maupun AI selama perlombaan berlangsung.",
+          "Peserta mulai melukis pada media talenan setelah diberi aba-aba oleh PJ lomba.",
+          "Setelah 1 jam 30 menit, peserta harus mengumpulkan hasil karya tanpa tambahan waktu.",
+        ],
+      },
+    ],
+    criteria: [
+      "Kesesuaian karya dengan tema yang ditentukan.",
+      "Kreativitas dan orisinalitas.",
+      "Teknik dan kerapihan.",
+      "Komposisi dan warna.",
+      "Pesan atau makna karya.",
+    ],
+  },
+  {
+    id: "juknis-solo-vokal",
+    competitionId: "solo-vokal",
+    title: "JUKNIS Lomba Solo Vokal",
+    shortName: "Solo Vokal",
+    status: "Published",
+    registrationStart: "31 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "31 Mei 2026 - 12 Juni 2026",
+    contacts: ["Farrizqi: 088212217103", "Chika: 0818-1818-2325"],
+    teamFormat: "1 peserta per kelas",
+    format: "Penilaian penampilan vokal",
+    summary:
+      "Lomba solo vokal diikuti 1 perwakilan kelas dengan 1 lagu pilihan dan penilaian vokal, teknik, interpretasi, serta penampilan.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Pendaftaran dimulai dari tanggal 31 Mei 2026 sampai tanggal 12 Juni 2026.",
+          "Pendaftaran dapat melalui PJ lomba Solo Vokal.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Setiap kelas wajib mengirimkan 1 orang perwakilan, putra atau putri.",
+          "Peserta wajib mendaftarkan diri kepada PJ dengan mencantumkan judul lagu yang akan dibawakan.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Peserta membawakan 1 lagu pilihan dengan genre bebas.",
+          "Lirik lagu tidak boleh mengandung unsur SARA atau kata-kata kasar.",
+          "Peserta diperbolehkan menggunakan instrumen sendiri seperti gitar atau keyboard.",
+          "Jika menggunakan backing track, file harus dikumpulkan kepada PJ maksimal H-3 lomba dalam format MP3.",
+          "Keputusan dewan juri bersifat mutlak dan tidak dapat diganggu gugat.",
+          "Jika menggunakan alat musik, peserta membawa alat teknis sendiri seperti kabel jack dan mixer.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Lomba diikuti oleh individu.",
+          "Peserta wajib hadir 15 sampai 20 menit sebelum lomba.",
+          "Durasi lagu minimal 3 menit sampai 4 menit 30 detik.",
+          "Urutan tampil ditentukan melalui undian.",
+          "Peserta yang tidak hadir setelah dipanggil 3 kali dianggap gugur.",
+        ],
+      },
+    ],
+    criteria: [
+      "Sistem nilai mulai 0 sampai 100.",
+      "Materi vokal meliputi karakter suara, kejernihan, power, pernapasan, vibrasi, dan artikulasi.",
+      "Teknik dan ketepatan meliputi ketepatan nada dan tempo dengan musik iringan.",
+      "Interpretasi lagu meliputi pendalaman lirik, ekspresi, dinamika, dan pemenggalan kalimat.",
+      "Penampilan meliputi kepercayaan diri, penguasaan panggung, interaksi penonton, kesesuaian kostum, dan kesopanan.",
+    ],
+  },
+  {
+    id: "juknis-best-news-card",
+    competitionId: "best-news-card",
+    title: "JUKNIS Lomba Best News Card",
+    shortName: "Best News Card",
+    status: "Published",
+    registrationStart: "30 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "30 Mei 2026 - 12 Juni 2026",
+    contacts: [
+      "Novita: 089606887132",
+      "Frazier: 087787655640",
+      "Stefani: 0813-8687-9922",
+      "Alif: 0815-1420-5591",
+    ],
+    teamFormat: "1 tim beranggotakan 5 orang per kelas",
+    format: "Karya news card dan caption berita",
+    summary:
+      "Best News Card adalah lomba media tim dengan karya square 1:1 dan caption berita yang relevan dari dokumentasi acara.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Pendaftaran dimulai pada tanggal 30 Mei 2026 sampai 12 Juni 2026.",
+          "Pendaftaran lomba dapat melalui penanggung jawab Media Team Competition.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Setiap kelas wajib mengirimkan 1 tim beranggotakan 5 orang sebagai perwakilan.",
+          "Peserta merupakan siswa atau siswi kelas X dan XI.",
+          "Peserta diperbolehkan terdiri dari laki-laki dan perempuan atau campuran.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Karya tidak mengandung unsur SARA, pornografi, atau politik.",
+          "Peserta dilarang menggunakan template instan.",
+          "Akun sosial media peserta merupakan public account, bukan private.",
+          "Keputusan dewan juri bersifat mutlak dan tidak dapat diganggu gugat.",
+          "Peserta tidak dapat digantikan setelah technical meeting berlangsung.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Selama 2 hari peserta diberikan akses untuk mengambil gambar saat acara berjalan.",
+          "Pada hari ke-3 peserta melakukan kegiatan pengeditan gambar dan pengumpulan karya.",
+          "Format postingan berbentuk square atau 1:1.",
+          "Postingan terdiri dari 1 slide gambar dan caption berita yang relevan di kolom deskripsi.",
+          "Caption memuat berita yang diangkat dari foto atau postingan yang diupload.",
+          "Pengumpulan karya dilakukan melalui akun sosial media salah satu peserta dalam tim dan Google Form dari penanggung jawab.",
+          "Karya desain dan caption harus buatan sendiri, bukan hasil plagiasi atau copy-paste dari media lain.",
+          "Akun sosial media peserta merupakan public account, bukan private.",
+          "Pengumpulan karya paling lambat tanggal 24 pukul 23.59 WIB.",
+        ],
+      },
+    ],
+    criteria: [
+      "Kreativitas desain, perpaduan warna, dan pemilihan font agar pesan mudah dibaca.",
+      "Kelengkapan informasi berita dan gaya bahasa caption yang menarik.",
+      "Kemampuan membuat judul yang kuat, padat, dan menarik perhatian di dalam desain.",
+      "Kesinambungan informasi antara gambar dan caption.",
+      "Like, komentar, dan share dapat menjadi pertimbangan juri dalam penilaian.",
+    ],
+  },
+  {
+    id: "juknis-best-news-video",
+    competitionId: "best-news-video",
+    title: "JUKNIS Lomba Best News Video",
+    shortName: "Best News Video",
+    status: "Published",
+    registrationStart: "30 Mei 2026",
+    registrationEnd: "12 Juni 2026",
+    registrationPeriod: "30 Mei 2026 - 12 Juni 2026",
+    contacts: [
+      "Novita: 089606887132",
+      "Frazier: 087787655640",
+      "Stefani: 0813-8687-9922",
+      "Alif: 0815-1420-5591",
+    ],
+    teamFormat: "1 tim beranggotakan 5 orang per kelas",
+    format: "Video berita rasio 9:16",
+    summary:
+      "Best News Video adalah lomba media tim untuk membuat video liputan acara dengan rasio wajib 9:16.",
+    sections: [
+      {
+        title: "Pendaftaran",
+        items: [
+          "Pendaftaran dimulai pada tanggal 30 Mei 2026 sampai 12 Juni 2026.",
+          "Pendaftaran lomba dapat melalui penanggung jawab Media Team Competition.",
+        ],
+      },
+      {
+        title: "Ketentuan Peserta",
+        items: [
+          "Setiap kelas wajib mengirimkan 1 tim beranggotakan 5 orang sebagai perwakilan.",
+          "Peserta merupakan siswa atau siswi kelas X dan XI.",
+          "Peserta diperbolehkan terdiri dari laki-laki dan perempuan atau campuran.",
+        ],
+      },
+      {
+        title: "Peraturan Lomba",
+        items: [
+          "Peserta harus standby ketika kelasnya sedang melaksanakan perlombaan.",
+          "Jika ada perlombaan yang berbarengan, peserta diperbolehkan memilih untuk meliput salah satunya.",
+          "Pengambilan video dilakukan di backdrop khusus konferensi pers.",
+          "Peserta boleh mengambil video saat lomba berlangsung.",
+          "Pengambilan video tidak boleh mengganggu pemain dan peserta lain.",
+          "Tidak ada durasi maksimal.",
+          "Rasio wajib 9:16.",
+          "Pada hari ke-3 peserta mulai mengedit dan mengumpulkan karya.",
+        ],
+      },
+      {
+        title: "Teknis Perlombaan",
+        items: [
+          "Pengambilan video dilakukan di backdrop khusus konferensi pers.",
+          "Peserta boleh mengambil video saat lomba berlangsung.",
+          "Pengambilan video tidak boleh mengganggu pemain dan peserta lain.",
+          "Pengumpulan karya paling lambat tanggal 24 pukul 23.59 WIB.",
+        ],
+      },
+    ],
+    criteria: ["Kehadiran peserta.", "Kreativitas.", "Penyajian."],
+  },
+]
+
+export const supporterGuidelines = [
+  "Seluruh penonton dan supporter wajib menjaga ketertiban dan keamanan selama kompetisi berlangsung.",
+  "Penonton dan supporter wajib berada di area penonton yang disediakan dan dilarang melewati batas area pertandingan.",
+  "Penonton dan supporter dilarang mengganggu jalannya pertandingan.",
+  "Penonton dan supporter wajib menjaga sikap dan tutur kata yang sopan.",
+  "Dilarang berkata kasar, mengejek, menghina, atau melakukan tindakan provokatif kepada tim atau kelas lain.",
+  "Dilarang membuat keributan, adu mulut, atau tindakan yang dapat memicu konflik antar supporter.",
+  "Penonton dan supporter diperbolehkan membawa atribut kelas selama tidak mengganggu pertandingan dan tidak membahayakan.",
+  "Penonton dan supporter wajib menjaga kebersihan area pertandingan dan dilarang membuang sampah sembarangan.",
+  "Penonton dan supporter wajib mematuhi arahan panitia dan keputusan wasit selama kompetisi berlangsung.",
+  "Apabila terdapat penonton atau supporter yang melanggar aturan, panitia akan memberikan teguran tegas.",
 ]
 
 export const landingStats = [
   { value: "2025/2026", label: "Anniversary" },
-  { value: "10", label: "Competition Categories" },
-  { value: "55+", label: "Committee Members" },
+  { value: "9", label: "Competition Categories" },
+  { value: "No Data Available", label: "Committee Members" },
 ]
 
 export const timeline: TimelineItem[] = [
@@ -696,175 +1299,13 @@ export const scheduleDays: ScheduleDay[] = [
   },
 ]
 
-export const initialLiveMatches: LiveMatch[] = [
-  {
-    id: "basket-xi-tkj-rpl",
-    sport: "Basket",
-    category: "Putra",
-    round: "Round of 16",
-    venue: "Lapangan A",
-    time: "13.00",
-    teamA: "XI TKJ 1",
-    teamB: "XI RPL 2",
-    scoreA: 45,
-    scoreB: 38,
-    status: "live",
-    clock: "Q3",
-  },
-  {
-    id: "futsal-x-tkr-tbsm",
-    sport: "Futsal",
-    category: "Putra",
-    round: "Round of 16",
-    venue: "Lapangan A",
-    time: "08.00",
-    teamA: "X TKR 1",
-    teamB: "X TBSM 2",
-    scoreA: 2,
-    scoreB: 1,
-    status: "live",
-    clock: "HT",
-  },
-  {
-    id: "volly-xi-mplb-akl",
-    sport: "Volly",
-    category: "Putri",
-    round: "Round of 16",
-    venue: "Lapangan B",
-    time: "10.00",
-    teamA: "XI MPLB 1",
-    teamB: "XI AKL 1",
-    scoreA: 24,
-    scoreB: 18,
-    status: "live",
-    clock: "Set 2",
-  },
-  {
-    id: "mlbb-xii-mm-dkv",
-    sport: "Mobile Legends",
-    category: "Open",
-    round: "Penyisihan",
-    venue: "Connecting Room",
-    time: "08.00",
-    teamA: "XII MM 1",
-    teamB: "XII DKV 1",
-    scoreA: 8,
-    scoreB: 5,
-    status: "live",
-    clock: "Game 1",
-  },
-  {
-    id: "badminton-final-demo",
-    sport: "Badminton",
-    category: "Ganda Putra",
-    round: "Final",
-    venue: "Lapangan B",
-    time: "07.15",
-    teamA: "R. Ardhian",
-    teamB: "M. Farrel",
-    scoreA: 21,
-    scoreB: 16,
-    status: "scheduled",
-    clock: "R16",
-  },
-]
+export const initialLiveMatches: LiveMatch[] = []
 
-export const tasks: TaskItem[] = [
-  {
-    id: "venue-check",
-    title: "Venue check - Lapangan Basket A",
-    division: "Div. Sarpras",
-    time: "09.12",
-    priority: "high",
-  },
-  {
-    id: "medical-futsal",
-    title: "Medical standby - Futsal",
-    division: "Div. Kesehatan",
-    time: "09.05",
-    priority: "medium",
-  },
-  {
-    id: "score-volly",
-    title: "Score input - Volly Putri",
-    division: "Div. Pertandingan",
-    time: "09.03",
-    priority: "done",
-  },
-  {
-    id: "broadcast-siang",
-    title: "Announcement - Jadwal Siang",
-    division: "Div. Humas",
-    time: "08.58",
-    priority: "pending",
-  },
-  {
-    id: "wasit-badminton",
-    title: "Perlengkapan wasit Badminton",
-    division: "Div. Perlengkapan",
-    time: "08.50",
-    priority: "medium",
-  },
-]
+export const tasks: TaskItem[] = []
 
-export const announcements: Announcement[] = [
-  {
-    id: "opening",
-    title: "Opening Ceremony",
-    body: "Peserta hadir di Lapangan Utama pukul 06.45 WIB dengan atribut kelas.",
-    time: "06.30",
-  },
-  {
-    id: "scoredesk",
-    title: "Score desk aktif",
-    body: "PJ lomba wajib mengirim hasil pertandingan maksimal 3 menit setelah selesai.",
-    time: "08.15",
-  },
-  {
-    id: "clean-zone",
-    title: "Zona bebas sampah",
-    body: "Operasi Semut dilakukan setelah sesi pertandingan siang.",
-    time: "14.40",
-  },
-]
+export const announcements: Announcement[] = []
 
-export const mediaItems: MediaItem[] = [
-  {
-    id: "live-basket",
-    title: "LIVE - Basket A",
-    type: "Live",
-    meta: "XI TKJ 1 vs XI RPL 2",
-    views: "256",
-  },
-  {
-    id: "live-futsal",
-    title: "LIVE - Futsal",
-    type: "Live",
-    meta: "X TKR 1 vs X TBSM 2",
-    views: "142",
-  },
-  {
-    id: "volly-day",
-    title: "Highlight Volly",
-    type: "Highlight",
-    meta: "Best plays day 1",
-    views: "1.2K",
-  },
-  {
-    id: "opening-gallery",
-    title: "Opening Gallery",
-    type: "Photo",
-    meta: "Ceremony set",
-    views: "86",
-  },
-  {
-    id: "mlbb-room",
-    title: "E-Sports Arena",
-    type: "Video",
-    meta: "Mobile Legends room",
-    views: "1.8K",
-  },
-]
+export const mediaItems: MediaItem[] = []
 
 export const committee = [
   { role: "Penanggung Jawab", names: ["Drs. Indah Sri W, M.P", "Arsudin, S.E", "Anggara Elsa Bakhtiar, S.Pd"] },

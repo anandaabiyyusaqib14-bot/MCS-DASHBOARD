@@ -1,13 +1,13 @@
 import type { Metadata } from "next"
 
-import { TournamentManagementScreen } from "@/components/dashboard/tournament-management-screen"
+import { CompetitionManagementCenter } from "@/components/dashboard/competition-management-center"
 
 export const metadata: Metadata = {
-  title: "Tournament Management - MCS 1",
+  title: "Competition Center - MCS 1",
   description:
-    "Match operations, live scoring, bracket progression, and tournament controls for Melati Championship Series 1.",
+    "Competition headquarters for registration, participants, brackets, judging, scoring, results, and reports for Melati Championship Series 1.",
 }
 
 export default function TournamentPage() {
-  return <TournamentManagementScreen />
+  return <CompetitionManagementCenter />
 }

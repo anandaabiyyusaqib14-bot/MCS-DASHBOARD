@@ -380,34 +380,26 @@ Scalability:
 
 Purpose: live match state, score, schedule linkage, status, and bracket progression.
 
-Example:
+Shape:
 
 ```ts
 matches/{matchId} = {
   tournamentId: "mcs-1",
-  competitionId: "futsal-putra",
-  bracketId: "bracket-futsal-putra",
-  scheduleId: "sched-001",
-  sportType: "futsal",
-  round: "quarter_final",
-  matchNumber: 7,
-  venue: "Lapangan Utama",
-  participantA: {
-    id: "team-x",
-    name: "XI TKJ 1",
-    seed: 2
-  },
-  participantB: {
-    id: "team-y",
-    name: "XI AKL 2",
-    seed: 7
-  },
+  competitionId: "official-competition-id",
+  bracketId: null,
+  scheduleId: null,
+  sportType: "official-competition-type",
+  round: "Data Not Published Yet",
+  matchNumber: null,
+  venue: "No Data Available",
+  participantA: null,
+  participantB: null,
   score: {
-    a: 2,
-    b: 1,
+    a: null,
+    b: null,
     sets: []
   },
-  status: "live",
+  status: "scheduled",
   winnerParticipantId: null,
   startsAt: Timestamp,
   endedAt: null,
@@ -610,7 +602,7 @@ Indexes:
 
 Scalability:
 
-- For 55+ panitia, member arrays are acceptable.
+- Use only real committee membership records supplied by the project owner.
 - If membership grows significantly, use `divisions/{divisionId}/members`.
 
 ### 8. `tasks`

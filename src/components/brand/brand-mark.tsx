@@ -11,13 +11,18 @@ type BrandMarkProps = {
 export function BrandMark({ compact = false, className }: BrandMarkProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div
-        className={cn(
-          "relative grid shrink-0 place-items-center overflow-hidden border border-[color:var(--mcs-gold)] bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset]",
-          compact ? "size-10 rounded-md" : "size-14 rounded-lg"
-        )}
-      >
-        <Image src={brandAssets[0].src} alt={brandAssets[0].name} fill sizes={compact ? "40px" : "56px"} className="object-contain p-1.5" />
+      <div className="flex shrink-0 items-center gap-1.5">
+        {brandAssets.map((asset) => (
+          <div
+            key={asset.name}
+            className={cn(
+              "relative grid place-items-center overflow-hidden rounded-md bg-white shadow-[0_10px_24px_rgba(0,0,0,0.22)]",
+              compact ? "size-9 p-1" : "size-11 p-1.5"
+            )}
+          >
+            <Image src={asset.src} alt={asset.name} fill sizes={compact ? "36px" : "44px"} className="object-contain p-1" />
+          </div>
+        ))}
       </div>
       <div className={cn("min-w-0", compact && "hidden sm:block")}>
         <p className="font-display text-3xl leading-none text-white">MCS 1</p>
