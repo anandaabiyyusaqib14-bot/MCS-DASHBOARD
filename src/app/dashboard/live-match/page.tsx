@@ -1,13 +1,18 @@
 import type { Metadata } from "next"
 
-import { LiveMatchScreen } from "@/components/dashboard/live-match-screen"
+import { DashboardModuleScreen } from "@/components/dashboard/internal-dashboard-screens"
+import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Live Match - MCS 1",
+  title: "Live Match Operations - MCS 1",
   description:
-    "Live championship scoreboard, match timeline, tournament progression, and match control panel for Melati Championship Series 1.",
+    "Operational live match view for Melati Championship Series 1.",
 }
 
-export default function LiveMatchPage() {
-  return <LiveMatchScreen />
+export const dynamic = "force-dynamic"
+
+export default async function LiveMatchPage() {
+  const { summary } = await getDashboardOverviewContext("/dashboard/live-match")
+
+  return <DashboardModuleScreen moduleKey="live-match" summary={summary} />
 }

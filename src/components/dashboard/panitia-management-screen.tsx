@@ -88,7 +88,7 @@ const sidebarGroups = [
   {
     label: "Operations",
     items: [
-      { label: "Panitia Management", icon: Users, href: "/dashboard/panitia", active: true },
+      { label: "Panitia Management", icon: Users, href: "/dashboard/panitia-management", active: true },
       { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
       { label: "Tournament", icon: Trophy, href: "/dashboard/tournament" },
       { label: "Live Match", icon: Radio, href: "/dashboard/live-match", badge: "Live" },
@@ -118,7 +118,7 @@ const mobileNavItems = [
   { label: "Dashboard", icon: Home, href: "/dashboard" },
   { label: "Tournament", icon: Trophy, href: "/dashboard/tournament" },
   { label: "Live", icon: Radio, href: "/dashboard/live-match" },
-  { label: "Panitia", icon: Users, href: "/dashboard/panitia", active: true },
+  { label: "Panitia", icon: Users, href: "/dashboard/panitia-management", active: true },
 ]
 
 const attendanceLabels: Record<AttendanceStatus, string> = {

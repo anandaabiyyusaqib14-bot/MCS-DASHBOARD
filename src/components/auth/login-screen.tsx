@@ -24,10 +24,17 @@ const authorizedRoles = [
   "Super Admin",
   "Ketua Pelaksana",
   "Wakil Ketua",
+  "Sekretaris",
+  "Bendahara",
+  "Acara",
   "PJ Lomba",
   "Humas",
   "Dokumentasi",
-  "Panitia",
+  "Kebersihan",
+  "Perlengkapan",
+  "Keamanan",
+  "Kewirausahaan",
+  "Operator",
 ]
 
 export function LoginScreen() {

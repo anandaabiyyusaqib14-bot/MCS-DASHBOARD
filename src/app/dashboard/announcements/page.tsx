@@ -1,13 +1,18 @@
 import type { Metadata } from "next"
 
-import { AnnouncementBroadcastScreen } from "@/components/dashboard/announcement-broadcast-screen"
+import { DashboardModuleScreen } from "@/components/dashboard/internal-dashboard-screens"
+import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Announcements & Broadcast - MCS 1",
+  title: "Announcement Center - MCS 1",
   description:
-    "Event communication command center, broadcast composer, delivery analytics, and announcement timeline for Melati Championship Series 1.",
+    "Internal announcement center for Melati Championship Series 1.",
 }
 
-export default function AnnouncementsPage() {
-  return <AnnouncementBroadcastScreen />
+export const dynamic = "force-dynamic"
+
+export default async function AnnouncementsPage() {
+  const { summary } = await getDashboardOverviewContext("/dashboard/announcements")
+
+  return <DashboardModuleScreen moduleKey="announcement-center" summary={summary} />
 }

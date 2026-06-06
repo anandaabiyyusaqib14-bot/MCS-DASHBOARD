@@ -1,0 +1,18 @@
+
+> mcs-dashboard@0.1.0 dev
+> next dev --port 3000
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.13:3000
+✓ Ready in 2.3s
+Creating turbopack project { dir: 'D:\\MCS DASHBOARD', testMode: true }
+
+○ Compiling / ...
+ GET / 200 in 7.4s (next.js: 5.3s, application-code: 2.1s)
+ GET / 200 in 7.4s (next.js: 5.5s, application-code: 1928ms)
+ POST /api/mcs/auth/login 200 in 3.8s (next.js: 1484ms, application-code: 2.4s)
+ GET /api/mcs/issues 200 in 275ms (next.js: 264ms, application-code: 11ms)
+ GET /api/mcs/handoffs 200 in 517ms (next.js: 508ms, application-code: 9ms)
+ GET /dashboard/issues 200 in 1319ms (next.js: 65ms, proxy.ts: 651ms, application-code: 602ms)
+✓ Finished filesystem cache database compaction in 49s

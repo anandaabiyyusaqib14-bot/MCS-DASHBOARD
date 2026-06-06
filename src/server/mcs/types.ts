@@ -5,10 +5,17 @@ export const userRoles = [
   "super_admin",
   "ketua_pelaksana",
   "wakil_ketua",
+  "sekretaris",
+  "bendahara",
+  "acara",
   "pj_lomba",
   "humas",
   "dokumentasi",
-  "panitia",
+  "kebersihan",
+  "perlengkapan",
+  "keamanan",
+  "kewirausahaan",
+  "operator",
 ] as const
 
 export type UserRole = (typeof userRoles)[number]
@@ -17,10 +24,17 @@ export const roleLabels: Record<UserRole, string> = {
   super_admin: "Super Admin",
   ketua_pelaksana: "Ketua Pelaksana",
   wakil_ketua: "Wakil Ketua",
+  sekretaris: "Sekretaris",
+  bendahara: "Bendahara",
+  acara: "Acara",
   pj_lomba: "PJ Lomba",
   humas: "Humas",
   dokumentasi: "Dokumentasi",
-  panitia: "Panitia",
+  kebersihan: "Kebersihan",
+  perlengkapan: "Perlengkapan",
+  keamanan: "Keamanan",
+  kewirausahaan: "Kewirausahaan",
+  operator: "Operator",
 }
 
 export const permissionKeys = [
@@ -35,6 +49,11 @@ export const permissionKeys = [
   "competitions.update",
   "competitions.delete",
   "competitions.status.update",
+  "participants.read",
+  "participants.create",
+  "participants.update",
+  "participants.delete",
+  "participants.verify",
   "scores.update",
   "schedules.read",
   "schedules.create",
@@ -46,22 +65,49 @@ export const permissionKeys = [
   "announcements.delete",
   "announcements.approve",
   "announcements.publish",
+  "publications.read",
+  "publications.update",
   "media.read",
   "media.upload",
   "media.update",
   "media.delete",
   "media.approve",
+  "documents.read",
+  "documents.update",
+  "finances.read",
+  "finances.update",
   "committees.read",
   "committees.update",
   "tasks.read",
   "tasks.create",
   "tasks.update",
   "tasks.assign",
+  "issues.read",
+  "issues.create",
+  "issues.update",
+  "issues.assign",
+  "issues.resolve",
+  "issues.close",
+  "issues.escalate",
+  "handoffs.read",
+  "handoffs.create",
+  "handoffs.update",
+  "handoffs.accept",
+  "handoffs.block",
+  "handoffs.complete",
+  "venues.read",
+  "venues.update",
+  "event_day.read",
   "analytics.read",
   "reports.read",
   "event_operations.read",
   "event_operations.update",
+  "division_status.read",
+  "technical_operations.read",
+  "technical_operations.update",
   "audit.read",
+  "settings.read",
+  "settings.update",
   "notifications.read",
   "notifications.update",
   "notifications.send",
@@ -73,11 +119,19 @@ export type MenuKey =
   | "dashboard"
   | "users"
   | "competitions"
+  | "participants"
   | "schedules"
   | "announcements"
+  | "publications"
   | "media"
+  | "documents"
+  | "finances"
   | "committees"
   | "tasks"
+  | "issues"
+  | "handoffs"
+  | "venues"
+  | "event-day"
   | "analytics"
   | "audit"
   | "settings"
@@ -261,6 +315,121 @@ export type TaskRecord = {
   updatedAt: string
 }
 
+export type IssueSeverity = "Rendah" | "Sedang" | "Tinggi" | "Kritis"
+export type IssueStatus = "Terbuka" | "Ditugaskan" | "Diproses" | "Selesai" | "Ditutup"
+export type IssueCategory =
+  | "Venue"
+  | "Jadwal"
+  | "Perlengkapan"
+  | "Keamanan"
+  | "Peserta"
+  | "Media"
+  | "Pengumuman"
+  | "Lainnya"
+
+export type IssueEvidenceRecord = {
+  id: string
+  tournamentId: string
+  issueId: string
+  title: string
+  type: "image" | "video" | "document" | "note"
+  url?: string
+  notes?: string
+  uploadedBy: string
+  createdAt: string
+}
+
+export type IssueRecord = {
+  id: string
+  tournamentId: string
+  issueCode: string
+  title: string
+  description: string
+  category: IssueCategory
+  severity: IssueSeverity
+  venue?: string
+  reportedBy: string
+  reportedByName: string
+  assignedToUserId?: string
+  assignedToName?: string
+  assignedDivisionId?: string
+  assignedDivisionName?: string
+  deadline: string
+  status: IssueStatus
+  evidence: IssueEvidenceRecord[]
+  resolutionNotes?: string
+  escalatedAt?: string
+  resolvedAt?: string
+  closedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type IssueHistoryRecord = {
+  id: string
+  tournamentId: string
+  issueId: string
+  actorId: string
+  actorName: string
+  action: string
+  fromStatus?: IssueStatus
+  toStatus?: IssueStatus
+  notes?: string
+  createdAt: string
+}
+
+export type HandoffStatus = "Menunggu" | "Diterima" | "Terblokir" | "Selesai"
+
+export type DivisionHandoffRecord = {
+  id: string
+  tournamentId: string
+  activity: string
+  sourceDivisionId: string
+  sourceDivisionName: string
+  targetDivisionId: string
+  targetDivisionName: string
+  status: HandoffStatus
+  ownerUserId?: string
+  ownerName: string
+  deadline: string
+  notes?: string
+  linkedIssueId?: string
+  createdBy: string
+  acceptedAt?: string
+  blockedAt?: string
+  completedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type HandoffHistoryRecord = {
+  id: string
+  tournamentId: string
+  handoffId: string
+  actorId: string
+  actorName: string
+  action: string
+  fromStatus?: HandoffStatus
+  toStatus?: HandoffStatus
+  notes?: string
+  createdAt: string
+}
+
+export type VenueStatus = "Siap" | "Perlu Dicek" | "Terblokir" | "Ditutup" | "Menunggu Update"
+
+export type VenueStatusRecord = {
+  id: string
+  tournamentId: string
+  venue: string
+  status: VenueStatus
+  currentActivityId?: string
+  nextActivityId?: string
+  ownerDivisionId?: string
+  ownerName?: string
+  blockerIssueId?: string
+  lastUpdate: string
+}
+
 export type AuditLogRecord = {
   id: string
   tournamentId: string
@@ -279,6 +448,18 @@ export type NotificationType =
   | "schedule_update"
   | "score_update"
   | "task_assignment"
+  | "issue_created"
+  | "issue_assigned"
+  | "issue_escalated"
+  | "issue_resolved"
+  | "handoff_requested"
+  | "handoff_blocked"
+  | "handoff_completed"
+  | "venue_updated"
+  | "task_completed"
+  | "approval_requested"
+  | "announcement_published"
+  | "media_uploaded"
   | "system"
 
 export type NotificationRecord = {
@@ -318,9 +499,16 @@ export type DashboardSummary = {
     activeCompetitions: number
     liveMatches: number
     totalCompetitions: number
+    totalParticipants: number
     totalPanitia: number
+    presentPanitia: number
+    absentPanitia: number
+    onDutyPanitia: number
+    pendingTasks: number
+    activeDivisions: number
     attendanceRate: number
     eventProgress: number
+    mediaUploaded: number
     pendingAnnouncements: number
     unreadNotifications: number
   }
@@ -329,5 +517,27 @@ export type DashboardSummary = {
   announcements: AnnouncementRecord[]
   committeeStatus: CommitteeDivision[]
   liveMatches: MatchRecord[]
+  upcomingTasks: TaskRecord[]
+  activeIssues: IssueRecord[]
+  divisionHandoffs: DivisionHandoffRecord[]
+  venueStatuses: VenueStatusRecord[]
   auditPreview: AuditLogRecord[]
+}
+
+export type EventDaySummary = {
+  currentActivity: ScheduleRecord | MatchRecord | null
+  nextActivity: ScheduleRecord | null
+  activeIssues: IssueRecord[]
+  blockedHandoffs: DivisionHandoffRecord[]
+  pendingApprovals: AnnouncementRecord[]
+  venueStatuses: VenueStatusRecord[]
+  urgentNotifications: NotificationRecord[]
+  upcomingDeadlines: Array<{
+    id: string
+    type: "kendala" | "tugas" | "handoff" | "jadwal"
+    title: string
+    owner: string
+    deadline: string
+    href: string
+  }>
 }

@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
 import { createId, createSignedSessionToken, hashPassword, hashToken, verifyPassword, verifySignedSessionToken } from "./password"
 import { can, getAllowedMenus, getRolePermissions, rolePermissions } from "./permissions"
-import { getMcsRepository, toUserDTO } from "./repository"
+import { getMcsRepository, persistMcsRepository, toUserDTO } from "./repository"
 import {
   MCS_TOURNAMENT_ID,
   SESSION_COOKIE_NAME,
@@ -15,6 +15,16 @@ import {
   type CompetitionRecord,
   type CompetitionStatus,
   type DashboardSummary,
+  type DivisionHandoffRecord,
+  type EventDaySummary,
+  type HandoffHistoryRecord,
+  type HandoffStatus,
+  type IssueCategory,
+  type IssueEvidenceRecord,
+  type IssueHistoryRecord,
+  type IssueRecord,
+  type IssueSeverity,
+  type IssueStatus,
   type MatchRecord,
   type MatchStatus,
   type MediaRecord,
@@ -27,6 +37,8 @@ import {
   type TaskStatus,
   type UserAccount,
   type UserRole,
+  type VenueStatus,
+  type VenueStatusRecord,
 } from "./types"
 
 type JsonObject = Record<string, unknown>
@@ -42,6 +54,50 @@ const officialCompetitionIds = new Set([
   "best-news-card",
   "best-news-video",
 ])
+
+const scheduleNotificationRoles: UserRole[] = [
+  "ketua_pelaksana",
+  "wakil_ketua",
+  "pj_lomba",
+  "acara",
+  "kebersihan",
+  "perlengkapan",
+  "keamanan",
+  "operator",
+]
+
+const defaultAnnouncementAudience: UserRole[] = [
+  "super_admin",
+  "ketua_pelaksana",
+  "wakil_ketua",
+  "sekretaris",
+  "bendahara",
+  "acara",
+  "pj_lomba",
+  "humas",
+  "dokumentasi",
+  "kebersihan",
+  "perlengkapan",
+  "keamanan",
+  "kewirausahaan",
+  "operator",
+]
+
+const executiveRoles: UserRole[] = ["super_admin", "ketua_pelaksana", "wakil_ketua"]
+
+const divisionRoleMap: Record<string, UserRole> = {
+  acara: "acara",
+  bendahara: "bendahara",
+  dokumentasi: "dokumentasi",
+  humas: "humas",
+  keamanan: "keamanan",
+  kebersihan: "kebersihan",
+  kewirausahaan: "kewirausahaan",
+  operator: "operator",
+  perlengkapan: "perlengkapan",
+  "pj-lomba": "pj_lomba",
+  sekretaris: "sekretaris",
+}
 
 export class McsError extends Error {
   status: number
@@ -133,6 +189,65 @@ export function getAuthContext(request: NextRequest): AuthContext {
   }
 }
 
+export function getAuthContextFromSessionToken(sessionToken?: string, opts?: { ipAddress?: string; userAgent?: string }): AuthContext {
+  const repo = getMcsRepository()
+
+  if (!sessionToken) {
+    throw new McsError(401, "unauthenticated", "Authentication is required.")
+  }
+
+  const tokenHash = hashToken(sessionToken)
+  let session = repo.sessions.get(tokenHash)
+
+  if (!session) {
+    const signedPayload = verifySignedSessionToken(sessionToken)
+
+    if (!signedPayload) {
+      throw new McsError(401, "invalid_session", "Session is invalid or expired.")
+    }
+
+    if (signedPayload.exp <= Math.floor(Date.now() / 1000)) {
+      throw new McsError(401, "expired_session", "Session has expired.")
+    }
+
+    session = {
+      id: signedPayload.sessionId,
+      tokenHash,
+      userId: signedPayload.userId,
+      createdAt: new Date(signedPayload.iat * 1000).toISOString(),
+      lastSeenAt: new Date().toISOString(),
+      expiresAt: new Date(signedPayload.exp * 1000).toISOString(),
+      ipAddress: opts?.ipAddress,
+      userAgent: opts?.userAgent,
+    }
+
+    repo.sessions.set(tokenHash, session)
+  }
+
+  if (Date.parse(session.expiresAt) <= Date.now()) {
+    repo.sessions.delete(tokenHash)
+    throw new McsError(401, "expired_session", "Session has expired.")
+  }
+
+  const user = repo.users.get(session.userId)
+
+  if (!user || user.status !== "active") {
+    repo.sessions.delete(tokenHash)
+    throw new McsError(401, "inactive_user", "User is not active.")
+  }
+
+  const now = new Date().toISOString()
+  session.lastSeenAt = now
+  user.lastActiveAt = now
+  user.updatedAt = now
+
+  return {
+    user: toUserDTO(user),
+    session,
+    permissions: getRolePermissions(user.role),
+  }
+}
+
 export function logoutRequest(request: NextRequest) {
   const repo = getMcsRepository()
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value
@@ -156,7 +271,7 @@ export function logoutRequest(request: NextRequest) {
 }
 
 export function login(input: JsonObject, request: NextRequest): LoginResult {
-  const email = getRequiredString(input, "email").toLowerCase()
+  const email = getRequiredString(input, "email").trim().toLowerCase()
   const password = getRequiredString(input, "password")
   const rememberMe = Boolean(input.rememberMe)
   const repo = getMcsRepository()
@@ -239,13 +354,31 @@ export function getDashboard(auth: AuthContext): DashboardSummary {
   const schedules = [...repo.schedules.values()]
   const announcements = visibleAnnouncements(auth, [...repo.announcements.values()])
   const committees = [...repo.committees.values()]
+  const mediaUploaded = auth.permissions.includes("media.read")
+    ? [...repo.media.values()].filter((item) => {
+        if (auth.user.role === "dokumentasi") return true
+        if (["super_admin", "ketua_pelaksana", "wakil_ketua"].includes(auth.user.role)) return true
+        return item.approvalStatus === "approved"
+      }).length
+    : 0
+  const visibleTasks = [...repo.tasks.values()].filter((task) => canAccessTask(auth, task))
+  const upcomingTasks = visibleTasks.filter((task) => task.status !== "Completed").slice(0, 5)
+  const activeIssues = visibleIssues(auth, [...repo.issues.values()])
+    .filter((issue) => issue.status !== "Ditutup")
+    .sort(sortIssuesByUrgency)
+  const divisionHandoffs = visibleHandoffs(auth, [...repo.handoffs.values()])
+    .filter((handoff) => handoff.status !== "Selesai")
+    .sort((first, second) => Date.parse(first.deadline) - Date.parse(second.deadline))
   const unreadNotifications = listNotifications(auth).filter((notification) => notification.status === "unread").length
   const activeCompetitions = competitions.filter((competition) => competition.status === "active")
   const eventProgress = Math.round(
     competitions.reduce((total, competition) => total + competition.progress, 0) / Math.max(competitions.length, 1)
   )
   const totalPresent = committees.reduce((total, division) => total + division.present, 0)
+  const totalAbsent = committees.reduce((total, division) => total + division.absent, 0)
+  const totalLate = committees.reduce((total, division) => total + division.late, 0)
   const totalMembers = committees.reduce((total, division) => total + division.members, 0)
+  const totalParticipants = competitions.reduce((total, competition) => total + competition.participantCount, 0)
 
   return {
     event: {
@@ -263,9 +396,16 @@ export function getDashboard(auth: AuthContext): DashboardSummary {
       activeCompetitions: activeCompetitions.length,
       liveMatches: matches.filter((match) => match.status === "live").length,
       totalCompetitions: competitions.length,
+      totalParticipants,
       totalPanitia: totalMembers,
+      presentPanitia: totalPresent,
+      absentPanitia: totalAbsent,
+      onDutyPanitia: totalPresent + totalLate,
+      pendingTasks: upcomingTasks.length,
+      activeDivisions: committees.filter((division) => division.members > 0).length,
       attendanceRate: Math.round((totalPresent / Math.max(totalMembers, 1)) * 100),
       eventProgress,
+      mediaUploaded,
       pendingAnnouncements: announcements.filter((announcement) => announcement.status === "pending_approval").length,
       unreadNotifications,
     },
@@ -274,6 +414,10 @@ export function getDashboard(auth: AuthContext): DashboardSummary {
     announcements: announcements.slice(0, 5),
     committeeStatus: committees,
     liveMatches: matches.filter((match) => ["live", "paused", "check_in"].includes(match.status)),
+    upcomingTasks,
+    activeIssues: activeIssues.slice(0, 8),
+    divisionHandoffs: divisionHandoffs.slice(0, 8),
+    venueStatuses: [...repo.venueStatuses.values()],
     auditPreview: listAuditLogs(auth).slice(0, 8),
   }
 }
@@ -459,7 +603,7 @@ export function createSchedule(auth: AuthContext, input: JsonObject) {
 
   getMcsRepository().schedules.set(record.id, record)
   writeAudit(auth.user, "schedules.create", "schedules", record.id)
-  createRoleNotifications(["ketua_pelaksana", "wakil_ketua", "pj_lomba", "panitia"], {
+  createRoleNotifications(scheduleNotificationRoles, {
     type: "schedule_update",
     title: "New schedule added",
     body: `${record.title} has been added to the MCS 1 schedule.`,
@@ -488,7 +632,7 @@ export function updateSchedule(auth: AuthContext, id: string, input: JsonObject)
     status: schedule.status,
     time: schedule.time,
   })
-  createRoleNotifications(["ketua_pelaksana", "wakil_ketua", "pj_lomba", "panitia"], {
+  createRoleNotifications(scheduleNotificationRoles, {
     type: "schedule_update",
     title: "Schedule updated",
     body: `${schedule.title} is now ${schedule.status} at ${schedule.time}.`,
@@ -566,7 +710,7 @@ export function createAnnouncement(auth: AuthContext, input: JsonObject) {
     title: getRequiredString(input, "title"),
     body: getRequiredString(input, "body"),
     priority,
-    audience: audience.length > 0 ? audience : ["super_admin", "ketua_pelaksana", "wakil_ketua", "pj_lomba", "panitia"],
+    audience: audience.length > 0 ? audience : defaultAnnouncementAudience,
     visibility: input.visibility === "public" ? "public" : "internal",
     status,
     createdBy: auth.user.id,
@@ -849,6 +993,365 @@ export function updateTask(auth: AuthContext, id: string, input: JsonObject) {
   return task
 }
 
+export function listIssues(auth: AuthContext): IssueRecord[] {
+  assertAllowed(auth, "issues.read")
+  return visibleIssues(auth, [...getMcsRepository().issues.values()]).sort(sortIssuesByUrgency)
+}
+
+export function getIssue(auth: AuthContext, id: string) {
+  assertAllowed(auth, "issues.read")
+  const issue = mustFind(getMcsRepository().issues, id, "issue")
+
+  if (!canAccessIssue(auth, issue)) {
+    throw new McsError(403, "issue_scope_forbidden", "You can only access issues connected to your role or division.")
+  }
+
+  return {
+    issue,
+    history: getMcsRepository().issueHistory
+      .filter((entry) => entry.issueId === id)
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)),
+  }
+}
+
+export function createIssue(auth: AuthContext, input: JsonObject) {
+  assertAllowed(auth, "issues.create")
+  const record = createIssueRecord(auth, input)
+
+  notifyIssueCreated(record)
+  return record
+}
+
+export function updateIssue(auth: AuthContext, id: string, input: JsonObject) {
+  const repo = getMcsRepository()
+  const issue = mustFind(repo.issues, id, "issue")
+
+  if (!canAccessIssue(auth, issue)) {
+    throw new McsError(403, "issue_scope_forbidden", "You can only update issues connected to your role or division.")
+  }
+
+  const nextStatus = getIssueStatus(input.status)
+
+  if (nextStatus === "Selesai") {
+    assertAllowed(auth, "issues.resolve")
+  } else if (nextStatus === "Ditutup") {
+    assertAllowed(auth, "issues.close")
+  } else {
+    assertAllowed(auth, "issues.update")
+  }
+
+  const changesAssignment = Boolean(input.assignedToUserId || input.assignedDivisionId)
+  if (changesAssignment) {
+    assertAllowed(auth, "issues.assign")
+  }
+
+  const previousStatus = issue.status
+  issue.title = getOptionalString(input.title) ?? issue.title
+  issue.description = getOptionalString(input.description) ?? issue.description
+  issue.category = getIssueCategory(input.category) ?? issue.category
+  issue.severity = getIssueSeverity(input.severity) ?? issue.severity
+  issue.venue = getOptionalString(input.venue) ?? issue.venue
+  issue.deadline = getOptionalString(input.deadline) ?? issue.deadline
+  issue.resolutionNotes = getOptionalString(input.resolutionNotes) ?? issue.resolutionNotes
+
+  const nextAssignedTo = getOptionalString(input.assignedToUserId)
+  if (nextAssignedTo) {
+    const user = repo.users.get(nextAssignedTo)
+    issue.assignedToUserId = nextAssignedTo
+    issue.assignedToName = user?.displayName ?? issue.assignedToName
+  }
+
+  const nextDivisionId = getOptionalString(input.assignedDivisionId)
+  if (nextDivisionId) {
+    const division = repo.committees.get(nextDivisionId)
+    issue.assignedDivisionId = nextDivisionId
+    issue.assignedDivisionName = division?.name ?? nextDivisionId
+  }
+
+  if (nextStatus) {
+    issue.status = nextStatus
+    issue.resolvedAt = nextStatus === "Selesai" ? new Date().toISOString() : issue.resolvedAt
+    issue.closedAt = nextStatus === "Ditutup" ? new Date().toISOString() : issue.closedAt
+  }
+
+  issue.updatedAt = new Date().toISOString()
+
+  if (previousStatus !== issue.status) {
+    writeIssueHistory(auth, issue, "status.updated", previousStatus, issue.status, getOptionalString(input.notes))
+  } else {
+    writeIssueHistory(auth, issue, "issue.updated", undefined, undefined, getOptionalString(input.notes))
+  }
+
+  writeAudit(auth.user, "issues.update", "issues", issue.id, {
+    status: issue.status,
+    severity: issue.severity,
+  })
+
+  if (issue.status === "Selesai") {
+    createRoleNotifications(executiveRoles, {
+      type: "issue_resolved",
+      title: "Kendala selesai",
+      body: `${issue.issueCode} - ${issue.title}`,
+      resource: "issues",
+      resourceId: issue.id,
+    })
+  }
+
+  if (changesAssignment) {
+    notifyIssueAssignment(issue)
+  }
+
+  return issue
+}
+
+export function addIssueEvidence(auth: AuthContext, id: string, input: JsonObject) {
+  assertAllowed(auth, "issues.update")
+  const repo = getMcsRepository()
+  const issue = mustFind(repo.issues, id, "issue")
+
+  if (!canAccessIssue(auth, issue)) {
+    throw new McsError(403, "issue_scope_forbidden", "You can only update issues connected to your role or division.")
+  }
+
+  const now = new Date().toISOString()
+  const evidence: IssueEvidenceRecord = {
+    id: createId("issue_evidence"),
+    tournamentId: MCS_TOURNAMENT_ID,
+    issueId: issue.id,
+    title: getRequiredString(input, "title"),
+    type: getIssueEvidenceType(input.type),
+    url: getOptionalString(input.url),
+    notes: getOptionalString(input.notes),
+    uploadedBy: auth.user.id,
+    createdAt: now,
+  }
+
+  repo.issueEvidence.set(evidence.id, evidence)
+  issue.evidence = [...issue.evidence, evidence]
+  issue.updatedAt = now
+  writeIssueHistory(auth, issue, "evidence.added", undefined, undefined, evidence.title)
+  writeAudit(auth.user, "issues.evidence.add", "issues", issue.id, { evidenceId: evidence.id })
+
+  return evidence
+}
+
+export function escalateIssue(auth: AuthContext, id: string, input: JsonObject) {
+  assertAllowed(auth, "issues.escalate")
+  const issue = mustFind(getMcsRepository().issues, id, "issue")
+  issue.escalatedAt = new Date().toISOString()
+  issue.updatedAt = issue.escalatedAt
+  writeIssueHistory(auth, issue, "issue.escalated", issue.status, issue.status, getOptionalString(input.notes))
+  writeAudit(auth.user, "issues.escalate", "issues", issue.id, { severity: issue.severity })
+  createRoleNotifications(executiveRoles, {
+    type: "issue_escalated",
+    title: "Kendala dieskalasikan",
+    body: `${issue.issueCode} - ${issue.title}`,
+    resource: "issues",
+    resourceId: issue.id,
+  })
+
+  return issue
+}
+
+export function listHandoffs(auth: AuthContext): DivisionHandoffRecord[] {
+  assertAllowed(auth, "handoffs.read")
+  return visibleHandoffs(auth, [...getMcsRepository().handoffs.values()]).sort(
+    (first, second) => Date.parse(first.deadline) - Date.parse(second.deadline)
+  )
+}
+
+export function getHandoff(auth: AuthContext, id: string) {
+  assertAllowed(auth, "handoffs.read")
+  const handoff = mustFind(getMcsRepository().handoffs, id, "handoff")
+
+  if (!canAccessHandoff(auth, handoff)) {
+    throw new McsError(403, "handoff_scope_forbidden", "You can only access handoffs connected to your role or division.")
+  }
+
+  return {
+    handoff,
+    history: getMcsRepository().handoffHistory
+      .filter((entry) => entry.handoffId === id)
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)),
+  }
+}
+
+export function createHandoff(auth: AuthContext, input: JsonObject) {
+  assertAllowed(auth, "handoffs.create")
+  const repo = getMcsRepository()
+  const now = new Date().toISOString()
+  const sourceDivisionId = getOptionalString(input.sourceDivisionId) ?? auth.user.divisionIds[0] ?? "event_operations"
+  const targetDivisionId = getRequiredString(input, "targetDivisionId")
+  const sourceDivision = repo.committees.get(sourceDivisionId)
+  const targetDivision = repo.committees.get(targetDivisionId)
+  const ownerUserId = getOptionalString(input.ownerUserId)
+  const owner = ownerUserId ? repo.users.get(ownerUserId) : undefined
+  const handoff: DivisionHandoffRecord = {
+    id: createId("handoff"),
+    tournamentId: MCS_TOURNAMENT_ID,
+    activity: getRequiredString(input, "activity"),
+    sourceDivisionId,
+    sourceDivisionName: sourceDivision?.name ?? sourceDivisionId,
+    targetDivisionId,
+    targetDivisionName: targetDivision?.name ?? targetDivisionId,
+    status: "Menunggu",
+    ownerUserId,
+    ownerName: owner?.displayName ?? getOptionalString(input.ownerName) ?? targetDivision?.coordinator ?? "PIC belum ditentukan",
+    deadline: getRequiredString(input, "deadline"),
+    notes: getOptionalString(input.notes),
+    createdBy: auth.user.id,
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  repo.handoffs.set(handoff.id, handoff)
+  writeHandoffHistory(auth, handoff, "handoff.created", undefined, handoff.status, handoff.notes)
+  writeAudit(auth.user, "handoffs.create", "handoffs", handoff.id, {
+    targetDivisionId: handoff.targetDivisionId,
+  })
+  notifyHandoff(handoff, "handoff_requested", "Handoff divisi baru")
+
+  return handoff
+}
+
+export function updateHandoff(auth: AuthContext, id: string, input: JsonObject) {
+  assertAllowed(auth, "handoffs.update")
+  const repo = getMcsRepository()
+  const handoff = mustFind(repo.handoffs, id, "handoff")
+
+  if (!canAccessHandoff(auth, handoff)) {
+    throw new McsError(403, "handoff_scope_forbidden", "You can only update handoffs connected to your role or division.")
+  }
+
+  handoff.activity = getOptionalString(input.activity) ?? handoff.activity
+  handoff.ownerName = getOptionalString(input.ownerName) ?? handoff.ownerName
+  handoff.deadline = getOptionalString(input.deadline) ?? handoff.deadline
+  handoff.notes = getOptionalString(input.notes) ?? handoff.notes
+  handoff.updatedAt = new Date().toISOString()
+  writeHandoffHistory(auth, handoff, "handoff.updated", undefined, undefined, getOptionalString(input.notes))
+  writeAudit(auth.user, "handoffs.update", "handoffs", handoff.id, { status: handoff.status })
+
+  return handoff
+}
+
+export function acceptHandoff(auth: AuthContext, id: string, input: JsonObject = {}) {
+  assertAllowed(auth, "handoffs.accept")
+  return transitionHandoff(auth, id, "Diterima", "handoff.accepted", getOptionalString(input.notes))
+}
+
+export function completeHandoff(auth: AuthContext, id: string, input: JsonObject = {}) {
+  assertAllowed(auth, "handoffs.complete")
+  const handoff = transitionHandoff(auth, id, "Selesai", "handoff.completed", getOptionalString(input.notes))
+  notifyHandoff(handoff, "handoff_completed", "Handoff selesai")
+
+  return handoff
+}
+
+export function blockHandoff(auth: AuthContext, id: string, input: JsonObject = {}) {
+  assertAllowed(auth, "handoffs.block")
+  const handoff = transitionHandoff(auth, id, "Terblokir", "handoff.blocked", getOptionalString(input.notes))
+
+  if (!handoff.linkedIssueId) {
+    const linkedIssue = createIssueRecord(auth, {
+      assignedDivisionId: handoff.sourceDivisionId,
+      category: "Lainnya",
+      deadline: handoff.deadline,
+      description: getOptionalString(input.notes) ?? `Handoff ke ${handoff.targetDivisionName} terblokir dan perlu tindak lanjut.`,
+      severity: "Tinggi",
+      status: "Ditugaskan",
+      title: `Handoff terblokir: ${handoff.activity}`,
+    })
+    handoff.linkedIssueId = linkedIssue.id
+    handoff.updatedAt = new Date().toISOString()
+    notifyIssueCreated(linkedIssue)
+  }
+
+  notifyHandoff(handoff, "handoff_blocked", "Handoff terblokir")
+  return handoff
+}
+
+export function listVenueStatuses(auth: AuthContext): VenueStatusRecord[] {
+  assertAllowed(auth, "venues.read")
+  return [...getMcsRepository().venueStatuses.values()].sort((first, second) => first.venue.localeCompare(second.venue))
+}
+
+export function updateVenueStatus(auth: AuthContext, id: string, input: JsonObject) {
+  assertAllowed(auth, "venues.update")
+  const venue = mustFind(getMcsRepository().venueStatuses, id, "venue")
+  venue.status = getVenueStatus(input.status) ?? venue.status
+  venue.ownerDivisionId = getOptionalString(input.ownerDivisionId) ?? venue.ownerDivisionId
+  venue.ownerName = getOptionalString(input.ownerName) ?? venue.ownerName
+  venue.blockerIssueId = getOptionalString(input.blockerIssueId) ?? venue.blockerIssueId
+  venue.lastUpdate = new Date().toISOString()
+  writeAudit(auth.user, "venues.update", "venues", venue.id, { status: venue.status })
+  createRoleNotifications(executiveRoles, {
+    type: "venue_updated",
+    title: "Status venue diperbarui",
+    body: `${venue.venue}: ${venue.status}`,
+    resource: "venues",
+    resourceId: venue.id,
+  })
+
+  return venue
+}
+
+export function getEventDaySummary(auth: AuthContext): EventDaySummary {
+  assertAllowed(auth, "event_day.read")
+  const repo = getMcsRepository()
+  const schedules = selectTodaySchedule([...repo.schedules.values()])
+  const matches = visibleMatches(auth, [...repo.matches.values()])
+  const currentActivity = matches.find((match) => match.status === "live") ?? schedules.find((schedule) => schedule.status === "live") ?? schedules[0] ?? null
+  const nextActivity = schedules.find((schedule) => schedule.status === "scheduled") ?? schedules[1] ?? null
+  const activeIssues = visibleIssues(auth, [...repo.issues.values()])
+    .filter((issue) => issue.status !== "Ditutup")
+    .sort(sortIssuesByUrgency)
+  const blockedHandoffs = visibleHandoffs(auth, [...repo.handoffs.values()])
+    .filter((handoff) => handoff.status === "Terblokir" || handoff.status === "Menunggu")
+    .sort((first, second) => Date.parse(first.deadline) - Date.parse(second.deadline))
+  const pendingApprovals = visibleAnnouncements(auth, [...repo.announcements.values()]).filter(
+    (announcement) => announcement.status === "pending_approval"
+  )
+  const urgentNotifications = listNotifications(auth).filter((notification) => notification.status === "unread").slice(0, 8)
+  const visibleTasks = [...repo.tasks.values()].filter((task) => canAccessTask(auth, task) && task.status !== "Completed")
+  const upcomingDeadlines = [
+    ...activeIssues.map((issue) => ({
+      id: issue.id,
+      type: "kendala" as const,
+      title: `${issue.issueCode} - ${issue.title}`,
+      owner: issue.assignedToName ?? issue.assignedDivisionName ?? "PIC belum ditentukan",
+      deadline: issue.deadline,
+      href: "/dashboard/issues",
+    })),
+    ...blockedHandoffs.map((handoff) => ({
+      id: handoff.id,
+      type: "handoff" as const,
+      title: handoff.activity,
+      owner: handoff.ownerName,
+      deadline: handoff.deadline,
+      href: "/dashboard/handoffs",
+    })),
+    ...visibleTasks.map((task) => ({
+      id: task.id,
+      type: "tugas" as const,
+      title: task.title,
+      owner: task.assigneeName,
+      deadline: task.deadline,
+      href: "/dashboard/tasks",
+    })),
+  ].sort((first, second) => Date.parse(first.deadline) - Date.parse(second.deadline)).slice(0, 10)
+
+  return {
+    currentActivity,
+    nextActivity,
+    activeIssues: activeIssues.slice(0, 8),
+    blockedHandoffs: blockedHandoffs.slice(0, 8),
+    pendingApprovals: pendingApprovals.slice(0, 8),
+    venueStatuses: [...repo.venueStatuses.values()],
+    urgentNotifications,
+    upcomingDeadlines,
+  }
+}
+
 export function listAuditLogs(auth: AuthContext): AuditLogRecord[] {
   if (!can(auth.user.role, "audit.read")) {
     return getMcsRepository().auditLogs.filter((log) => log.userId === auth.user.id)
@@ -877,6 +1380,7 @@ export function markNotificationRead(auth: AuthContext, id: string) {
 
   notification.status = "read"
   notification.readAt = new Date().toISOString()
+  persistMcsRepository()
 
   return notification
 }
@@ -906,6 +1410,7 @@ function writeAudit(
     timestamp: new Date().toISOString(),
     metadata,
   })
+  persistMcsRepository()
 }
 
 function createRoleNotifications(
@@ -925,6 +1430,7 @@ function createRoleNotifications(
       ...input,
     })
   })
+  persistMcsRepository()
 }
 
 function createUserNotification(
@@ -939,6 +1445,7 @@ function createUserNotification(
     createdAt: new Date().toISOString(),
     ...input,
   })
+  persistMcsRepository()
 }
 
 function notifyAnnouncement(announcement: AnnouncementRecord) {
@@ -949,6 +1456,229 @@ function notifyAnnouncement(announcement: AnnouncementRecord) {
     resource: "announcements",
     resourceId: announcement.id,
   })
+}
+
+function createIssueRecord(auth: AuthContext, input: JsonObject): IssueRecord {
+  const repo = getMcsRepository()
+  const now = new Date().toISOString()
+  const assignedToUserId = getOptionalString(input.assignedToUserId)
+  const assignedTo = assignedToUserId ? repo.users.get(assignedToUserId) : undefined
+  const assignedDivisionId = getOptionalString(input.assignedDivisionId)
+  const assignedDivision = assignedDivisionId ? repo.committees.get(assignedDivisionId) : undefined
+  const issue: IssueRecord = {
+    id: createId("issue"),
+    tournamentId: MCS_TOURNAMENT_ID,
+    issueCode: `KND-${String(repo.issues.size + 1).padStart(3, "0")}`,
+    title: getRequiredString(input, "title"),
+    description: getRequiredString(input, "description"),
+    category: getIssueCategory(input.category) ?? "Lainnya",
+    severity: getIssueSeverity(input.severity) ?? "Sedang",
+    venue: getOptionalString(input.venue),
+    reportedBy: auth.user.id,
+    reportedByName: auth.user.displayName,
+    assignedToUserId,
+    assignedToName: assignedTo?.displayName ?? getOptionalString(input.assignedToName),
+    assignedDivisionId,
+    assignedDivisionName: assignedDivision?.name ?? getOptionalString(input.assignedDivisionName),
+    deadline: getRequiredString(input, "deadline"),
+    status: getIssueStatus(input.status) ?? (assignedDivisionId || assignedToUserId ? "Ditugaskan" : "Terbuka"),
+    evidence: [],
+    resolutionNotes: getOptionalString(input.resolutionNotes),
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  repo.issues.set(issue.id, issue)
+  writeIssueHistory(auth, issue, "issue.created", undefined, issue.status)
+  writeAudit(auth.user, "issues.create", "issues", issue.id, {
+    issueCode: issue.issueCode,
+    severity: issue.severity,
+  })
+
+  return issue
+}
+
+function writeIssueHistory(
+  auth: AuthContext,
+  issue: IssueRecord,
+  action: string,
+  fromStatus?: IssueStatus,
+  toStatus?: IssueStatus,
+  notes?: string
+) {
+  const history: IssueHistoryRecord = {
+    id: createId("issue_history"),
+    tournamentId: MCS_TOURNAMENT_ID,
+    issueId: issue.id,
+    actorId: auth.user.id,
+    actorName: auth.user.displayName,
+    action,
+    fromStatus,
+    toStatus,
+    notes,
+    createdAt: new Date().toISOString(),
+  }
+
+  getMcsRepository().issueHistory.unshift(history)
+}
+
+function writeHandoffHistory(
+  auth: AuthContext,
+  handoff: DivisionHandoffRecord,
+  action: string,
+  fromStatus?: HandoffStatus,
+  toStatus?: HandoffStatus,
+  notes?: string
+) {
+  const history: HandoffHistoryRecord = {
+    id: createId("handoff_history"),
+    tournamentId: MCS_TOURNAMENT_ID,
+    handoffId: handoff.id,
+    actorId: auth.user.id,
+    actorName: auth.user.displayName,
+    action,
+    fromStatus,
+    toStatus,
+    notes,
+    createdAt: new Date().toISOString(),
+  }
+
+  getMcsRepository().handoffHistory.unshift(history)
+}
+
+function notifyIssueCreated(issue: IssueRecord) {
+  createRoleNotifications(executiveRoles, {
+    type: "issue_created",
+    title: "Kendala baru dilaporkan",
+    body: `${issue.issueCode} - ${issue.title}`,
+    resource: "issues",
+    resourceId: issue.id,
+  })
+  notifyIssueAssignment(issue)
+}
+
+function notifyIssueAssignment(issue: IssueRecord) {
+  if (issue.assignedToUserId) {
+    createUserNotification(issue.assignedToUserId, {
+      type: "issue_assigned",
+      title: "Kendala ditugaskan",
+      body: `${issue.issueCode} - ${issue.title}`,
+      resource: "issues",
+      resourceId: issue.id,
+    })
+  }
+
+  const role = issue.assignedDivisionId ? divisionRoleMap[issue.assignedDivisionId] : undefined
+  if (role) {
+    createRoleNotifications([role], {
+      type: "issue_assigned",
+      title: "Kendala untuk divisi",
+      body: `${issue.issueCode} - ${issue.title}`,
+      resource: "issues",
+      resourceId: issue.id,
+    })
+  }
+}
+
+function notifyHandoff(handoff: DivisionHandoffRecord, type: NotificationRecord["type"], title: string) {
+  const roles = [divisionRoleMap[handoff.sourceDivisionId], divisionRoleMap[handoff.targetDivisionId]].filter(
+    (role): role is UserRole => Boolean(role)
+  )
+
+  createRoleNotifications(Array.from(new Set([...roles, ...executiveRoles])), {
+    type,
+    title,
+    body: `${handoff.sourceDivisionName} -> ${handoff.targetDivisionName}: ${handoff.activity}`,
+    resource: "handoffs",
+    resourceId: handoff.id,
+  })
+}
+
+function transitionHandoff(
+  auth: AuthContext,
+  id: string,
+  nextStatus: HandoffStatus,
+  action: string,
+  notes?: string
+): DivisionHandoffRecord {
+  const handoff = mustFind(getMcsRepository().handoffs, id, "handoff")
+
+  if (!canAccessHandoff(auth, handoff)) {
+    throw new McsError(403, "handoff_scope_forbidden", "You can only update handoffs connected to your role or division.")
+  }
+
+  const previousStatus = handoff.status
+  handoff.status = nextStatus
+  handoff.notes = notes ?? handoff.notes
+  handoff.acceptedAt = nextStatus === "Diterima" ? new Date().toISOString() : handoff.acceptedAt
+  handoff.blockedAt = nextStatus === "Terblokir" ? new Date().toISOString() : handoff.blockedAt
+  handoff.completedAt = nextStatus === "Selesai" ? new Date().toISOString() : handoff.completedAt
+  handoff.updatedAt = new Date().toISOString()
+  writeHandoffHistory(auth, handoff, action, previousStatus, nextStatus, notes)
+  writeAudit(auth.user, action, "handoffs", handoff.id, { status: nextStatus })
+
+  return handoff
+}
+
+function visibleIssues(auth: AuthContext, issues: IssueRecord[]) {
+  if (executiveRoles.includes(auth.user.role)) {
+    return issues
+  }
+
+  return issues.filter((issue) => canAccessIssue(auth, issue))
+}
+
+function canAccessIssue(auth: AuthContext, issue: IssueRecord) {
+  if (executiveRoles.includes(auth.user.role)) {
+    return true
+  }
+
+  return (
+    issue.reportedBy === auth.user.id ||
+    issue.assignedToUserId === auth.user.id ||
+    Boolean(issue.assignedDivisionId && auth.user.divisionIds.includes(issue.assignedDivisionId))
+  )
+}
+
+function visibleHandoffs(auth: AuthContext, handoffs: DivisionHandoffRecord[]) {
+  if (executiveRoles.includes(auth.user.role)) {
+    return handoffs
+  }
+
+  return handoffs.filter((handoff) => canAccessHandoff(auth, handoff))
+}
+
+function canAccessHandoff(auth: AuthContext, handoff: DivisionHandoffRecord) {
+  if (executiveRoles.includes(auth.user.role)) {
+    return true
+  }
+
+  return (
+    handoff.createdBy === auth.user.id ||
+    handoff.ownerUserId === auth.user.id ||
+    auth.user.divisionIds.includes(handoff.sourceDivisionId) ||
+    auth.user.divisionIds.includes(handoff.targetDivisionId)
+  )
+}
+
+function sortIssuesByUrgency(first: IssueRecord, second: IssueRecord) {
+  const severityOrder: Record<IssueSeverity, number> = {
+    Kritis: 0,
+    Tinggi: 1,
+    Sedang: 2,
+    Rendah: 3,
+  }
+
+  return (
+    severityOrder[first.severity] - severityOrder[second.severity] ||
+    parseDeadline(first.deadline) - parseDeadline(second.deadline) ||
+    Date.parse(second.updatedAt) - Date.parse(first.updatedAt)
+  )
+}
+
+function parseDeadline(value: string) {
+  const parsed = Date.parse(value)
+  return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed
 }
 
 function visibleCompetitions(auth: AuthContext, competitions: CompetitionRecord[]) {
@@ -1188,6 +1918,90 @@ function getTaskStatus(value: unknown): TaskStatus | undefined {
   if (value === "Scheduled" || value === "In Progress" || value === "Completed" || value === "Blocked") {
     return value
   }
+
+  return undefined
+}
+
+function getIssueSeverity(value: unknown): IssueSeverity | undefined {
+  if (value === "Rendah" || value === "Sedang" || value === "Tinggi" || value === "Kritis") {
+    return value
+  }
+
+  if (value === "Low") return "Rendah"
+  if (value === "Medium") return "Sedang"
+  if (value === "High") return "Tinggi"
+  if (value === "Critical") return "Kritis"
+
+  return undefined
+}
+
+function getIssueStatus(value: unknown): IssueStatus | undefined {
+  if (
+    value === "Terbuka" ||
+    value === "Ditugaskan" ||
+    value === "Diproses" ||
+    value === "Selesai" ||
+    value === "Ditutup"
+  ) {
+    return value
+  }
+
+  if (value === "Open") return "Terbuka"
+  if (value === "Assigned") return "Ditugaskan"
+  if (value === "In Progress") return "Diproses"
+  if (value === "Resolved") return "Selesai"
+  if (value === "Closed") return "Ditutup"
+
+  return undefined
+}
+
+function getIssueCategory(value: unknown): IssueCategory | undefined {
+  if (
+    value === "Venue" ||
+    value === "Jadwal" ||
+    value === "Perlengkapan" ||
+    value === "Keamanan" ||
+    value === "Peserta" ||
+    value === "Media" ||
+    value === "Pengumuman" ||
+    value === "Lainnya"
+  ) {
+    return value
+  }
+
+  if (value === "Schedule") return "Jadwal"
+  if (value === "Equipment") return "Perlengkapan"
+  if (value === "Security") return "Keamanan"
+  if (value === "Participant") return "Peserta"
+  if (value === "Announcement") return "Pengumuman"
+  if (value === "Other") return "Lainnya"
+
+  return undefined
+}
+
+function getIssueEvidenceType(value: unknown): IssueEvidenceRecord["type"] {
+  if (value === "image" || value === "video" || value === "document" || value === "note") {
+    return value
+  }
+
+  return "note"
+}
+
+function getVenueStatus(value: unknown): VenueStatus | undefined {
+  if (
+    value === "Siap" ||
+    value === "Perlu Dicek" ||
+    value === "Terblokir" ||
+    value === "Ditutup" ||
+    value === "Menunggu Update"
+  ) {
+    return value
+  }
+
+  if (value === "Ready") return "Siap"
+  if (value === "Watch") return "Perlu Dicek"
+  if (value === "Blocked") return "Terblokir"
+  if (value === "Closed") return "Ditutup"
 
   return undefined
 }

@@ -42,3 +42,5 @@ next-env.d.ts
 
 # project artifacts
 artifacts/
+.data/
+public/uploads/mcs-evidence/

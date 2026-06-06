@@ -1,13 +1,14 @@
 import type { Metadata } from "next"
-
-import { PanitiaManagementScreen } from "@/components/dashboard/panitia-management-screen"
+import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "MCS 1 - Panitia Management",
+  title: "Dashboard - MCS 1",
   description:
-    "Committee workforce command center for Melati Championship Series 1 event operations.",
+    "Role-based internal dashboard for Melati Championship Series 1.",
 }
 
-export default function PanitiaPage() {
-  return <PanitiaManagementScreen />
+export const dynamic = "force-dynamic"
+
+export default async function PanitiaPage() {
+  redirect("/dashboard")
 }

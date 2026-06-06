@@ -1,13 +1,19 @@
 import type { Metadata } from "next"
 
-import { CompetitionManagementCenter } from "@/components/dashboard/competition-management-center"
+import { CompetitionManagementScreen } from "@/components/dashboard/competition-management-screen"
+import { getCompetitionManagementContext } from "../_lib/competition-management-context"
 
 export const metadata: Metadata = {
-  title: "Competition Center - MCS 1",
+  title: "Competition Management - MCS 1",
   description:
-    "Competition headquarters for registration, participants, brackets, judging, scoring, results, and reports for Melati Championship Series 1.",
+    "Operational competition management for Melati Championship Series 1.",
 }
 
-export default function TournamentPage() {
-  return <CompetitionManagementCenter />
+export const dynamic = "force-dynamic"
+
+export default async function TournamentPage() {
+  const { auth: _auth, ...screenProps } = await getCompetitionManagementContext("/dashboard/tournament")
+  void _auth
+
+  return <CompetitionManagementScreen {...screenProps} />
 }

@@ -150,6 +150,27 @@
 }
 
 @layer utilities {
+  main[aria-label$=" content"] table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #ffffff;
+  }
+
+  main[aria-label$=" content"] table tbody tr {
+    transition: background-color 160ms ease;
+  }
+
+  main[aria-label$=" content"] table tbody tr:hover td {
+    background: #f8f9fb;
+  }
+
+  main[aria-label$=" content"] input,
+  main[aria-label$=" content"] select,
+  main[aria-label$=" content"] textarea {
+    border-radius: 10px;
+  }
+
   .font-display {
     font-family: var(--font-bebas), "Bebas Neue", Impact, "Arial Narrow", sans-serif;
   }

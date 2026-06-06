@@ -84,6 +84,36 @@ export type Announcement = {
   time: string
 }
 
+export type SponsorPipelineStatus =
+  | "Approached"
+  | "Negotiation"
+  | "Waiting Response"
+  | "Confirmed"
+  | "Rejected"
+
+export type SponsorRecord = {
+  id: string
+  name: string
+  pipelineStatus: SponsorPipelineStatus
+  proposalStatus: "On Going" | "Confirmed" | "Rejected"
+  partnershipType: string
+  pic: string
+  contact: string
+  followUpDate: string
+  receivedAmount?: number
+  receivedDate?: string
+}
+
+export type BudgetLineItem = {
+  id: string
+  item: string
+  division: string
+  minAmount: number
+  maxAmount: number
+  status: "Planned"
+  source: string
+}
+
 export type MediaItem = {
   id: string
   title: string
@@ -163,6 +193,160 @@ export const eventDescriptions = {
     "Melati Championship Series 1 (MCS 1) merupakan ajang kompetisi olahraga dan seni yang diselenggarakan dalam rangka perayaan Anniversary SMKN 20 Jakarta Tahun 2025/2026. MCS 1 hadir sebagai bentuk transformasi kegiatan kompetisi sekolah menjadi sebuah event yang lebih modern, profesional, dan terorganisir dengan menghadirkan atmosfer pertandingan layaknya liga profesional.",
   modern:
     "Melati Championship Series 1 (MCS 1) adalah platform kompetisi olahraga dan seni terbesar di SMKN 20 Jakarta yang dikemas dengan konsep modern championship experience. Menggabungkan semangat kompetisi, kreativitas, media, dan entertainment, MCS 1 menghadirkan pengalaman event sekolah dengan atmosfer profesional dan energi generasi muda.",
+}
+
+export const sponsorshipPipelineStatuses: SponsorPipelineStatus[] = [
+  "Approached",
+  "Negotiation",
+  "Waiting Response",
+  "Confirmed",
+  "Rejected",
+]
+
+export const sponsorProspects: SponsorRecord[] = [
+  {
+    id: "synde-ht",
+    name: "Synde.HT",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+  {
+    id: "emina",
+    name: "Emina",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+  {
+    id: "yup",
+    name: "YUP",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+  {
+    id: "sosro",
+    name: "Sosro",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+  {
+    id: "pt-campina-aice-industry",
+    name: "PT Campina Aice Industry",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+  {
+    id: "pt-cipta-niaga-semesta",
+    name: "PT Cipta Niaga Semesta",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+  {
+    id: "pt-sinar-niaga-sejahtera",
+    name: "PT Sinar Niaga Sejahtera",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+  {
+    id: "pt-sinar-sosro-gunung-selamat",
+    name: "PT Sinar Sosro Gunung Selamat",
+    pipelineStatus: "Waiting Response",
+    proposalStatus: "On Going",
+    partnershipType: "Sponsor",
+    pic: "Humas",
+    contact: "No Data Available",
+    followUpDate: "No Data Available",
+  },
+]
+
+export const budgetLineItems: BudgetLineItem[] = [
+  {
+    id: "competition-winner-prizes",
+    item: "Juara 1, 2, dan 3 setiap bidang kompetisi",
+    division: "Acara",
+    minAmount: 2000000,
+    maxAmount: 2300000,
+    status: "Planned",
+    source: "RAB MCS 1",
+  },
+  {
+    id: "best-supporter-award",
+    item: "Penghargaan Best Supporter",
+    division: "Acara",
+    minAmount: 100000,
+    maxAmount: 100000,
+    status: "Planned",
+    source: "RAB MCS 1",
+  },
+  {
+    id: "press-conference-backdrop-banner",
+    item: "Banner background konferensi pers",
+    division: "Humas",
+    minAmount: 240000,
+    maxAmount: 420000,
+    status: "Planned",
+    source: "RAB MCS 1",
+  },
+  {
+    id: "mcs-banner",
+    item: "Banner MCS 1",
+    division: "Humas",
+    minAmount: 200000,
+    maxAmount: 250000,
+    status: "Planned",
+    source: "RAB MCS 1",
+  },
+  {
+    id: "closing-ceremony-balloons-confetti",
+    item: "500 balon dan konfeti closing ceremony",
+    division: "Acara",
+    minAmount: 263000,
+    maxAmount: 263000,
+    status: "Planned",
+    source: "RAB MCS 1",
+  },
+  {
+    id: "canvas-drawing-supplies",
+    item: "Canvas untuk Canvas Drawing",
+    division: "Perlengkapan",
+    minAmount: 320000,
+    maxAmount: 320000,
+    status: "Planned",
+    source: "RAB MCS 1",
+  },
+]
+
+export const budgetSummary = {
+  source: "RAB MCS 1",
+  totalMinAmount: 3123000,
+  totalMaxAmount: 3653000,
 }
 
 export const gallery = [
@@ -1034,7 +1218,7 @@ export const scheduleDays: ScheduleDay[] = [
     date: "2026-06-22",
     label: "22 Juni",
     dayName: "Senin",
-    focus: "Opening Ceremony, Futsal, Mobile Legends, Volly, Solo Vokal, Basket",
+    focus: "Opening Ceremony, Futsal, Mobile Legends, Voli, Solo Vokal, Basket 3x3",
     items: [
       {
         time: "06.30",
@@ -1079,7 +1263,7 @@ export const scheduleDays: ScheduleDay[] = [
       {
         time: "10.00",
         duration: "100 menit",
-        title: "Volly Round of 16",
+        title: "Voli Round of 16",
         venue: "Lapangan B",
         pic: "Gilang & Zahira",
         type: "match",
@@ -1095,7 +1279,7 @@ export const scheduleDays: ScheduleDay[] = [
       {
         time: "13.00",
         duration: "100 menit",
-        title: "Basket Round of 16 & Quarter Final",
+        title: "Basket 3x3 Round of 16 & Quarter Final",
         venue: "Lapangan A",
         pic: "Jidda & Gladies",
         type: "match",
@@ -1115,7 +1299,7 @@ export const scheduleDays: ScheduleDay[] = [
     date: "2026-06-23",
     label: "23 Juni",
     dayName: "Selasa",
-    focus: "Badminton, Canvas Drawing, Volly Quarter Final, Mobile Legends, Futsal",
+    focus: "Badminton, Canvas Drawing, Voli Quarter Final, Mobile Legends, Futsal",
     items: [
       {
         time: "06.30",
@@ -1144,7 +1328,7 @@ export const scheduleDays: ScheduleDay[] = [
       {
         time: "10.40",
         duration: "60 menit",
-        title: "Volly Quarter Final",
+        title: "Voli Quarter Final",
         venue: "Lapangan B",
         pic: "Gilang & Zahira",
         type: "match",
@@ -1185,7 +1369,7 @@ export const scheduleDays: ScheduleDay[] = [
       {
         time: "08.35",
         duration: "60 menit",
-        title: "Volly Semifinal",
+        title: "Voli Semifinal",
         venue: "Lapangan A",
         pic: "Gilang & Zahira",
         type: "match",
@@ -1225,7 +1409,7 @@ export const scheduleDays: ScheduleDay[] = [
       {
         time: "13.00",
         duration: "30 menit",
-        title: "Basket Semifinal",
+        title: "Basket 3x3 Semifinal",
         venue: "Lapangan A",
         pic: "Jidda & Gladies",
         type: "match",
@@ -1250,7 +1434,7 @@ export const scheduleDays: ScheduleDay[] = [
       {
         time: "08.00",
         duration: "45 menit",
-        title: "Volly Final",
+        title: "Voli Final",
         venue: "Lapangan B",
         pic: "Gilang & Zahira",
         type: "match",
@@ -1266,7 +1450,7 @@ export const scheduleDays: ScheduleDay[] = [
       {
         time: "09.30",
         duration: "45 menit",
-        title: "Basket Final",
+        title: "Basket 3x3 Final",
         venue: "Lapangan A",
         pic: "Jidda & Gladies",
         type: "match",

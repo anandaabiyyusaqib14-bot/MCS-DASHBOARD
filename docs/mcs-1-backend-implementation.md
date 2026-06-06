@@ -92,6 +92,7 @@ Local development operator accounts all use password `mcs12345`:
 | `wakil@mcs1.id` | Wakil Ketua |
 | `pjlomba@mcs1.id` | PJ Lomba |
 | `humas@mcs1.id` | Humas |
+| `bendahara@mcs1.id` | Bendahara |
 | `dokumentasi@mcs1.id` | Dokumentasi |
 | `panitia@mcs1.id` | Panitia |
 

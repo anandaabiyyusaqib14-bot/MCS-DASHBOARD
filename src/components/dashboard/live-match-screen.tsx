@@ -4,9 +4,9 @@ import Link from "next/link"
 import { brandAssets, dashboardFootage, event } from "@/data/mcs"
 import { cn } from "@/lib/utils"
 
-const NO_DATA = "No Data Available"
-const DATA_NOT_PUBLISHED = "Data Not Published Yet"
-const MATCH_DATA_NOT_AVAILABLE = "Match data not available."
+const NO_DATA = "Belum Ada Data"
+const DATA_NOT_PUBLISHED = "Belum Dipublikasikan"
+const MATCH_DATA_NOT_AVAILABLE = "Data match belum tersedia."
 
 export function LiveMatchScreen() {
   const featuredImage = dashboardFootage[0]
