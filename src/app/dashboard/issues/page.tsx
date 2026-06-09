@@ -6,7 +6,7 @@ import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
   title: "Kendala Aktif - MCS 1",
-  description: "Pusat kendala aktif dan tindak lanjut operasional MCS 1.",
+  description: "Catatan kendala aktif dan tindak lanjut kepanitiaan MCS 1.",
 }
 
 export const dynamic = "force-dynamic"

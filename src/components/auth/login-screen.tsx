@@ -127,7 +127,7 @@ export function LoginScreen() {
                   Masuk
                 </h1>
                 <p className="mt-4 max-w-sm text-sm font-semibold leading-6 text-[#07111d]/58">
-                  Akses dashboard operasional resmi MCS 1.
+                  Akses sistem manajemen kepanitiaan resmi MCS 1.
                 </p>
               </div>
 
@@ -248,7 +248,7 @@ function BrandPanel() {
 
         <div className="my-auto max-w-xl">
           <p className="font-sport text-xs font-black uppercase tracking-[0.18em] text-[color:var(--mcs-gold-soft)]">
-            Pusat Operasi Event
+            Sistem Kepanitiaan
           </p>
           <h2 className="mt-4 font-display text-7xl leading-[0.9]">
             Akses
@@ -258,14 +258,14 @@ function BrandPanel() {
             Panitia
           </h2>
           <p className="mt-5 max-w-md text-sm font-semibold leading-7 text-white/68">
-            Untuk koordinasi jadwal, lomba, pengumuman, dan operasional panitia MCS 1.
+            Untuk mengelola jadwal, lomba, pengumuman, dokumen, laporan, dan koordinasi panitia MCS 1.
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-3 border-t border-white/14 pt-5">
           <BrandFact label="Event" value={event.shortName} />
-          <BrandFact label="Dates" value={event.dateRange} />
-          <BrandFact label="Access" value="Internal" />
+          <BrandFact label="Tanggal" value={event.dateRange} />
+          <BrandFact label="Akses" value="Internal" />
         </div>
       </div>
     </aside>

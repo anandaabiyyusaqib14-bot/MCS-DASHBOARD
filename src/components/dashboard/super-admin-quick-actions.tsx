@@ -86,25 +86,25 @@ const actionConfigs: ActionConfig[] = [
     description: "Buat tugas baru untuk divisi atau PIC.",
     icon: ClipboardList,
     id: "task",
-    label: "Assign Tugas",
+    label: "Buat Tugas",
     requiredPermissions: ["tasks.create"],
   },
   {
-    description: "Serahkan aktivitas ke divisi berikutnya.",
+    description: "Catat koordinasi ke divisi berikutnya.",
     icon: GitBranch,
     id: "handoff",
-    label: "Buat Handoff",
+    label: "Buat Koordinasi",
     requiredPermissions: ["handoffs.create"],
   },
   {
-    description: "Buka ringkasan laporan operasional saat ini.",
+    description: "Buka ringkasan laporan kepanitiaan saat ini.",
     icon: FileText,
     id: "report",
     label: "Buka Laporan",
     requiredPermissions: ["reports.read"],
   },
   {
-    description: "Catat blocker operasional dengan owner dan deadline.",
+    description: "Catat kendala dengan PIC dan batas waktu.",
     icon: AlertTriangle,
     id: "venueIssue",
     label: "Catat Kendala",
@@ -125,9 +125,9 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
   const reportItems = useMemo(
     () => [
       { label: "Jadwal Hari Ini", value: reportSnapshot.todayScheduleCount || "Belum Dipublikasikan" },
-      { label: "Tugas Pending", value: reportSnapshot.pendingTaskCount },
+      { label: "Tugas Tertunda", value: reportSnapshot.pendingTaskCount },
       { label: "Kendala Aktif", value: reportSnapshot.activeIssueCount },
-      { label: "Approval Pengumuman", value: reportSnapshot.pendingAnnouncementCount },
+      { label: "Persetujuan Pengumuman", value: reportSnapshot.pendingAnnouncementCount },
       { label: "Panitia On Duty", value: reportSnapshot.onDutyPanitia },
       { label: "Peserta Terverifikasi", value: reportSnapshot.participantStatus },
       { label: "Media Terunggah", value: reportSnapshot.mediaStatus },
@@ -186,7 +186,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
         title: getRequiredFormValue(data, "title"),
         visibility: "internal",
       },
-      "Pengumuman masuk ke alur approval/publikasi.",
+      "Pengumuman masuk ke alur persetujuan/publikasi.",
     )
     if (submitted) form.reset()
   }
@@ -235,7 +235,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
         status: "Scheduled",
         title: getRequiredFormValue(data, "title"),
       },
-      "Tugas baru sudah masuk ke board operasional.",
+      "Tugas baru sudah masuk ke daftar kepanitiaan.",
     )
     if (submitted) form.reset()
   }
@@ -256,7 +256,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
         sourceDivisionId: getRequiredFormValue(data, "sourceDivisionId"),
         targetDivisionId: getRequiredFormValue(data, "targetDivisionId"),
       },
-      "Handoff sudah dikirim ke divisi target.",
+      "Koordinasi sudah dikirim ke divisi tujuan.",
     )
     if (submitted) form.reset()
   }
@@ -273,16 +273,16 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
       "/api/mcs/issues",
       {
         assignedDivisionId: getRequiredFormValue(data, "divisionId"),
-        assignedToName: data.get("owner") || "PIC venue",
+        assignedToName: data.get("owner") || "PIC tempat",
         category: "Venue",
         deadline: getRequiredFormValue(data, "deadline"),
         description: `${venue} / ${data.get("detail") || "Perlu tindak lanjut PIC."}`,
         severity: "Tinggi",
         status: "Ditugaskan",
-        title: `Kendala venue: ${issue}`,
+        title: `Kendala tempat: ${issue}`,
         venue,
       },
-      "Kendala venue sudah masuk ke pusat kendala aktif.",
+      "Kendala tempat sudah masuk ke catatan kendala aktif.",
     )
     if (submitted) form.reset()
   }
@@ -338,7 +338,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-[#111827]">{activeConfig?.label ?? "Aksi Cepat"}</DialogTitle>
             <DialogDescription className="text-sm font-medium leading-6 text-[#64748B]">
-              {activeConfig?.description ?? "Pilih aksi operasional yang tersedia."}
+              {activeConfig?.description ?? "Pilih aksi kepanitiaan yang tersedia."}
             </DialogDescription>
           </DialogHeader>
 
@@ -367,7 +367,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                 <NativeSelect name="priority" defaultValue="normal">
                   <option value="normal">Normal</option>
                   <option value="important">Penting</option>
-                  <option value="urgent">Urgent</option>
+                  <option value="urgent">Mendesak</option>
                 </NativeSelect>
               </FormField>
               <ModalActions submitting={submittingAction === "announcement"} submitLabel="Kirim Pengumuman" onClose={() => setActiveAction(null)} />
@@ -388,7 +388,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                 <Input name="title" required placeholder="Contoh: Technical meeting futsal" />
               </FormField>
               <div className="grid gap-3 sm:grid-cols-2">
-                <FormField label="Venue">
+                <FormField label="Tempat">
                   <Input name="venue" required placeholder="Lapangan A" />
                 </FormField>
                 <FormField label="PIC">
@@ -401,10 +401,10 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                 </FormField>
                 <FormField label="Tipe">
                   <NativeSelect name="type" defaultValue="operation">
-                    <option value="operation">Operasional</option>
-                    <option value="match">Match</option>
-                    <option value="ceremony">Ceremony</option>
-                    <option value="break">Break</option>
+                    <option value="operation">Kegiatan</option>
+                    <option value="match">Pertandingan</option>
+                    <option value="ceremony">Seremoni</option>
+                    <option value="break">Istirahat</option>
                   </NativeSelect>
                 </FormField>
               </div>
@@ -426,7 +426,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                 </FormField>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <FormField label="Deadline">
+                <FormField label="Batas Waktu">
                   <Input name="deadline" required placeholder="22 Juni 2026, 08.00 WIB" />
                 </FormField>
                 <FormField label="Prioritas">
@@ -440,7 +440,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
               <FormField label="Catatan">
                 <Textarea name="description" placeholder="Tambahkan detail singkat jika ada." />
               </FormField>
-              <ModalActions submitting={submittingAction === "task"} submitLabel="Assign Tugas" onClose={() => setActiveAction(null)} />
+              <ModalActions submitting={submittingAction === "task"} submitLabel="Buat Tugas" onClose={() => setActiveAction(null)} />
             </form>
           ) : null}
 
@@ -458,17 +458,17 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                 </FormField>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <FormField label="Owner">
-                  <Input name="ownerName" required placeholder="Nama PIC target" />
+                <FormField label="PIC">
+                  <Input name="ownerName" required placeholder="Nama PIC tujuan" />
                 </FormField>
-                <FormField label="Deadline">
+                <FormField label="Batas Waktu">
                   <Input name="deadline" required placeholder="Hari ini, sebelum sesi berikutnya" />
                 </FormField>
               </div>
               <FormField label="Catatan">
-                <Textarea name="notes" placeholder="Tuliskan dependency atau blocker jika ada." />
+                <Textarea name="notes" placeholder="Tuliskan catatan koordinasi atau kendala jika ada." />
               </FormField>
-              <ModalActions submitting={submittingAction === "handoff"} submitLabel="Buat Handoff" onClose={() => setActiveAction(null)} />
+              <ModalActions submitting={submittingAction === "handoff"} submitLabel="Buat Koordinasi" onClose={() => setActiveAction(null)} />
             </form>
           ) : null}
 
@@ -499,7 +499,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
           {activeAction === "venueIssue" ? (
             <form className="grid gap-4" onSubmit={handleVenueIssueSubmit}>
               <div className="grid gap-3 sm:grid-cols-2">
-                <FormField label="Venue">
+                <FormField label="Tempat">
                   <Input name="venue" required placeholder="Lapangan A" />
                 </FormField>
                 <FormField label="Kendala">
@@ -507,18 +507,18 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                 </FormField>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <FormField label="Owner Divisi">
+                <FormField label="Divisi PIC">
                   <DivisionSelect defaultValue={defaultVenueOwnerId} divisions={divisions} name="divisionId" />
                 </FormField>
                 <FormField label="PIC">
-                  <Input name="owner" placeholder="Nama PIC follow-up" />
+                  <Input name="owner" placeholder="Nama PIC tindak lanjut" />
                 </FormField>
               </div>
-              <FormField label="Deadline Tindak Lanjut">
+              <FormField label="Batas Waktu Tindak Lanjut">
                 <Input name="deadline" required placeholder="Hari ini, 30 menit sebelum match" />
               </FormField>
               <FormField label="Detail">
-                <Textarea name="detail" placeholder="Tuliskan konteks singkat untuk owner." />
+                <Textarea name="detail" placeholder="Tuliskan konteks singkat untuk PIC." />
               </FormField>
               <ModalActions submitting={submittingAction === "venueIssue"} submitLabel="Catat Kendala" onClose={() => setActiveAction(null)} />
             </form>

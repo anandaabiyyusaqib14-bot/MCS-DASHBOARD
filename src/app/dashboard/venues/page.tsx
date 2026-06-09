@@ -5,8 +5,8 @@ import { listVenueStatuses } from "@/server/mcs/service"
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Status Venue - MCS 1",
-  description: "Status venue operasional untuk MCS 1.",
+  title: "Status Tempat - MCS 1",
+  description: "Status tempat kegiatan untuk MCS 1.",
 }
 
 export const dynamic = "force-dynamic"

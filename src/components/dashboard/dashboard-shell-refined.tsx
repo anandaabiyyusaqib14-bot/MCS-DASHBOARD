@@ -130,7 +130,7 @@ const iconMap: Record<DashboardNavigationIcon, LucideIcon> = {
   handshake: Handshake,
 }
 
-const searchPlaceholder = "Cari jadwal, lomba, peserta, tugas, pengumuman"
+const searchPlaceholder = "Cari jadwal, lomba, tugas, dokumen, laporan"
 const displayEventDate = formatEventDateRange(event.startDate, event.endDate)
 const recentSearchStorageKey = "mcs:recent-searches:v1"
 const commandPaletteActions: ShellSearchResult[] = [
@@ -144,25 +144,25 @@ const commandPaletteActions: ShellSearchResult[] = [
     type: "Aksi",
   },
   {
-    description: "Buka form handoff antar divisi",
+    description: "Buka form koordinasi antar divisi",
     href: "/dashboard/handoffs?action=create",
     icon: "git-branch",
     id: "command-create-handoff",
     meta: "Aksi Cepat",
-    title: "Buat Handoff",
+    title: "Buat Koordinasi",
     type: "Aksi",
   },
   {
-    description: "Buka status venue untuk update kesiapan",
+    description: "Buka status tempat untuk update kesiapan",
     href: "/dashboard/venues",
     icon: "shield",
     id: "command-update-venue",
     meta: "Aksi Cepat",
-    title: "Update Venue",
+    title: "Update Tempat",
     type: "Aksi",
   },
   {
-    description: "Buka feed penuh notifikasi operasional",
+    description: "Buka feed notifikasi kepanitiaan",
     href: "/dashboard/notifications",
     icon: "activity",
     id: "command-notifications",
@@ -171,12 +171,12 @@ const commandPaletteActions: ShellSearchResult[] = [
     type: "Aksi",
   },
   {
-    description: "Review pengumuman, media, dan issue close",
+    description: "Tinjau pengumuman, media, dan kendala selesai",
     href: "/dashboard/approvals",
     icon: "file-check",
     id: "command-approvals",
     meta: "Aksi Cepat",
-    title: "Pusat Approval",
+    title: "Pusat Persetujuan",
     type: "Aksi",
   },
   {
@@ -189,12 +189,12 @@ const commandPaletteActions: ShellSearchResult[] = [
     type: "Aksi",
   },
   {
-    description: "Buka rekap kendala, handoff, dan venue",
+    description: "Buka rekap kendala, koordinasi, dan laporan divisi",
     href: "/dashboard/operations-report",
     icon: "chart",
     id: "command-operations-report",
     meta: "Aksi Cepat",
-    title: "Laporan Operasional",
+    title: "Laporan Kepanitiaan",
     type: "Aksi",
   },
 ]
@@ -218,7 +218,7 @@ export function DashboardShell({ children, homePath, navigation, roleLabel, user
   }, [])
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F8F9FB] font-sans text-[#111827]">
+    <div className="min-h-screen overflow-x-hidden bg-[#F6F7F9] font-sans text-[#111827]">
       <TopNavigation
         homePath={homePath}
         navigation={navigation}
@@ -239,7 +239,7 @@ export function DashboardShell({ children, homePath, navigation, roleLabel, user
           "lg:pl-[280px]",
         )}
       >
-        <main className="min-h-[calc(100vh-68px)] min-w-0 overflow-x-hidden bg-[#F8F9FB]" aria-label={`${pageMeta.title} content`}>
+        <main className="min-h-[calc(100vh-68px)] min-w-0 overflow-x-hidden bg-[#F6F7F9]" aria-label={`${pageMeta.title} content`}>
           <div className="mx-auto min-h-[calc(100vh-68px)] w-full min-w-0 max-w-[1320px] px-4 py-4 sm:px-5 lg:px-6">
             {children}
           </div>
@@ -271,7 +271,7 @@ function TopNavigation({
   const ToggleIcon = tabletExpanded ? PanelLeftClose : PanelLeftOpen
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 h-[68px] border-b border-[#E5E7EB] bg-white/98 backdrop-blur">
+    <header className="fixed inset-x-0 top-0 z-40 h-[68px] border-b border-[#E5E7EB] bg-white/95 backdrop-blur">
       <div className="flex h-full min-w-0 items-center gap-3 px-4 sm:px-5 lg:px-6">
         <div className="md:hidden">
           <MobileSidebarTrigger navigation={navigation} roleLabel={roleLabel} />
@@ -281,7 +281,7 @@ function TopNavigation({
           type="button"
           variant="outline"
           size="icon-lg"
-          className="hidden rounded-[10px] border-[#E5E7EB] bg-white text-[#64748B] hover:bg-[#F8F9FB] lg:hidden md:inline-flex"
+            className="hidden rounded-md border-[#E5E7EB] bg-white text-[#64748B] hover:bg-[#F8F9FB] lg:hidden md:inline-flex"
           aria-label={tabletExpanded ? "Collapse sidebar" : "Expand sidebar"}
           title={tabletExpanded ? "Collapse sidebar" : "Expand sidebar"}
           onClick={onToggleTabletSidebar}
@@ -301,7 +301,7 @@ function TopNavigation({
             ))}
           </nav>
           <p
-            className="mt-0.5 truncate text-[11px] font-semibold leading-4 text-[#0F172A] lg:hidden"
+            className="mt-0.5 truncate text-[11px] font-semibold leading-4 text-[#081C3A] lg:hidden"
             suppressHydrationWarning
             title={`Role: ${roleLabel}; Hari Event: ${shellStatus.dayLabel}; Tanggal: ${shellStatus.currentDate}; Waktu: ${shellStatus.currentTime}; Status: ${formatPhaseLabel(shellStatus.phase)}`}
           >
@@ -316,7 +316,7 @@ function TopNavigation({
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <Link
             href="/"
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-[10px] border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
             aria-label="Buka website publik MCS"
           >
             <Globe className="size-4 text-[#64748B]" aria-hidden="true" />
@@ -586,7 +586,7 @@ function GlobalSearch({ navigation }: { navigation: DashboardNavigationItem[] })
             </div>
           ) : normalizedQuery.length >= 2 && searching ? (
             <p className="rounded-[10px] bg-[#F8F9FB] px-3 py-2 text-xs font-semibold text-[#64748B]">
-              Mencari data operasional...
+              Mencari data kepanitiaan...
             </p>
           ) : normalizedQuery.length >= 2 && searchError ? (
             <p className="rounded-[10px] bg-[#FEF2F2] px-3 py-2 text-xs font-semibold text-[#B91C1C]">
@@ -639,7 +639,7 @@ function MobileSidebarTrigger({ navigation, roleLabel }: { navigation: Dashboard
             type="button"
             variant="outline"
             size="icon-lg"
-            className="rounded-[10px] border-[#E5E7EB] bg-white text-[#64748B] hover:bg-[#F8F9FB]"
+            className="rounded-md border-[#E5E7EB] bg-white text-[#64748B] hover:bg-[#F8F9FB]"
             aria-label="Buka navigasi"
           />
         }
@@ -650,7 +650,7 @@ function MobileSidebarTrigger({ navigation, roleLabel }: { navigation: Dashboard
       <SheetContent side="left" className="w-[min(88vw,320px)] gap-0 border-[#E5E7EB] bg-white p-0 text-[#111827]">
         <SheetHeader className="sr-only">
           <SheetTitle>MCS dashboard navigation</SheetTitle>
-          <SheetDescription>Dashboard sections for Melati Championship Series 1 operations.</SheetDescription>
+          <SheetDescription>Bagian dashboard untuk manajemen kepanitiaan Melati Championship Series 1.</SheetDescription>
         </SheetHeader>
         <div className="absolute right-3 top-3">
           <SheetClose
@@ -659,7 +659,7 @@ function MobileSidebarTrigger({ navigation, roleLabel }: { navigation: Dashboard
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="rounded-[10px] text-[#64748B] hover:bg-[#F8F9FB]"
+                className="rounded-md text-[#64748B] hover:bg-[#F8F9FB]"
                 aria-label="Close navigation"
               />
             }
@@ -708,11 +708,11 @@ function SidebarContent({
 
         <div
           className={cn(
-            "mt-4 grid gap-1.5 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3",
+            "mt-4 grid gap-1.5 rounded-lg border border-[#E5E7EB] bg-[#F8F9FB] p-3",
             !expanded && !mobile && "md:hidden lg:block",
           )}
         >
-          <p className="text-xs font-semibold text-[#111827]">Pusat Operasional Event</p>
+          <p className="text-xs font-semibold text-[#111827]">Sistem Kepanitiaan MCS 1</p>
           <SidebarMeta label="Tanggal" value={displayEventDate} />
           <SidebarMeta label="Sekolah" value="SMKN 20 Jakarta" />
           <SidebarMeta label="Penyelenggara" value="OSIS & MPK" />
@@ -747,14 +747,12 @@ function HeaderStatusRail({ roleLabel, status }: { roleLabel: string; status: Sh
   ]
 
   return (
-    <div className="hidden min-w-0 shrink-0 items-center gap-1.5 lg:flex">
+    <div className="hidden min-w-0 shrink-0 items-center gap-1.5 2xl:flex">
       {items.map((item) => (
         <div
           key={item.label}
           className={cn(
-            "hidden h-9 max-w-[150px] items-center gap-1.5 rounded-[10px] border border-[#E5E7EB] bg-white px-2.5 text-xs xl:inline-flex",
-            item.label === "Akses" && "lg:inline-flex",
-            item.label === "Status" && "lg:inline-flex",
+            "inline-flex h-9 max-w-[150px] items-center gap-1.5 rounded-md border border-[#E5E7EB] bg-white px-2.5 text-xs",
           )}
           title={`${item.label}: ${item.value}`}
         >
@@ -788,7 +786,7 @@ function SidebarRoleBadge({ roleLabel }: { roleLabel: string }) {
   return (
     <div className="mt-1 flex min-w-0 items-center justify-between gap-2 rounded-full border border-[#E5E7EB] bg-white px-2.5 py-1.5">
       <span className="text-[11px] font-medium text-[#94A3B8]">Role</span>
-      <span className="min-w-0 truncate text-[11px] font-semibold text-[#0F172A]">{roleLabel}</span>
+      <span className="min-w-0 truncate text-[11px] font-semibold text-[#081C3A]">{roleLabel}</span>
     </div>
   )
 }
@@ -835,8 +833,8 @@ function SidebarLink({
     <Link
       href={item.href}
       className={cn(
-        "flex h-10 min-w-0 items-center gap-3 rounded-[10px] px-3 text-sm font-medium transition duration-200",
-        active ? "bg-[#0F172A] text-white" : "text-[#64748B] hover:bg-[#F8F9FB] hover:text-[#111827]",
+        "flex h-10 min-w-0 items-center gap-3 rounded-md px-3 text-sm font-medium transition duration-200",
+        active ? "bg-[#081C3A] text-white" : "text-[#64748B] hover:bg-[#F8F9FB] hover:text-[#111827]",
         !expanded && !mobile && "md:justify-center md:px-0 lg:justify-start lg:px-3",
       )}
       aria-current={active ? "page" : undefined}
@@ -855,7 +853,7 @@ function OfficialLogoStrip({ compact }: { compact: boolean }) {
         <div
           key={asset.name}
           className={cn(
-            "relative grid place-items-center rounded-xl border border-[#E5E7EB] bg-white",
+            "relative grid place-items-center rounded-md border border-[#E5E7EB] bg-white",
             compact ? "size-6 p-0.5" : "size-9 p-1",
           )}
         >
@@ -999,7 +997,7 @@ function NotificationsMenu() {
           className="absolute right-0 top-[calc(100%+8px)] z-50 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-[#E5E7EB] bg-white p-2 text-[#111827] shadow-md ring-1 ring-[#111827]/5"
         >
           <div className="px-2 py-2">
-            <p className="text-sm font-semibold text-[#111827]">Notifikasi Operasional</p>
+            <p className="text-sm font-semibold text-[#111827]">Notifikasi Kepanitiaan</p>
             <p className="mt-1 text-xs font-medium leading-5 text-[#64748B]">
               Update resmi dari sistem komando MCS 1.
             </p>
@@ -1280,7 +1278,7 @@ function getNavigationGroups(navigation: DashboardNavigationItem[]): NavigationG
   const groupDefinitions = [
     {
       keys: ["dashboard"],
-      label: "Komando",
+      label: "Utama",
     },
     {
       keys: [
@@ -1313,7 +1311,7 @@ function getNavigationGroups(navigation: DashboardNavigationItem[]): NavigationG
         "approval-center",
         "operations-report",
       ],
-      label: "Operasional",
+      label: "Kepanitiaan",
     },
     {
       keys: [
@@ -1368,8 +1366,8 @@ function getSearchResultIcon(item: ShellSearchResult) {
   if (item.type === "Jadwal") return CalendarDays
   if (item.type === "Tugas") return ClipboardList
   if (item.type === "Kendala") return Activity
-  if (item.type === "Handoff") return GitBranch
-  if (item.type === "Venue") return ShieldCheck
+  if (item.type === "Handoff" || item.type === "Koordinasi") return GitBranch
+  if (item.type === "Venue" || item.type === "Tempat") return ShieldCheck
   if (item.type === "Pengumuman") return Megaphone
   if (item.type === "Divisi") return ShieldCheck
   if (item.type === "Media") return ImageIcon
@@ -1383,21 +1381,21 @@ function getNavigationDisplayLabel(item: DashboardNavigationItem) {
     analytics: "Analitik",
     announcements: "Pengumuman",
     "announcement-center": "Pusat Pengumuman",
-    "approval-center": "Pusat Approval",
+    "approval-center": "Pusat Persetujuan",
     bracket: "Bracket",
     budgeting: "Anggaran",
     "business-operations": "Kewirausahaan",
     "cleanliness-operations": "Kebersihan",
     "competition-management": "Manajemen Lomba",
     "competition-monitoring": "Monitoring Lomba",
-    "competition-operations": "Operasi Lomba",
+    "competition-operations": "Manajemen Lomba",
     dashboard: "Dashboard",
     "active-issues": "Kendala Aktif",
     "division-activities": "Aktivitas Divisi",
-    "division-handoffs": "Handoff Divisi",
+    "division-handoffs": "Koordinasi Divisi",
     "division-status": "Status Divisi",
     documents: "Dokumen",
-    "event-day": "Mode Hari-H",
+    "event-day": "Hari Kegiatan",
     "equipment-inventory": "Inventaris",
     "event-rundown": "Rundown",
     "financial-reports": "Laporan Keuangan",
@@ -1413,7 +1411,7 @@ function getNavigationDisplayLabel(item: DashboardNavigationItem) {
     "my-tasks": "Tugas Saya",
     "news-center": "News Center",
     "notification-center": "Pusat Notifikasi",
-    "operations-report": "Laporan Operasional",
+    "operations-report": "Laporan Kepanitiaan",
     "panitia-management": "Manajemen Panitia",
     "participant-management": "Peserta",
     participants: "Peserta",
@@ -1425,16 +1423,16 @@ function getNavigationDisplayLabel(item: DashboardNavigationItem) {
     "security-operations": "Keamanan",
     settings: "Pengaturan",
     "technical-support": "Teknis",
-    "upload-media": "Upload Media",
-    "venue-status": "Status Venue",
+    "upload-media": "Unggah Media",
+    "venue-status": "Status Tempat",
   }
 
   return labels[item.key] ?? item.label
 }
 
 function formatNavigationGroupLabel(label: string) {
-  if (label === "Command") return "Komando"
-  if (label === "Operations") return "Operasional"
+  if (label === "Command") return "Utama"
+  if (label === "Operations") return "Kepanitiaan"
   if (label === "Communication") return "Komunikasi"
   if (label === "System") return "Sistem"
   if (label === "Workspace") return "Workspace"
@@ -1505,21 +1503,21 @@ function formatEventDateRange(startDate: string, endDate: string) {
   if (!start || !end) return event.dateRange
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
+    "Januari",
+    "Februari",
+    "Maret",
     "April",
-    "May",
-    "June",
-    "July",
-    "August",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
     "September",
-    "October",
+    "Oktober",
     "November",
-    "December",
+    "Desember",
   ]
 
-  const month = monthNames[end.month - 1] ?? "June"
+  const month = monthNames[end.month - 1] ?? "Juni"
 
   if (start.month === end.month && start.year === end.year) {
     return `${start.day}-${end.day} ${month} ${end.year}`
@@ -1551,10 +1549,12 @@ function getShellStatus(now: Date): ShellStatus {
   const totalDays = getDateDifference(event.startDate, event.endDate) + 1
 
   if (today < event.startDate) {
+    const daysUntilEvent = Math.max(getDateDifference(today, event.startDate), 1)
+
     return {
       currentDate: formatShellDate(now),
       currentTime: formatShellTime(now),
-      dayLabel: `H-0 dari ${totalDays}`,
+      dayLabel: `H-${daysUntilEvent}`,
       phase: "Preparation",
     }
   }

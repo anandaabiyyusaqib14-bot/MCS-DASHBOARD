@@ -58,8 +58,17 @@ type IssueDetailPayload = {
   issue: IssueRecord
 }
 
-const issueSeverityOptions = ["Rendah", "Sedang", "Tinggi", "Kritis"] as const
-const issueCategoryOptions = ["Venue", "Jadwal", "Perlengkapan", "Keamanan", "Peserta", "Media", "Pengumuman", "Lainnya"] as const
+const issueSeverityOptions = ["Rendah", "Sedang", "Tinggi"] as const
+const issueCategoryOptions = [
+  { label: "Tempat", value: "Venue" },
+  { label: "Jadwal", value: "Jadwal" },
+  { label: "Perlengkapan", value: "Perlengkapan" },
+  { label: "Keamanan", value: "Keamanan" },
+  { label: "Peserta", value: "Peserta" },
+  { label: "Media", value: "Media" },
+  { label: "Pengumuman", value: "Pengumuman" },
+  { label: "Lainnya", value: "Lainnya" },
+] as const
 const venueStatusOptions = ["Menunggu Update", "Siap", "Perlu Dicek", "Terblokir", "Ditutup"] satisfies VenueStatus[]
 
 export function IssuesCenterScreen({
@@ -77,29 +86,29 @@ export function IssuesCenterScreen({
   const createFromCommand = searchParams.get("action") === "create"
   const issueDialogOpen = formOpen || createFromCommand
   const activeIssues = issues.filter((issue) => issue.status !== "Ditutup")
-  const criticalCount = activeIssues.filter((issue) => issue.severity === "Kritis").length
+  const highPriorityCount = activeIssues.filter((issue) => issue.severity === "Tinggi" || issue.severity === "Kritis").length
 
   return (
     <div className="grid gap-5">
       <OperationsHero
         action={permissions.includes("issues.create") ? { label: "Tambah Kendala", onClick: () => setFormOpen(true) } : undefined}
-        eyebrow="Pusat Kendala Aktif"
+        eyebrow="Pencatatan Kendala"
         icon={<AlertTriangle className="size-5" aria-hidden="true" />}
-        subtitle="Semua blocker operasional, owner, deadline, dan status tindak lanjut MCS 1."
+        subtitle="Catatan kendala kepanitiaan, PIC, batas waktu, dan status tindak lanjut MCS 1."
         title="Kendala Aktif"
       />
 
       <section className="grid gap-4 md:grid-cols-4">
         <MetricTile label="Kendala Aktif" value={String(activeIssues.length)} />
-        <MetricTile label="Kritis" value={criticalCount || "Tidak Ada"} tone={criticalCount ? "danger" : "success"} />
+        <MetricTile label="Prioritas Tinggi" value={highPriorityCount || "Tidak Ada"} tone={highPriorityCount ? "danger" : "success"} />
         <MetricTile label="Diproses" value={activeIssues.filter((issue) => issue.status === "Diproses").length} />
-        <MetricTile label="Menunggu Owner" value={activeIssues.filter((issue) => !issue.assignedDivisionId && !issue.assignedToUserId).length} />
+        <MetricTile label="Menunggu PIC" value={activeIssues.filter((issue) => !issue.assignedDivisionId && !issue.assignedToUserId).length} />
       </section>
 
       <Panel
         icon={<AlertTriangle className="size-4" aria-hidden="true" />}
         title="Daftar Kendala"
-        description="Prioritas tertinggi muncul lebih dulu. Setiap kendala harus punya owner dan deadline."
+        description="Prioritas tertinggi muncul lebih dulu. Setiap kendala perlu PIC dan batas waktu."
       >
         <IssuesTable issues={activeIssues} permissions={permissions} onOpenDetail={setSelectedIssueId} />
       </Panel>
@@ -144,32 +153,32 @@ export function HandoffsCenterScreen({
   return (
     <div className="grid gap-5">
       <OperationsHero
-        action={permissions.includes("handoffs.create") ? { label: "Buat Handoff", onClick: () => setFormOpen(true) } : undefined}
+        action={permissions.includes("handoffs.create") ? { label: "Buat Koordinasi", onClick: () => setFormOpen(true) } : undefined}
         eyebrow="Koordinasi Antar Divisi"
         icon={<GitBranch className="size-5" aria-hidden="true" />}
-        subtitle="Alur kerja dari divisi sumber ke divisi target, lengkap dengan owner, blocker, dan deadline."
-        title="Handoff Divisi"
+        subtitle="Catatan koordinasi dari divisi sumber ke divisi tujuan, lengkap dengan PIC, kendala, dan batas waktu."
+        title="Koordinasi Divisi"
       />
 
       <section className="grid gap-4 md:grid-cols-4">
         <MetricTile label="Menunggu" value={activeHandoffs.filter((handoff) => handoff.status === "Menunggu").length} />
         <MetricTile label="Diterima" value={activeHandoffs.filter((handoff) => handoff.status === "Diterima").length} />
-        <MetricTile label="Terblokir" value={activeHandoffs.filter((handoff) => handoff.status === "Terblokir").length} tone="danger" />
+        <MetricTile label="Tertunda" value={activeHandoffs.filter((handoff) => handoff.status === "Terblokir").length} tone="danger" />
         <MetricTile label="Selesai" value={handoffs.filter((handoff) => handoff.status === "Selesai").length} tone="success" />
       </section>
 
       <Panel
         icon={<GitBranch className="size-4" aria-hidden="true" />}
-        title="Dependency Flow"
-        description="Alur dasar koordinasi event dari rundown sampai publikasi."
+        title="Alur Koordinasi"
+        description="Alur sederhana koordinasi kegiatan dari rundown sampai publikasi."
       >
         <HandoffFlow handoffs={handoffs} />
       </Panel>
 
       <Panel
         icon={<GitBranch className="size-4" aria-hidden="true" />}
-        title="Alur Handoff"
-        description="Target divisi dapat menerima, memblokir, atau menyelesaikan handoff tanpa pindah halaman."
+        title="Daftar Koordinasi"
+        description="Divisi tujuan dapat menerima, menunda, atau menandai koordinasi selesai tanpa pindah halaman."
       >
         <HandoffsTable handoffs={handoffs} permissions={permissions} />
       </Panel>
@@ -199,10 +208,10 @@ export function EventDayModeScreen({
   return (
     <div className="grid gap-5">
       <OperationsHero
-        eyebrow="Mode Hari-H"
+        eyebrow="Hari Kegiatan"
         icon={<Clock3 className="size-5" aria-hidden="true" />}
-        subtitle="Layar ringkas untuk melihat sekarang, berikutnya, blocker, approval, venue, dan deadline."
-        title="Pusat Operasi Hari-H"
+        subtitle="Ringkasan sederhana untuk melihat agenda sekarang, agenda berikutnya, kendala, persetujuan, tempat, dan batas waktu."
+        title="Ringkasan Hari Kegiatan"
       />
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
@@ -227,15 +236,15 @@ export function EventDayModeScreen({
         <Panel
           icon={<AlertTriangle className="size-4" aria-hidden="true" />}
           title="Butuh Tindak Lanjut"
-          description="Kendala dan handoff yang paling perlu perhatian."
+          description="Kendala dan koordinasi divisi yang paling perlu perhatian."
         >
           <AttentionQueue eventDay={eventDay} permissions={permissions} />
         </Panel>
 
         <Panel
           icon={<MapPin className="size-4" aria-hidden="true" />}
-          title="Status Venue"
-          description="Readiness venue berdasarkan update operasional resmi."
+          title="Status Tempat"
+          description="Kesiapan tempat berdasarkan update resmi panitia."
         >
           <VenueStatusList venues={eventDay.venueStatuses} />
         </Panel>
@@ -245,7 +254,7 @@ export function EventDayModeScreen({
         <Panel
           icon={<Megaphone className="size-4" aria-hidden="true" />}
           title="Menunggu Persetujuan"
-          description="Approval yang bisa menghambat publikasi atau operasi."
+          description="Persetujuan yang bisa menghambat publikasi atau kegiatan."
         >
           {eventDay.pendingApprovals.length ? (
             <div className="grid gap-2">
@@ -256,17 +265,17 @@ export function EventDayModeScreen({
           ) : (
             <ActionableEmptyState
               actionLabel="Buka Pengumuman"
-              description="Belum ada approval yang menunggu keputusan."
+              description="Belum ada persetujuan yang menunggu keputusan."
               owner="Ketua Pelaksana / Wakil Ketua"
-              title="Tidak Ada Persetujuan Pending"
+              title="Tidak Ada Persetujuan Tertunda"
             />
           )}
         </Panel>
 
         <Panel
           icon={<CheckCircle2 className="size-4" aria-hidden="true" />}
-          title="Deadline Terdekat"
-          description="Gabungan deadline kendala, handoff, dan tugas."
+          title="Batas Waktu Terdekat"
+        description="Gabungan batas waktu kendala, koordinasi, dan tugas."
         >
           {eventDay.upcomingDeadlines.length ? (
             <div className="grid gap-2">
@@ -276,10 +285,10 @@ export function EventDayModeScreen({
             </div>
           ) : (
             <ActionableEmptyState
-              actionLabel="Assign Tugas"
-              description="Deadline akan muncul setelah kendala, handoff, atau tugas resmi dibuat."
-              owner="Divisi Operasional"
-              title="Belum Ada Deadline"
+              actionLabel="Buat Tugas"
+              description="Batas waktu akan muncul setelah kendala, koordinasi, atau tugas resmi dibuat."
+              owner="Divisi Terkait"
+              title="Belum Ada Batas Waktu"
             />
           )}
         </Panel>
@@ -302,14 +311,14 @@ export function VenueOperationsScreen({
   return (
     <div className="grid gap-5">
       <OperationsHero
-        eyebrow="Operasi Venue"
+        eyebrow="Status Tempat"
         icon={<MapPin className="size-5" aria-hidden="true" />}
-        subtitle="Status venue resmi untuk memastikan PIC tahu area mana yang siap, perlu dicek, atau terblokir."
-        title="Status Venue"
+        subtitle="Status tempat resmi agar PIC tahu area mana yang siap, perlu dicek, atau tertunda."
+        title="Status Tempat"
       />
       <Panel
         icon={<MapPin className="size-4" aria-hidden="true" />}
-        title="Venue Resmi"
+        title="Daftar Tempat"
         description="Status awal tetap Menunggu Update sampai divisi melakukan pembaruan resmi."
       >
         <VenueStatusList
@@ -353,8 +362,8 @@ function IssuesTable({
     return (
       <ActionableEmptyState
         actionLabel="Tambah Kendala"
-        description="Kendala akan muncul setelah panitia melaporkan blocker resmi."
-        owner="Semua Divisi Operasional"
+        description="Kendala akan muncul setelah panitia mencatat kendala resmi."
+        owner="Semua Divisi"
         title="Tidak Ada Kendala Aktif"
       />
     )
@@ -365,7 +374,7 @@ function IssuesTable({
       <table className="w-full min-w-[920px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Kendala", "Severity", "Owner", "Venue", "Deadline", "Status", "Aksi"].map((heading) => (
+            {["Kendala", "Prioritas", "PIC", "Tempat", "Batas Waktu", "Status", "Aksi"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -486,17 +495,17 @@ function IssueDetailDialog({
 
     try {
       const response = await fetch(`/api/mcs/issues/${issueId}/escalate`, {
-        body: JSON.stringify({ notes: "Dieskalasikan dari detail kendala." }),
+        body: JSON.stringify({ notes: "Diminta review dari detail kendala." }),
         headers: { "Content-Type": "application/json" },
         method: "PATCH",
       })
-      if (!response.ok) throw new Error("Eskalasi belum berhasil.")
+      if (!response.ok) throw new Error("Permintaan review belum berhasil.")
       const payload = (await response.json()) as { data?: IssueRecord }
       setDetail((current) => current && payload.data ? { ...current, issue: payload.data } : current)
-      setStatus({ message: "Kendala sudah dieskalasikan.", tone: "success" })
+      setStatus({ message: "Kendala dikirim untuk review pimpinan.", tone: "success" })
       router.refresh()
     } catch (error) {
-      setStatus({ message: error instanceof Error ? error.message : "Eskalasi belum berhasil.", tone: "danger" })
+      setStatus({ message: error instanceof Error ? error.message : "Permintaan review belum berhasil.", tone: "danger" })
     }
   }
 
@@ -512,7 +521,7 @@ function IssueDetailDialog({
         body: data,
         method: "POST",
       })
-      if (!response.ok) throw new Error("Upload bukti belum berhasil.")
+      if (!response.ok) throw new Error("Unggah bukti belum berhasil.")
       const refreshed = await fetch(`/api/mcs/issues/${issueId}`, { cache: "no-store" })
       const payload = (await refreshed.json()) as { data?: IssueDetailPayload }
       setDetail(payload.data ?? null)
@@ -520,7 +529,7 @@ function IssueDetailDialog({
       form.reset()
       router.refresh()
     } catch (error) {
-      setStatus({ message: error instanceof Error ? error.message : "Upload bukti belum berhasil.", tone: "danger" })
+      setStatus({ message: error instanceof Error ? error.message : "Unggah bukti belum berhasil.", tone: "danger" })
     }
   }
 
@@ -531,7 +540,7 @@ function IssueDetailDialog({
       <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{issue ? `${issue.issueCode} - ${issue.title}` : "Detail Kendala"}</DialogTitle>
-          <DialogDescription>Timeline, evidence, eskalasi, dan resolusi kendala operasional.</DialogDescription>
+        <DialogDescription>Riwayat, bukti, review pimpinan, dan catatan resolusi kendala.</DialogDescription>
         </DialogHeader>
         <WorkflowStatus status={status} />
 
@@ -542,10 +551,10 @@ function IssueDetailDialog({
         ) : issue ? (
           <div className="grid gap-4">
             <div className="grid gap-3 md:grid-cols-4">
-              <MetricTile label="Severity" value={issue.severity} tone={issue.severity === "Kritis" || issue.severity === "Tinggi" ? "danger" : "neutral"} />
+              <MetricTile label="Prioritas" value={issue.severity} tone={issue.severity === "Kritis" || issue.severity === "Tinggi" ? "danger" : "neutral"} />
               <MetricTile label="Status" value={issue.status} />
-              <MetricTile label="Owner" value={issue.assignedToName ?? issue.assignedDivisionName ?? "PIC belum ditentukan"} />
-              <MetricTile label="Deadline" value={issue.deadline} />
+              <MetricTile label="PIC" value={issue.assignedToName ?? issue.assignedDivisionName ?? "PIC belum ditentukan"} />
+              <MetricTile label="Batas Waktu" value={issue.deadline} />
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.75fr)]">
@@ -556,7 +565,7 @@ function IssueDetailDialog({
               >
                 <div className="grid gap-3 text-sm">
                   <MetricLine label="Kategori" value={issue.category} />
-                  <MetricLine label="Venue" value={issue.venue ?? "Belum Diisi"} />
+                  <MetricLine label="Tempat" value={issue.venue ?? "Belum Diisi"} />
                   <p className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 font-medium leading-6 text-[#64748B]">{issue.description}</p>
                   <form
                     className="grid gap-3"
@@ -569,7 +578,7 @@ function IssueDetailDialog({
                     <Textarea name="resolutionNotes" placeholder="Catatan resolusi sebelum ditandai selesai." />
                     <div className="flex flex-wrap gap-2">
                       {permissions.includes("issues.escalate") ? (
-                        <Button type="button" variant="outline" onClick={escalateIssue}>Eskalasi</Button>
+                        <Button type="button" variant="outline" onClick={escalateIssue}>Minta Review</Button>
                       ) : null}
                       {permissions.includes("issues.update") && issue.status !== "Diproses" ? (
                         <Button type="button" variant="outline" onClick={() => patchIssue({ status: "Diproses" }, "Kendala masuk status diproses.")}>Proses</Button>
@@ -578,7 +587,7 @@ function IssueDetailDialog({
                         <Button type="submit">Tandai Selesai</Button>
                       ) : null}
                       {permissions.includes("issues.close") && issue.status === "Selesai" ? (
-                        <Button type="button" onClick={() => patchIssue({ status: "Ditutup" }, "Kendala sudah ditutup.")}>Tutup</Button>
+                        <Button type="button" onClick={() => patchIssue({ status: "Ditutup" }, "Kendala sudah diarsipkan.")}>Arsipkan</Button>
                       ) : null}
                       {permissions.includes("issues.update") && issue.status === "Ditutup" ? (
                         <Button type="button" variant="outline" onClick={() => patchIssue({ status: "Diproses" }, "Kendala dibuka kembali.")}>Buka Lagi</Button>
@@ -597,7 +606,7 @@ function IssueDetailDialog({
                   <Input name="title" placeholder="Judul bukti" />
                   <Input name="file" type="file" required />
                   <Textarea name="notes" placeholder="Catatan bukti jika perlu." />
-                  <Button type="submit" disabled={!permissions.includes("issues.update")}>Upload Bukti</Button>
+                  <Button type="submit" disabled={!permissions.includes("issues.update")}>Unggah Bukti</Button>
                 </form>
                 <div className="mt-4 grid gap-2">
                   {issue.evidence.length ? issue.evidence.map((item) => (
@@ -701,8 +710,8 @@ function VenueUpdateDialog({
     <Dialog open={Boolean(venue)} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{venue ? `Update ${venue.venue}` : "Update Venue"}</DialogTitle>
-          <DialogDescription>Ubah kesiapan venue, PIC, dan blocker resmi dari satu tempat.</DialogDescription>
+          <DialogTitle>{venue ? `Update ${venue.venue}` : "Update Tempat"}</DialogTitle>
+          <DialogDescription>Ubah kesiapan tempat, PIC, dan kendala terkait dari satu form.</DialogDescription>
         </DialogHeader>
         <WorkflowStatus status={status} />
         {venue ? (
@@ -711,11 +720,11 @@ function VenueUpdateDialog({
               <FormField label="Status">
                 <NativeSelect name="status" defaultValue={venue.status}>
                   {venueStatusOptions.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                    <option key={option} value={option}>{formatStatusLabel(option)}</option>
                   ))}
                 </NativeSelect>
               </FormField>
-              <FormField label="Owner Divisi">
+              <FormField label="Divisi PIC">
                 <NativeSelect name="ownerDivisionId" defaultValue={venue.ownerDivisionId ?? divisions[0]?.id ?? ""}>
                   <option value="">Belum Ditentukan</option>
                   {divisions.map((division) => (
@@ -724,15 +733,15 @@ function VenueUpdateDialog({
                 </NativeSelect>
               </FormField>
             </div>
-            <FormField label="PIC Venue">
+            <FormField label="PIC Tempat">
               <Input name="ownerName" defaultValue={venue.ownerName ?? ""} placeholder="Nama PIC yang bertanggung jawab" />
             </FormField>
             <FormField label="ID Kendala Blocker">
-              <Input name="blockerIssueId" defaultValue={venue.blockerIssueId ?? ""} placeholder="Isi jika venue terblokir oleh kendala tertentu" />
+              <Input name="blockerIssueId" defaultValue={venue.blockerIssueId ?? ""} placeholder="Isi jika tempat tertunda oleh kendala tertentu" />
             </FormField>
             <DialogFooter className="mx-0 mb-0 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB]">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
-              <Button type="submit" disabled={submitting}>{submitting ? "Menyimpan..." : "Update Venue"}</Button>
+              <Button type="submit" disabled={submitting}>{submitting ? "Menyimpan..." : "Update Tempat"}</Button>
             </DialogFooter>
           </form>
         ) : null}
@@ -768,10 +777,10 @@ function HandoffFlow({ handoffs }: { handoffs: DivisionHandoffRecord[] }) {
             <div className="mt-4 grid gap-2">
               <StatusBadge label={status} tone={tone} />
               <p className="line-clamp-2 text-xs font-medium leading-5 text-[#64748B]">
-                {handoff?.activity ?? "Buat handoff saat aktivitas siap diteruskan ke divisi berikutnya."}
+                {handoff?.activity ?? "Buat catatan koordinasi saat aktivitas siap diteruskan ke divisi berikutnya."}
               </p>
               <p className="text-xs font-semibold text-[#64748B]">
-                Owner: {handoff?.ownerName ?? "Belum ditentukan"}
+                PIC: {handoff?.ownerName ?? "Belum ditentukan"}
               </p>
             </div>
           </div>
@@ -786,7 +795,7 @@ function HandoffsTable({ handoffs, permissions }: { handoffs: DivisionHandoffRec
 
   async function transition(id: string, action: "accept" | "block" | "complete") {
     await fetch(`/api/mcs/handoffs/${id}/${action}`, {
-      body: JSON.stringify({ notes: action === "block" ? "Handoff perlu tindak lanjut owner." : undefined }),
+      body: JSON.stringify({ notes: action === "block" ? "Koordinasi perlu tindak lanjut PIC." : undefined }),
       headers: { "Content-Type": "application/json" },
       method: "PATCH",
     })
@@ -796,10 +805,10 @@ function HandoffsTable({ handoffs, permissions }: { handoffs: DivisionHandoffRec
   if (!handoffs.length) {
     return (
       <ActionableEmptyState
-        actionLabel="Buat Handoff"
-        description="Handoff akan muncul setelah satu divisi menyerahkan aktivitas ke divisi lain."
+        actionLabel="Buat Koordinasi"
+        description="Koordinasi akan muncul setelah satu divisi menyerahkan aktivitas ke divisi lain."
         owner="Divisi Sumber dan Divisi Target"
-        title="Belum Ada Handoff"
+        title="Belum Ada Koordinasi"
       />
     )
   }
@@ -809,7 +818,7 @@ function HandoffsTable({ handoffs, permissions }: { handoffs: DivisionHandoffRec
       <table className="w-full min-w-[900px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Aktivitas", "Dari", "Ke", "Owner", "Deadline", "Status", "Aksi"].map((heading) => (
+            {["Aktivitas", "Dari", "Ke", "PIC", "Batas Waktu", "Status", "Aksi"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -836,7 +845,7 @@ function HandoffsTable({ handoffs, permissions }: { handoffs: DivisionHandoffRec
                   ) : null}
                   {permissions.includes("handoffs.block") && handoff.status !== "Terblokir" && handoff.status !== "Selesai" ? (
                     <Button type="button" variant="outline" size="sm" onClick={() => transition(handoff.id, "block")}>
-                      Block
+                      Tunda
                     </Button>
                   ) : null}
                   {permissions.includes("handoffs.complete") && handoff.status !== "Selesai" ? (
@@ -894,7 +903,7 @@ function IssueDialog({
 
       if (!response.ok) throw new Error("Kendala belum berhasil dicatat.")
 
-      setStatus({ message: "Kendala sudah masuk ke pusat operasi.", tone: "success" })
+      setStatus({ message: "Kendala sudah masuk ke catatan kepanitiaan.", tone: "success" })
       form.reset()
       router.refresh()
     } catch (error) {
@@ -909,7 +918,7 @@ function IssueDialog({
       <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Tambah Kendala</DialogTitle>
-          <DialogDescription>Catat blocker operasional dengan owner dan deadline tindak lanjut.</DialogDescription>
+          <DialogDescription>Catat kendala kepanitiaan dengan PIC dan batas waktu tindak lanjut.</DialogDescription>
         </DialogHeader>
         <WorkflowStatus status={status} />
         <form className="grid gap-4" onSubmit={submit}>
@@ -923,11 +932,11 @@ function IssueDialog({
             <FormField label="Kategori">
               <NativeSelect name="category" defaultValue="Venue">
                 {issueCategoryOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+                  <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </NativeSelect>
             </FormField>
-            <FormField label="Severity">
+            <FormField label="Prioritas">
               <NativeSelect name="severity" defaultValue="Sedang">
                 {issueSeverityOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
@@ -936,14 +945,14 @@ function IssueDialog({
             </FormField>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label="Venue">
+            <FormField label="Tempat">
               <Input name="venue" placeholder="Lapangan A" />
             </FormField>
-            <FormField label="Deadline">
+            <FormField label="Batas Waktu">
               <Input name="deadline" required placeholder="Hari ini, 30 menit sebelum match" />
             </FormField>
           </div>
-          <FormField label="Owner Divisi">
+          <FormField label="Divisi PIC">
             <NativeSelect name="assignedDivisionId" defaultValue={defaultDivisionId}>
               {divisions.map((division) => (
                 <option key={division.id} value={division.id}>{division.name}</option>
@@ -998,13 +1007,13 @@ function HandoffDialog({
         method: "POST",
       })
 
-      if (!response.ok) throw new Error("Handoff belum berhasil dibuat.")
+      if (!response.ok) throw new Error("Koordinasi belum berhasil dibuat.")
 
-      setStatus({ message: "Handoff sudah dikirim ke divisi target.", tone: "success" })
+      setStatus({ message: "Koordinasi sudah dikirim ke divisi tujuan.", tone: "success" })
       form.reset()
       router.refresh()
     } catch (error) {
-      setStatus({ message: error instanceof Error ? error.message : "Handoff belum berhasil dibuat.", tone: "danger" })
+      setStatus({ message: error instanceof Error ? error.message : "Koordinasi belum berhasil dibuat.", tone: "danger" })
     } finally {
       setSubmitting(false)
     }
@@ -1014,8 +1023,8 @@ function HandoffDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Buat Handoff Divisi</DialogTitle>
-          <DialogDescription>Serahkan aktivitas dari satu divisi ke divisi berikutnya dengan owner dan deadline.</DialogDescription>
+          <DialogTitle>Buat Koordinasi Divisi</DialogTitle>
+          <DialogDescription>Serahkan aktivitas dari satu divisi ke divisi berikutnya dengan PIC dan batas waktu.</DialogDescription>
         </DialogHeader>
         <WorkflowStatus status={status} />
         <form className="grid gap-4" onSubmit={submit}>
@@ -1039,19 +1048,19 @@ function HandoffDialog({
             </FormField>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <FormField label="Owner">
+            <FormField label="PIC">
               <Input name="ownerName" required placeholder="Nama PIC target" />
             </FormField>
-            <FormField label="Deadline">
+            <FormField label="Batas Waktu">
               <Input name="deadline" required placeholder="Hari ini, sebelum sesi berikutnya" />
             </FormField>
           </div>
           <FormField label="Catatan">
-            <Textarea name="notes" placeholder="Tuliskan dependency atau blocker jika ada." />
+            <Textarea name="notes" placeholder="Tuliskan catatan koordinasi atau kendala jika ada." />
           </FormField>
           <DialogFooter className="mx-0 mb-0 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB]">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
-            <Button type="submit" disabled={submitting}>{submitting ? "Mengirim..." : "Buat Handoff"}</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Mengirim..." : "Buat Koordinasi"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -1078,8 +1087,8 @@ function AttentionQueue({ eventDay, permissions }: { eventDay: EventDaySummary; 
   if (!items.length) {
     return (
       <ActionableEmptyState
-        actionLabel={permissions.includes("issues.create") ? "Tambah Kendala" : "Pantau Operasi"}
-        description="Belum ada kendala atau handoff yang membutuhkan tindak lanjut."
+        actionLabel={permissions.includes("issues.create") ? "Tambah Kendala" : "Pantau Kegiatan"}
+        description="Belum ada kendala atau koordinasi yang membutuhkan tindak lanjut."
         owner="Semua Divisi"
         title="Tidak Ada Blocker Aktif"
       />
@@ -1134,9 +1143,9 @@ function VenueStatusList({ onEdit, venues }: { onEdit?: (venue: VenueStatusRecor
     return (
       <ActionableEmptyState
         actionLabel="Isi Jadwal"
-        description="Venue akan muncul setelah jadwal resmi memiliki lokasi."
+        description="Tempat akan muncul setelah jadwal resmi memiliki lokasi."
         owner="Acara"
-        title="Belum Ada Venue"
+        title="Belum Ada Tempat"
       />
     )
   }
@@ -1154,7 +1163,7 @@ function VenueStatusList({ onEdit, venues }: { onEdit?: (venue: VenueStatusRecor
           </div>
           <div className="mt-3 grid gap-2 text-xs font-semibold text-[#64748B]">
             <span>Update terakhir: {formatShortDateTime(venue.lastUpdate)}</span>
-            {venue.blockerIssueId ? <span>Blocker: {venue.blockerIssueId}</span> : null}
+            {venue.blockerIssueId ? <span>Kendala: {venue.blockerIssueId}</span> : null}
           </div>
           {onEdit ? (
             <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => onEdit(venue)}>
@@ -1363,6 +1372,8 @@ function formatStatusLabel(label: string) {
   if (label === "delayed") return "Tertunda"
   if (label === "completed") return "Selesai"
   if (label === "cancelled") return "Dibatalkan"
+  if (label === "Terblokir") return "Tertunda"
+  if (label === "Ditutup") return "Diarsipkan"
   return label
 }
 
@@ -1379,13 +1390,13 @@ function formatShortDateTime(value: string) {
 function formatWorkflowAction(action: string) {
   const labels: Record<string, string> = {
     "evidence.added": "Bukti ditambahkan",
-    "handoff.accepted": "Handoff diterima",
-    "handoff.blocked": "Handoff terblokir",
-    "handoff.completed": "Handoff selesai",
-    "handoff.created": "Handoff dibuat",
-    "handoff.updated": "Handoff diperbarui",
+    "handoff.accepted": "Koordinasi diterima",
+    "handoff.blocked": "Koordinasi tertunda",
+    "handoff.completed": "Koordinasi selesai",
+    "handoff.created": "Koordinasi dibuat",
+    "handoff.updated": "Koordinasi diperbarui",
     "issue.created": "Kendala dibuat",
-    "issue.escalated": "Kendala dieskalasikan",
+    "issue.escalated": "Kendala diminta review",
     "issue.updated": "Kendala diperbarui",
     "status.updated": "Status diperbarui",
   }

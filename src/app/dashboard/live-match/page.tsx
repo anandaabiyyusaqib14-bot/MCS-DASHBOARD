@@ -4,9 +4,9 @@ import { DashboardModuleScreen } from "@/components/dashboard/internal-dashboard
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Live Match Operations - MCS 1",
+  title: "Pantauan Pertandingan - MCS 1",
   description:
-    "Operational live match view for Melati Championship Series 1.",
+    "Pantauan pertandingan live untuk Melati Championship Series 1.",
 }
 
 export const dynamic = "force-dynamic"

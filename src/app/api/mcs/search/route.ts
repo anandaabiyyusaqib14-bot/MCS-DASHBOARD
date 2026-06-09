@@ -127,7 +127,7 @@ function searchDashboard(auth: AuthContext, rawQuery: string): DashboardSearchRe
         task.priority,
         task.status,
       ],
-      meta: `Owner: ${task.assigneeName}`,
+      meta: `PIC: ${task.assigneeName}`,
       title: task.title,
       type: "Tugas",
     })),
@@ -135,7 +135,7 @@ function searchDashboard(auth: AuthContext, rawQuery: string): DashboardSearchRe
 
   appendIfAllowed(auth, "issues.read", candidates, () =>
     listIssues(auth).map((issue) => ({
-      description: `${issue.severity} / ${issue.venue ?? "Venue belum diisi"} / ${issue.deadline}`,
+      description: `${issue.severity} / ${issue.venue ?? "Tempat belum diisi"} / ${issue.deadline}`,
       href: "/dashboard/issues",
       id: `issue-${issue.id}`,
       keywords: [
@@ -151,7 +151,7 @@ function searchDashboard(auth: AuthContext, rawQuery: string): DashboardSearchRe
         issue.assignedDivisionName ?? "",
         issue.deadline,
       ],
-      meta: `Owner: ${issue.assignedToName ?? issue.assignedDivisionName ?? "PIC belum ditentukan"}`,
+      meta: `PIC: ${issue.assignedToName ?? issue.assignedDivisionName ?? "PIC belum ditentukan"}`,
       title: `${issue.issueCode} - ${issue.title}`,
       type: "Kendala",
     })),
@@ -173,9 +173,9 @@ function searchDashboard(auth: AuthContext, rawQuery: string): DashboardSearchRe
         handoff.status,
         handoff.deadline,
       ],
-      meta: `Owner: ${handoff.ownerName}`,
+      meta: `PIC: ${handoff.ownerName}`,
       title: handoff.activity,
-      type: "Handoff",
+      type: "Koordinasi",
     })),
   )
 
@@ -233,15 +233,15 @@ function searchDashboard(auth: AuthContext, rawQuery: string): DashboardSearchRe
         venue.ownerName ?? "",
         venue.blockerIssueId ?? "",
       ],
-      meta: venue.status,
+      meta: formatStatusLabel(venue.status),
       title: venue.venue,
-      type: "Venue",
+      type: "Tempat",
     })),
   )
 
   appendIfAllowed(auth, "media.read", candidates, () =>
     listMedia(auth).map((media) => ({
-      description: media.meta || "Media operasional MCS 1",
+      description: media.meta || "Media kepanitiaan MCS 1",
       href: "/dashboard/media",
       id: `media-${media.id}`,
       keywords: [
@@ -381,7 +381,7 @@ function formatMatchStatus(status: string) {
 }
 
 function formatAnnouncementStatus(status: string) {
-  if (status === "pending_approval") return "Menunggu approval"
+  if (status === "pending_approval") return "Menunggu persetujuan"
   if (status === "published") return "Terpublikasi"
   if (status === "approved") return "Disetujui"
   if (status === "archived") return "Diarsipkan"
@@ -391,7 +391,13 @@ function formatAnnouncementStatus(status: string) {
 function formatApprovalStatus(status: string) {
   if (status === "approved") return "Disetujui"
   if (status === "rejected") return "Ditolak"
-  return "Menunggu approval"
+  return "Menunggu persetujuan"
+}
+
+function formatStatusLabel(status: string) {
+  if (status === "Terblokir") return "Tertunda"
+  if (status === "Ditutup") return "Diarsipkan"
+  return status
 }
 
 function formatParticipantStatus(status: string) {

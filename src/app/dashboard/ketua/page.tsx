@@ -4,8 +4,8 @@ import { RoleDashboardScreen } from "@/components/dashboard/internal-dashboard-s
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Ketua Dashboard - MCS 1",
-  description: "Operational command center overview for Melati Championship Series 1 leadership.",
+  title: "Ketua Pelaksana - Sistem Kepanitiaan MCS 1",
+  description: "Ringkasan progres kepanitiaan untuk pimpinan Melati Championship Series 1.",
 }
 
 export const dynamic = "force-dynamic"

@@ -4,9 +4,9 @@ import { CompetitionManagementScreen } from "@/components/dashboard/competition-
 import { getCompetitionManagementContext } from "../_lib/competition-management-context"
 
 export const metadata: Metadata = {
-  title: "Competition Management - MCS 1",
+  title: "Manajemen Lomba - MCS 1",
   description:
-    "Operational competition management for Melati Championship Series 1.",
+    "Manajemen lomba dan pertandingan untuk Melati Championship Series 1.",
 }
 
 export const dynamic = "force-dynamic"

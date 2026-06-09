@@ -5,8 +5,8 @@ import { listCommittees, listHandoffs } from "@/server/mcs/service"
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Handoff Divisi - MCS 1",
-  description: "Workflow handoff antar divisi untuk operasi MCS 1.",
+  title: "Koordinasi Divisi - MCS 1",
+  description: "Catatan koordinasi antar divisi untuk MCS 1.",
 }
 
 export const dynamic = "force-dynamic"

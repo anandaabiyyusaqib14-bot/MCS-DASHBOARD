@@ -31,9 +31,9 @@ import type {
 } from "@/server/mcs/types"
 
 type Tone = "neutral" | "info" | "success" | "warning" | "danger"
-type NotificationCategory = "Semua" | "Kendala" | "Handoff" | "Approval" | "Jadwal" | "Venue"
+type NotificationCategory = "Semua" | "Kendala" | "Koordinasi" | "Persetujuan" | "Jadwal" | "Tempat"
 
-const notificationCategories: NotificationCategory[] = ["Semua", "Kendala", "Handoff", "Approval", "Jadwal", "Venue"]
+const notificationCategories: NotificationCategory[] = ["Semua", "Kendala", "Koordinasi", "Persetujuan", "Jadwal", "Tempat"]
 
 export function NotificationCenterScreen({
   notifications,
@@ -67,21 +67,21 @@ export function NotificationCenterScreen({
   }
 
   const unreadCount = notifications.filter((notification) => notification.status === "unread").length
-  const urgentCount = notifications.filter((notification) => getNotificationPriority(notification) === "Kritis").length
+  const urgentCount = notifications.filter((notification) => getNotificationPriority(notification) === "Penting").length
 
   return (
     <div className="grid gap-5">
       <OperationsHero
         eyebrow="Pusat Notifikasi"
         icon={<Bell className="size-5" aria-hidden="true" />}
-        subtitle="Feed penuh untuk kendala, handoff, approval, jadwal, venue, prioritas kritis, dan status belum dibaca."
-        title="Notification Center"
+        subtitle="Feed penuh untuk kendala, koordinasi divisi, persetujuan, jadwal, tempat, prioritas penting, dan status belum dibaca."
+        title="Pusat Notifikasi"
       />
 
       <section className="grid gap-4 md:grid-cols-4">
         <MetricTile label="Total Notifikasi" value={notifications.length || "Belum Ada"} />
         <MetricTile label="Belum Dibaca" value={unreadCount || "Tidak Ada"} tone={unreadCount ? "warning" : "success"} />
-        <MetricTile label="Prioritas Kritis" value={urgentCount || "Tidak Ada"} tone={urgentCount ? "danger" : "success"} />
+        <MetricTile label="Prioritas Penting" value={urgentCount || "Tidak Ada"} tone={urgentCount ? "danger" : "success"} />
         <MetricTile label="Filter Aktif" value={category} />
       </section>
 
@@ -155,8 +155,8 @@ export function NotificationCenterScreen({
           </div>
         ) : (
           <ActionableEmptyState
-            actionLabel="Buat Kendala atau Handoff"
-            description="Notifikasi akan muncul setelah ada update operasional resmi."
+            actionLabel="Buat Kendala atau Koordinasi"
+            description="Notifikasi akan muncul setelah ada update resmi kepanitiaan."
             owner="Semua Divisi"
             title="Belum Ada Notifikasi Sesuai Filter"
           />
@@ -192,29 +192,29 @@ export function ApprovalCenterScreen({
         method: "PATCH",
       })
 
-      if (!response.ok) throw new Error("Approval belum berhasil diproses.")
+      if (!response.ok) throw new Error("Persetujuan belum berhasil diproses.")
 
       setStatus(successMessage)
       router.refresh()
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Approval belum berhasil diproses.")
+      setStatus(error instanceof Error ? error.message : "Persetujuan belum berhasil diproses.")
     }
   }
 
   return (
     <div className="grid gap-5">
       <OperationsHero
-        eyebrow="Pusat Approval"
+        eyebrow="Pusat Persetujuan"
         icon={<FileCheck className="size-5" aria-hidden="true" />}
-        subtitle="Satu layar untuk approval pengumuman, media, issue close, dan request operasional yang sudah tersedia di backend."
-        title="Approval Center"
+        subtitle="Satu layar untuk meninjau pengumuman, media, kendala selesai, dan permintaan kepanitiaan yang sudah tersedia."
+        title="Pusat Persetujuan"
       />
 
       <section className="grid gap-4 md:grid-cols-4">
-        <MetricTile label="Total Pending" value={pendingTotal || "Tidak Ada"} tone={pendingTotal ? "warning" : "success"} />
+        <MetricTile label="Total Tertunda" value={pendingTotal || "Tidak Ada"} tone={pendingTotal ? "warning" : "success"} />
         <MetricTile label="Pengumuman" value={pendingAnnouncements.length || "Tidak Ada"} />
         <MetricTile label="Media" value={pendingMedia.length || "Tidak Ada"} />
-        <MetricTile label="Issue Close" value={closableIssues.length || "Tidak Ada"} />
+        <MetricTile label="Kendala Selesai" value={closableIssues.length || "Tidak Ada"} />
       </section>
 
       {status ? (
@@ -226,8 +226,8 @@ export function ApprovalCenterScreen({
       <section className="grid gap-5 xl:grid-cols-2">
         <Panel
           icon={<Megaphone className="size-4" aria-hidden="true" />}
-          title="Approval Pengumuman"
-          description="Pengumuman internal atau publik yang menunggu keputusan executive."
+          title="Persetujuan Pengumuman"
+          description="Pengumuman internal atau publik yang menunggu keputusan pimpinan."
         >
           {pendingAnnouncements.length ? (
             <ApprovalList
@@ -235,7 +235,7 @@ export function ApprovalCenterScreen({
                 action: permissions.includes("announcements.approve")
                   ? () => patch(`/api/mcs/announcements/${item.id}/approve`, { publish: true }, "Pengumuman disetujui dan dipublikasikan.")
                   : undefined,
-                actionLabel: "Approve & Publish",
+                actionLabel: "Setujui & Publikasikan",
                 meta: `${item.priority} / ${formatShortDateTime(item.createdAt)}`,
                 title: item.title,
                 value: item.visibility === "public" ? "Publik" : "Internal",
@@ -245,16 +245,16 @@ export function ApprovalCenterScreen({
             <ActionableEmptyState
               actionLabel="Buat Pengumuman"
               description="Belum ada pengumuman yang menunggu persetujuan."
-              owner="Humas / Executive"
-              title="Tidak Ada Approval Pengumuman"
+              owner="Humas / Pimpinan"
+              title="Tidak Ada Persetujuan Pengumuman"
             />
           )}
         </Panel>
 
         <Panel
           icon={<CheckCircle2 className="size-4" aria-hidden="true" />}
-          title="Approval Media"
-          description="Media upload dari Dokumentasi yang menunggu approval publikasi."
+          title="Persetujuan Media"
+          description="Media unggahan Dokumentasi yang menunggu persetujuan publikasi."
         >
           {pendingMedia.length ? (
             <ApprovalList
@@ -262,7 +262,7 @@ export function ApprovalCenterScreen({
                 action: permissions.includes("media.approve")
                   ? () => patch(`/api/mcs/media/${item.id}`, { approvalStatus: "approved" }, "Media disetujui.")
                   : undefined,
-                actionLabel: "Approve Media",
+                actionLabel: "Setujui Media",
                 meta: `${item.type} / ${formatShortDateTime(item.createdAt)}`,
                 title: item.title,
                 value: item.visibility === "public" ? "Publik" : "Internal",
@@ -270,26 +270,26 @@ export function ApprovalCenterScreen({
             />
           ) : (
             <ActionableEmptyState
-              actionLabel="Upload Media"
-              description="Belum ada media yang menunggu approval."
-              owner="Dokumentasi / Executive"
-              title="Tidak Ada Approval Media"
+              actionLabel="Unggah Media"
+              description="Belum ada media yang menunggu persetujuan."
+              owner="Dokumentasi / Pimpinan"
+              title="Tidak Ada Persetujuan Media"
             />
           )}
         </Panel>
 
         <Panel
           icon={<AlertTriangle className="size-4" aria-hidden="true" />}
-          title="Issue Close"
-          description="Kendala yang sudah selesai dan menunggu penutupan executive."
+          title="Kendala Selesai"
+          description="Kendala yang sudah selesai dan menunggu pengarsipan pimpinan."
         >
           {closableIssues.length ? (
             <ApprovalList
               items={closableIssues.map((item) => ({
                 action: permissions.includes("issues.close")
-                  ? () => patch(`/api/mcs/issues/${item.id}`, { status: "Ditutup" }, "Kendala ditutup.")
+                  ? () => patch(`/api/mcs/issues/${item.id}`, { status: "Ditutup" }, "Kendala diarsipkan.")
                   : undefined,
-                actionLabel: "Tutup Kendala",
+                actionLabel: "Arsipkan Kendala",
                 meta: `${item.issueCode} / ${item.severity}`,
                 title: item.title,
                 value: item.assignedToName ?? item.assignedDivisionName ?? "PIC belum ditentukan",
@@ -298,21 +298,21 @@ export function ApprovalCenterScreen({
           ) : (
             <ActionableEmptyState
               actionLabel="Selesaikan Kendala"
-              description="Issue close akan muncul setelah PIC menandai kendala selesai."
-              owner="PIC Kendala / Executive"
-              title="Belum Ada Issue Close"
+              description="Kendala selesai akan muncul setelah PIC menandai kendala selesai."
+              owner="PIC Kendala / Pimpinan"
+              title="Belum Ada Kendala Selesai"
             />
           )}
         </Panel>
 
         <Panel
           icon={<Clock3 className="size-4" aria-hidden="true" />}
-          title="Schedule Change & Laporan"
-          description="Slot approval siap dipakai saat backend request perubahan jadwal atau laporan sudah tersedia."
+          title="Perubahan Jadwal & Laporan"
+          description="Ruang persetujuan siap dipakai saat permintaan perubahan jadwal atau laporan sudah tersedia."
         >
           <ActionableEmptyState
             actionLabel="Ajukan dari Modul Terkait"
-            description="Belum ada request perubahan jadwal atau laporan operasional yang menunggu approval."
+            description="Belum ada permintaan perubahan jadwal atau laporan yang menunggu persetujuan."
             owner="Acara / Sekretaris"
             title="Belum Ada Request"
           />
@@ -344,32 +344,32 @@ export function OperationsReportScreen({
   return (
     <div className="grid gap-5">
       <OperationsHero
-        eyebrow="Laporan Operasional"
+        eyebrow="Laporan Kepanitiaan"
         icon={<BarChart3 className="size-5" aria-hidden="true" />}
-        subtitle="Rekap kendala, handoff terlambat, response time, venue blocker, dan bahan post-event summary."
-        title="Operational Reports"
+        subtitle="Rekap kendala, koordinasi terlambat, waktu penyelesaian, status tempat, dan bahan laporan akhir."
+        title="Laporan Kepanitiaan"
       />
 
       <section className="grid gap-4 md:grid-cols-4">
         <MetricTile label="Kendala Aktif" value={activeIssues.length || "Tidak Ada"} tone={activeIssues.length ? "warning" : "success"} />
         <MetricTile label="Kendala Ditutup" value={closedIssues.length || "Belum Ada"} />
-        <MetricTile label="Handoff Terlambat" value={lateHandoffs.length || "Tidak Ada"} tone={lateHandoffs.length ? "danger" : "success"} />
-        <MetricTile label="Venue Terblokir" value={blockedVenues.length || "Tidak Ada"} tone={blockedVenues.length ? "danger" : "success"} />
+        <MetricTile label="Koordinasi Terlambat" value={lateHandoffs.length || "Tidak Ada"} tone={lateHandoffs.length ? "danger" : "success"} />
+        <MetricTile label="Tempat Tertunda" value={blockedVenues.length || "Tidak Ada"} tone={blockedVenues.length ? "danger" : "success"} />
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
         <Panel
           icon={<AlertTriangle className="size-4" aria-hidden="true" />}
           title="Rekap Kendala"
-          description="Ringkasan kategori, severity, owner, dan status tindak lanjut."
+          description="Ringkasan kategori, prioritas, PIC, dan status tindak lanjut."
         >
           {issues.length ? (
             <div className="grid gap-3">
-              <MetricLine label="Blocker Terbanyak" value={topCategory ?? "Belum Ada Data"} />
-              <MetricLine label="Response Time Rata-rata" value={responseTime ?? "Belum Ada Data"} />
-              <MetricLine label="Kritis Aktif" value={String(activeIssues.filter((issue) => issue.severity === "Kritis").length)} />
+              <MetricLine label="Kategori Terbanyak" value={topCategory ?? "Belum Ada Data"} />
+              <MetricLine label="Waktu Penyelesaian Rata-rata" value={responseTime ?? "Belum Ada Data"} />
+              <MetricLine label="Prioritas Tinggi Aktif" value={String(activeIssues.filter((issue) => issue.severity === "Tinggi" || issue.severity === "Kritis").length)} />
               <CompactList
-                emptyDescription="Kendala aktif akan muncul setelah panitia mencatat blocker resmi."
+                emptyDescription="Kendala aktif akan muncul setelah panitia mencatat kendala resmi."
                 items={activeIssues.slice(0, 6).map((issue) => ({
                   meta: `${issue.issueCode} / ${issue.severity}`,
                   title: issue.title,
@@ -380,7 +380,7 @@ export function OperationsReportScreen({
           ) : (
             <ActionableEmptyState
               actionLabel="Tambah Kendala"
-              description="Rekap kendala baru bisa dihitung setelah blocker resmi dicatat."
+              description="Rekap kendala baru bisa dihitung setelah kendala resmi dicatat."
               owner="Semua Divisi"
               title="Belum Ada Data Kendala"
             />
@@ -389,16 +389,16 @@ export function OperationsReportScreen({
 
         <Panel
           icon={<GitBranch className="size-4" aria-hidden="true" />}
-          title="Rekap Handoff"
-          description="Handoff terlambat dan dependency yang masih terblokir."
+          title="Rekap Koordinasi"
+          description="Koordinasi terlambat dan catatan yang masih tertunda."
         >
           {handoffs.length ? (
             <div className="grid gap-3">
-              <MetricLine label="Terblokir" value={String(blockedHandoffs.length)} />
+              <MetricLine label="Tertunda" value={String(blockedHandoffs.length)} />
               <MetricLine label="Terlambat" value={String(lateHandoffs.length)} />
               <MetricLine label="Selesai" value={String(handoffs.filter((handoff) => handoff.status === "Selesai").length)} />
               <CompactList
-                emptyDescription="Belum ada handoff yang terlambat atau terblokir."
+                emptyDescription="Belum ada koordinasi yang terlambat atau tertunda."
                 items={[...lateHandoffs, ...blockedHandoffs].slice(0, 5).map((handoff) => ({
                   meta: `${handoff.sourceDivisionName} -> ${handoff.targetDivisionName}`,
                   title: handoff.activity,
@@ -408,10 +408,10 @@ export function OperationsReportScreen({
             </div>
           ) : (
             <ActionableEmptyState
-              actionLabel="Buat Handoff"
-              description="Rekap handoff baru muncul setelah alur antar divisi digunakan."
-              owner="Divisi Operasional"
-              title="Belum Ada Data Handoff"
+              actionLabel="Buat Koordinasi"
+              description="Rekap koordinasi baru muncul setelah alur antar divisi digunakan."
+              owner="Divisi Terkait"
+              title="Belum Ada Data Koordinasi"
             />
           )}
         </Panel>
@@ -420,13 +420,13 @@ export function OperationsReportScreen({
       <section className="grid gap-5 xl:grid-cols-2">
         <Panel
           icon={<MapPin className="size-4" aria-hidden="true" />}
-          title="Venue Readiness"
-          description="Status venue dari update resmi operator."
+          title="Kesiapan Tempat"
+          description="Status tempat dari update resmi panitia."
         >
           <CompactList
-            emptyDescription="Venue muncul setelah jadwal resmi memiliki lokasi."
+            emptyDescription="Tempat muncul setelah jadwal resmi memiliki lokasi."
             items={venues.map((venue) => ({
-              meta: venue.status,
+              meta: formatStatusLabel(venue.status),
               title: venue.venue,
               value: venue.ownerName ?? "PIC belum diisi",
             }))}
@@ -435,18 +435,18 @@ export function OperationsReportScreen({
 
         <Panel
           icon={<FileCheck className="size-4" aria-hidden="true" />}
-          title="Post-Event Summary"
-          description="Bahan summary akhir yang siap diisi setelah operasi berjalan."
+          title="Bahan Laporan Akhir"
+          description="Bahan ringkasan akhir yang siap diisi setelah kegiatan berjalan."
         >
           <div className="grid gap-3">
             <MetricLine label="Kendala Tertutup" value={String(closedIssues.length)} />
-            <MetricLine label="Deadline Terdekat" value={eventDay.upcomingDeadlines[0]?.title ?? "Belum Ada"} />
-            <MetricLine label="Approval Pending" value={String(eventDay.pendingApprovals.length)} />
+            <MetricLine label="Batas Waktu Terdekat" value={eventDay.upcomingDeadlines[0]?.title ?? "Belum Ada"} />
+            <MetricLine label="Persetujuan Tertunda" value={String(eventDay.pendingApprovals.length)} />
             <ActionableEmptyState
-              actionLabel="Lengkapi Kendala, Handoff, Venue"
-              description="Summary akhir akan matang setelah data operasional dipakai sepanjang event."
-              owner="Executive / Sekretaris"
-              title="Belum Siap untuk Post-Event"
+              actionLabel="Lengkapi Kendala, Koordinasi, Tempat"
+              description="Laporan akhir akan matang setelah data kepanitiaan dipakai sepanjang kegiatan."
+              owner="Pimpinan / Sekretaris"
+              title="Belum Siap untuk Laporan Akhir"
             />
           </div>
         </Panel>
@@ -643,15 +643,15 @@ function ActionableEmptyState({
 
 function getNotificationCategory(notification: NotificationRecord): NotificationCategory {
   if (notification.type.startsWith("issue_")) return "Kendala"
-  if (notification.type.startsWith("handoff_")) return "Handoff"
-  if (notification.type === "approval_requested" || notification.type === "media_uploaded" || notification.type === "announcement") return "Approval"
+  if (notification.type.startsWith("handoff_")) return "Koordinasi"
+  if (notification.type === "approval_requested" || notification.type === "media_uploaded" || notification.type === "announcement") return "Persetujuan"
   if (notification.type === "schedule_update" || notification.type === "score_update") return "Jadwal"
-  if (notification.type === "venue_updated") return "Venue"
+  if (notification.type === "venue_updated") return "Tempat"
   return "Semua"
 }
 
 function getNotificationPriority(notification: NotificationRecord) {
-  if (notification.type === "issue_escalated" || notification.type === "handoff_blocked") return "Kritis"
+  if (notification.type === "issue_escalated" || notification.type === "handoff_blocked") return "Penting"
   if (notification.type === "issue_created" || notification.type === "issue_assigned" || notification.type === "handoff_requested" || notification.type === "venue_updated") return "Penting"
   return "Info"
 }
@@ -659,14 +659,13 @@ function getNotificationPriority(notification: NotificationRecord) {
 function getNotificationTone(notification: NotificationRecord): Tone {
   const category = getNotificationCategory(notification)
   if (category === "Kendala") return "danger"
-  if (category === "Handoff") return "warning"
-  if (category === "Approval") return "info"
-  if (category === "Venue") return "warning"
+  if (category === "Koordinasi") return "warning"
+  if (category === "Persetujuan") return "info"
+  if (category === "Tempat") return "warning"
   return "neutral"
 }
 
 function getPriorityTone(priority: string): Tone {
-  if (priority === "Kritis") return "danger"
   if (priority === "Penting") return "warning"
   return "neutral"
 }
@@ -722,6 +721,12 @@ function getToneClassName(tone: Tone) {
   if (tone === "info") return "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]"
   if (tone === "warning") return "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]"
   return "border-[#E5E7EB] bg-[#F8F9FB] text-[#64748B]"
+}
+
+function formatStatusLabel(label: string) {
+  if (label === "Terblokir") return "Tertunda"
+  if (label === "Ditutup") return "Diarsipkan"
+  return label
 }
 
 function formatShortDateTime(value: string) {

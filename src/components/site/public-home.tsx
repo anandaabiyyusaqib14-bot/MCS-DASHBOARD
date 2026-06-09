@@ -65,6 +65,15 @@ const sectionReveal = {
 }
 
 const unpublishedStatus = "Data Not Published Yet"
+const countdownTargetTime = new Date(`${event.startDate}T06:30:00+07:00`).getTime()
+const preparationProgress = 83
+
+type CountdownParts = {
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+}
 
 export function PublicHome() {
   const [activeDayId, setActiveDayId] = useState(scheduleDays[0]?.id ?? "")
@@ -237,9 +246,11 @@ export function PublicHome() {
                 <ArrowRight className="size-4" />
               </a>
             </div>
+
+            <HeroCountdown />
           </motion.div>
 
-          <HeroStatsGrid className="mt-12 hidden md:grid" />
+          <HeroStatsGrid className="mt-8 hidden md:grid" />
         </div>
       </section>
 
@@ -625,6 +636,81 @@ function HeroStatsGrid({ className = "" }: { className?: string }) {
   )
 }
 
+function HeroCountdown() {
+  const [timeLeft, setTimeLeft] = useState<CountdownParts>(() => getCountdownParts())
+
+  useEffect(() => {
+    function updateCountdown() {
+      setTimeLeft(getCountdownParts())
+    }
+
+    updateCountdown()
+    const intervalId = window.setInterval(updateCountdown, 1000)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  const countdownUnits = [
+    { label: "Hari", value: timeLeft.days },
+    { label: "Jam", value: timeLeft.hours },
+    { label: "Menit", value: timeLeft.minutes },
+    { label: "Detik", value: timeLeft.seconds },
+  ]
+
+  return (
+    <div className="mt-7 box-border w-full max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-[24px] border border-white/15 bg-white/[0.95] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.15)] backdrop-blur-sm sm:max-w-[850px] sm:p-6">
+      <div className="min-w-0 rounded-[18px] bg-[#081c3a] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:px-6 sm:py-6">
+        <p className="font-sport text-[0.68rem] font-semibold uppercase tracking-[0.15em] text-[#D4A017]">
+          EVENT DIMULAI DALAM
+        </p>
+
+        <div className="mt-4 grid grid-cols-2 overflow-hidden rounded-lg border border-white/[0.08] sm:grid-cols-4">
+          {countdownUnits.map((unit, index) => (
+            <div
+              key={unit.label}
+              className={`min-w-0 px-3 py-4 text-center sm:px-4 ${getCountdownDividerClass(index)}`}
+            >
+              <motion.span
+                key={`${unit.label}-${unit.value}`}
+                initial={{ opacity: 0.56 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                suppressHydrationWarning
+                className="block font-display text-[2.35rem] font-bold leading-none text-white sm:text-5xl lg:text-[3.8rem]"
+              >
+                {formatCountdownValue(unit.value)}
+              </motion.span>
+              <span className="mt-2 block font-sport text-xs font-medium uppercase text-white/75 sm:text-sm">
+                {unit.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-col gap-1 text-xs font-semibold text-white/70 sm:flex-row sm:items-center sm:justify-center sm:gap-3">
+          <span>{event.dateRange}</span>
+          <span className="hidden size-1 rounded-full bg-white/28 sm:block" />
+          <span>{event.school}</span>
+        </div>
+
+        <div className="mt-5 border-t border-white/[0.08] pt-4">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs font-semibold">
+            <span className="font-sport font-black uppercase tracking-[0.08em] text-white/78">
+              Persiapan MCS 1
+            </span>
+            <span className="shrink-0 font-sport font-black uppercase text-[color:var(--mcs-gold-soft)]">
+              {preparationProgress}% Siap
+            </span>
+          </div>
+          <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-[color:var(--mcs-gold)]" style={{ width: `${preparationProgress}%` }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function SocialLink({ href, icon: Icon, label }: { href: string; icon: LucideIcon; label: string }) {
   return (
     <a
@@ -866,6 +952,40 @@ function ContactButton({ href, icon: Icon, title, label }: { href: string; icon:
       <span className="mt-1 block text-sm font-semibold leading-5 text-black/62">{label}</span>
     </a>
   )
+}
+
+function getCountdownParts(): CountdownParts {
+  const distance = Math.max(0, countdownTargetTime - Date.now())
+  const totalSeconds = Math.floor(distance / 1000)
+
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+  }
+}
+
+function formatCountdownValue(value: number) {
+  return String(value).padStart(2, "0")
+}
+
+function getCountdownDividerClass(index: number) {
+  const dividerColor = "border-white/[0.08]"
+
+  if (index === 0) {
+    return `border-r border-b ${dividerColor} sm:border-b-0`
+  }
+
+  if (index === 1) {
+    return `border-b ${dividerColor} sm:border-r sm:border-b-0`
+  }
+
+  if (index === 2) {
+    return `border-r ${dividerColor}`
+  }
+
+  return ""
 }
 
 function getKindLabel(kind: CompetitionKind) {

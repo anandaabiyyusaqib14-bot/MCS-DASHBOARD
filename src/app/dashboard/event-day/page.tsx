@@ -5,8 +5,8 @@ import { getEventDaySummary } from "@/server/mcs/service"
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Mode Hari-H - MCS 1",
-  description: "Mode operasi hari-H untuk MCS 1.",
+  title: "Hari Kegiatan - MCS 1",
+  description: "Ringkasan hari kegiatan untuk MCS 1.",
 }
 
 export const dynamic = "force-dynamic"

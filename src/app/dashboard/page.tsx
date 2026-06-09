@@ -5,9 +5,9 @@ import { SuperAdminOverview } from "@/components/dashboard/super-admin-overview"
 import { getDashboardOverviewContext } from "./_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "MCS 1 - Event Control Center",
+  title: "MCS 1 - Sistem Manajemen Kepanitiaan",
   description:
-    "Live command center dashboard for Melati Championship Series 1 event operations.",
+    "Dashboard manajemen kepanitiaan untuk Melati Championship Series 1.",
 }
 
 export const dynamic = "force-dynamic"

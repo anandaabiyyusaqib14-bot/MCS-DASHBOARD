@@ -5,18 +5,14 @@ import type { LucideIcon } from "lucide-react"
 import {
   Activity,
   AlertTriangle,
-  BarChart3,
-  Building2,
   CheckCircle2,
   CircleDot,
-  ClipboardList,
-  FileText,
   ListChecks,
   Megaphone,
   ShieldCheck,
 } from "lucide-react"
 
-import { brandAssets, event as mcsEvent, sponsorProspects } from "@/data/mcs"
+import { brandAssets, dashboardFootage, event as mcsEvent, sponsorProspects } from "@/data/mcs"
 import { cn } from "@/lib/utils"
 import { SuperAdminQuickActions } from "./super-admin-quick-actions"
 import type {
@@ -24,10 +20,8 @@ import type {
   AuditLogRecord,
   CommitteeDivision,
   DashboardSummary,
-  MatchRecord,
   Permission,
   ScheduleRecord,
-  TaskPriority,
   TaskRecord,
   UserDTO,
 } from "@/server/mcs/types"
@@ -64,15 +58,6 @@ type ActiveFollowUp = {
   title: string
 }
 
-type DivisionHandoff = {
-  action: string
-  from: string
-  signal: string
-  status: string
-  to: string
-  tone: Tone
-}
-
 type ReadinessItem = {
   actionHref: string
   actionLabel: string
@@ -85,60 +70,27 @@ type ReadinessItem = {
 const NO_DATA = "Belum Ada Data"
 const WAITING = "Menunggu Update"
 const NOT_PUBLISHED = "Belum Dipublikasikan"
-const DEADLINE_UNSET = "Deadline belum diisi"
-const NO_ACTIVE_COMPETITION = "Belum Ada Lomba Aktif"
-const OFFICIAL_VENUES = ["Lapangan A", "Lapangan B", "Connecting Room", "R. Avis", "Media Center"]
+const DEADLINE_UNSET = "Batas waktu belum diisi"
 
 export function SuperAdminOverview({ permissions, summary, user }: SuperAdminOverviewProps) {
   const now = new Date()
   const eventState = getEventState(summary.event.startsAt, summary.event.endsAt, now)
-  const liveMatch = summary.liveMatches.find((match) => match.status === "live") ?? summary.liveMatches[0]
-  const liveStatus = getLiveEventStatus(summary, eventState.phase, liveMatch, now)
   const alerts = getOperationalAlerts(summary, eventState.phase, now)
   const activeFollowUps = getActiveFollowUps(summary, eventState.phase, now)
-  const divisionHandoffs = getDivisionHandoffs(summary)
   const readinessItems = getReadinessItems(summary, eventState.phase, activeFollowUps)
-  const visibleAnnouncements = summary.announcements.slice(0, 5)
-  const upcomingTasks = summary.upcomingTasks.slice(0, 5)
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-4">
       <CommandHeader eventState={eventState} now={now} summary={summary} user={user} />
-
-      <LiveEventCommandPanel status={liveStatus} />
-
-      <Panel icon={AlertTriangle} title="Alert Operasional" description="Hal yang perlu segera diketahui pimpinan event.">
-        <OperationalAlerts alerts={alerts} />
-      </Panel>
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.75fr)]">
-        <Panel icon={ClipboardList} title="Kendala & Tindak Lanjut" description="Daftar masalah aktif, PIC, prioritas, dan tombol tindakan.">
-          <ActiveFollowUpBoard followUps={activeFollowUps} />
-        </Panel>
-
-        <Panel icon={CheckCircle2} title="Checklist Kesiapan" description="Sinyal minimum sebelum alur command center dipakai penuh.">
-          <ReadinessChecklist items={readinessItems} />
-        </Panel>
-      </section>
 
       <ExecutiveSummary summary={summary} />
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.75fr)]">
-        <Panel icon={ListChecks} title="Operasi Hari Ini" description="Rundown resmi yang perlu dipantau cepat.">
-          <TodayOperationsTable eventIsLive={eventState.phase === "Live"} now={now} schedules={summary.todaySchedule} />
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.72fr)]">
+        <Panel icon={AlertTriangle} title="Prioritas Hari Ini" description="Hal yang paling perlu dicek dulu oleh Super Admin.">
+          <PriorityOverview alerts={alerts} followUps={activeFollowUps} />
         </Panel>
 
-        <Panel icon={Megaphone} title="Pengumuman Penting" description="Update operasional terbaru untuk panitia.">
-          <ImportantAnnouncements announcements={visibleAnnouncements} />
-        </Panel>
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.7fr)]">
-        <Panel icon={ShieldCheck} title="Status Divisi" description="Kondisi kerja tiap divisi dan catatan PIC.">
-          <DivisionStatusBoard summary={summary} />
-        </Panel>
-
-        <Panel icon={Activity} title="Aksi Cepat" description="Form langsung untuk update operasional tanpa pindah halaman.">
+        <Panel icon={Activity} title="Aksi Cepat" description="Form ringkas untuk update kepanitiaan.">
           <SuperAdminQuickActions
             divisions={summary.committeeStatus.map((division) => ({
               coordinator: division.coordinator,
@@ -161,36 +113,24 @@ export function SuperAdminOverview({ permissions, summary, user }: SuperAdminOve
         </Panel>
       </section>
 
-      <Panel icon={ListChecks} title="Handoff Divisi" description="Alur operasional antar Acara, PJ Lomba, Keamanan, Perlengkapan, Dokumentasi, dan Humas.">
-        <DivisionHandoffBoard handoffs={divisionHandoffs} />
-      </Panel>
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.75fr)]">
-        <Panel icon={Building2} title="Monitoring Venue" description="Status venue resmi dan jadwal berikutnya.">
-          <VenueMonitoring schedules={summary.todaySchedule} />
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+        <Panel icon={CheckCircle2} title="Kesiapan Inti" description="Sinyal minimum sebelum modul operasional dipakai penuh.">
+          <ReadinessChecklist items={readinessItems} />
         </Panel>
 
-        <Panel icon={CheckCircle2} title="Menunggu Approval" description="Permintaan yang masih butuh keputusan Super Admin.">
-          <PendingApprovals announcements={summary.announcements} />
+        <Panel icon={ListChecks} title="Agenda Terdekat" description="Rundown resmi dalam bentuk ringkas, tanpa tabel panjang.">
+          <AgendaPreview eventIsLive={eventState.phase === "Live"} now={now} schedules={summary.todaySchedule} />
         </Panel>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <Panel icon={FileText} title="Aktivitas Terbaru" description="Jejak perubahan operasional di sistem.">
-          <RecentActivities activity={summary.auditPreview} />
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <Panel icon={ShieldCheck} title="Status Divisi" description="Kondisi kerja tiap divisi dan catatan PIC.">
+          <DivisionStatusBoard summary={summary} />
         </Panel>
 
-        <Panel icon={ClipboardList} title="Tugas Terdekat" description="Lima deadline operasional yang perlu dipantau.">
-          <UpcomingTasks tasks={upcomingTasks} />
+        <Panel icon={Megaphone} title="Pengumuman & Aktivitas" description="Update terbaru dari data resmi yang sudah masuk.">
+          <CommunicationFeed activity={summary.auditPreview} announcements={summary.announcements} />
         </Panel>
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Panel icon={BarChart3} title="Kesehatan Sistem" description="Ringkasan kesiapan tanpa analitik yang terlalu berat.">
-          <SystemHealthPanel summary={summary} />
-        </Panel>
-
-        <McsIdentityCard />
       </section>
     </div>
   )
@@ -208,82 +148,72 @@ function CommandHeader({
   user: UserDTO
 }) {
   const nextActivity = getNextActivity(summary.todaySchedule, now)
+  const heroFootage = dashboardFootage[1] ?? {
+    crop: "object-[45%_50%]",
+    label: "MCS court footage",
+    src: "/images/mcs-gallery/futsal-02.jpg",
+  }
+  const facts = [
+    { label: "Fase", value: eventState.phase },
+    { label: "Hari", value: eventState.dayLabel },
+    { label: "Berikutnya", value: nextActivity.title },
+    { label: "Sisa Waktu", value: nextActivity.countdown },
+  ]
 
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-[#64748B]">{formatLongDate(now)}</p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-normal text-[#111827]">
+    <section className="overflow-hidden rounded-lg border border-[#081C3A]/20 bg-[#081C3A] text-white shadow-sm">
+      <div className="grid min-h-[260px] lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="min-w-0 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              {brandAssets.map((asset) => (
+                <span key={asset.name} className="relative grid size-9 place-items-center rounded-md bg-white p-1">
+                  <Image src={asset.src} alt={asset.name} fill sizes="36px" className="object-contain p-1" />
+                </span>
+              ))}
+            </div>
+            <span className="h-6 rounded-md border border-white/15 bg-white/10 px-2 text-xs font-semibold leading-6 text-white/80">
+              {formatDisplayLabel(eventState.phase)}
+            </span>
+          </div>
+
+          <p className="mt-6 text-sm font-medium text-[#F0D58C]">{formatLongDate(now)}</p>
+          <h2 className="mt-2 max-w-3xl text-2xl font-semibold leading-tight tracking-normal text-white sm:text-3xl">
             {getGreeting(now)}, {user.displayName}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-[#64748B]">
-            Pantau kendala, PIC, jadwal, dan tindak lanjut utama MCS 1 dari satu layar.
+          <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-white/72">
+            Pantau prioritas, kesiapan divisi, agenda, dan update utama {mcsEvent.shortName} tanpa menumpuk semua modul di satu layar.
           </p>
+
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {facts.map((fact) => (
+              <div key={fact.label} className="min-w-0 rounded-md border border-white/12 bg-white/[0.06] px-3 py-2.5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/46">{fact.label}</p>
+                <p className="mt-1 truncate text-sm font-semibold text-white" suppressHydrationWarning>
+                  {formatDisplayLabel(fact.value)}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid gap-2 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
-          <div className="flex flex-wrap gap-2">
-            <StatusBadge label={eventState.phase} tone={getEventPhaseTone(eventState.phase)} />
-            <StatusBadge label={eventState.dayLabel} tone="neutral" />
-          </div>
-          <div className="grid gap-1.5 text-sm">
-            <HeaderLine label="Waktu Sekarang" value={formatClock(now)} />
-            <HeaderLine label="Hari Event" value={eventState.dayLabel} />
-            <HeaderLine label="Aktivitas Berikutnya" value={nextActivity.title} />
-            <HeaderLine label="Countdown" value={nextActivity.countdown} />
+        <div className="relative hidden min-h-full overflow-hidden lg:block">
+          <Image
+            src={heroFootage.src}
+            alt={heroFootage.label}
+            fill
+            priority
+            sizes="340px"
+            className={cn("object-cover", heroFootage.crop)}
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,28,58,0.92),rgba(8,28,58,0.18))]" />
+          <div className="absolute bottom-4 left-4 right-4 rounded-md border border-white/14 bg-[#081C3A]/75 px-3 py-2 backdrop-blur">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#F0D58C]">MCS 1</p>
+            <p className="mt-1 text-sm font-semibold text-white">{mcsEvent.theme}</p>
           </div>
         </div>
       </div>
     </section>
-  )
-}
-
-function HeaderLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-[#64748B]">{label}</span>
-      <span className="truncate font-semibold text-[#111827]">{formatDisplayLabel(value)}</span>
-    </div>
-  )
-}
-
-function LiveEventCommandPanel({ status }: { status: ReturnType<typeof getLiveEventStatus> }) {
-  return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className={cn("size-2.5 rounded-full", status.isLive ? "bg-[#16A34A]" : "bg-[#D4A017]")} />
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">Pusat Komando Event</p>
-          </div>
-          <h3 className="mt-3 text-2xl font-semibold tracking-normal text-[#111827]">{status.currentActivity}</h3>
-          <p className="mt-2 text-sm font-medium text-[#64748B]">{status.currentCompetition}</p>
-        </div>
-
-        <StatusBadge label={status.status} tone={status.isLive ? "success" : "warning"} />
-      </div>
-
-      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <OperationalFact label="Lomba Saat Ini" value={status.currentCompetition} />
-        <OperationalFact label="Venue" value={status.currentVenue} />
-        <OperationalFact label="PIC Saat Ini" value={status.currentPic} />
-        <OperationalFact label="Status Event" value={status.status} />
-        <OperationalFact label="Aktivitas Berikutnya" value={status.nextActivity} />
-        <OperationalFact label="Venue Berikutnya" value={status.nextVenue} />
-        <OperationalFact label="Jam Berikutnya" value={status.nextTime} />
-        <OperationalFact label="Sisa Waktu" value={status.timeRemaining} />
-      </div>
-    </section>
-  )
-}
-
-function OperationalFact({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</p>
-      <p className="mt-2 truncate text-sm font-semibold text-[#111827]">{formatDisplayLabel(value)}</p>
-    </div>
   )
 }
 
@@ -293,19 +223,19 @@ function ExecutiveSummary({ summary }: { summary: DashboardSummary }) {
   const items = [
     { label: "Total Lomba", tone: "navy" as Tone, value: summary.metrics.totalCompetitions },
     { label: "Data Peserta", tone: "info" as Tone, value: summary.metrics.totalParticipants || NOT_PUBLISHED },
-    { label: "Panitia On Duty", tone: "success" as Tone, value: summary.metrics.onDutyPanitia || WAITING },
-    { label: "Venue Aktif", tone: "gold" as Tone, value: activeVenues || NOT_PUBLISHED },
+    { label: "Panitia Bertugas", tone: "success" as Tone, value: summary.metrics.onDutyPanitia || WAITING },
+    { label: "Tempat Aktif", tone: "gold" as Tone, value: activeVenues || NOT_PUBLISHED },
     { label: "Pengumuman Hari Ini", tone: "warning" as Tone, value: summary.announcements.length || NOT_PUBLISHED },
-    { label: "Sponsor Confirmed", tone: "neutral" as Tone, value: confirmedSponsors },
+    { label: "Sponsor Terkonfirmasi", tone: "neutral" as Tone, value: confirmedSponsors },
   ]
 
   return (
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+    <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-6">
       {items.map((item) => (
-        <article key={item.label} className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-          <p className="text-sm font-medium text-[#64748B]">{item.label}</p>
-          <div className="mt-3 flex items-end justify-between gap-3">
-            <p className="min-w-0 text-lg font-semibold leading-6 tracking-normal text-[#111827]">{item.value}</p>
+        <article key={item.label} className="rounded-lg border border-[#E5E7EB] bg-white p-3 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{item.label}</p>
+          <div className="mt-2 flex items-end justify-between gap-3">
+            <p className="min-w-0 text-base font-semibold leading-6 tracking-normal text-[#111827]">{item.value}</p>
             <span className={cn("mb-1 size-2.5 shrink-0 rounded-full", getDotClassName(item.tone))} />
           </div>
         </article>
@@ -326,10 +256,10 @@ function Panel({
   title: string
 }) {
   return (
-    <section className="min-w-0 rounded-2xl border border-[#E5E7EB] bg-white shadow-sm">
-      <div className="border-b border-[#E5E7EB] px-6 py-4">
+    <section className="min-w-0 rounded-lg border border-[#E5E7EB] bg-white shadow-sm">
+      <div className="border-b border-[#E5E7EB] px-4 py-3 sm:px-5">
         <div className="flex items-start gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#F8F9FB] text-[#0F172A]">
+          <span className="grid size-8 shrink-0 place-items-center rounded-md bg-[#F8F9FB] text-[#081C3A]">
             <Icon className="size-4" aria-hidden="true" />
           </span>
           <div className="min-w-0">
@@ -338,88 +268,92 @@ function Panel({
           </div>
         </div>
       </div>
-      <div className="p-6">{children}</div>
+      <div className="p-4 sm:p-5">{children}</div>
     </section>
   )
 }
 
-function OperationalAlerts({ alerts }: { alerts: OperationalAlert[] }) {
-  if (alerts.length === 0) {
+function PriorityOverview({
+  alerts,
+  followUps,
+}: {
+  alerts: OperationalAlert[]
+  followUps: ActiveFollowUp[]
+}) {
+  const visibleAlerts = alerts.slice(0, 3)
+  const visibleFollowUps = followUps.slice(0, 4)
+
+  if (visibleAlerts.length === 0 && visibleFollowUps.length === 0) {
     return (
       <EmptyState
-        title="Tidak Ada Alert Aktif"
-        description="Belum ada jadwal delay, divisi attention, atau approval urgent dari data resmi."
-        nextAction="tetap pantau jadwal, divisi, dan approval sebelum event dimulai."
+        title="Tidak Ada Catatan Penting"
+        description="Belum ada kendala, persetujuan, atau follow-up penting dari data resmi."
+        nextAction="pantau pembaruan jadwal, divisi, dan pengumuman sebelum event dimulai."
       />
     )
   }
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {alerts.slice(0, 6).map((alert) => (
-        <article key={`${alert.division}-${alert.title}`} className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[#111827]">{alert.title}</p>
-              <p className="mt-1 text-xs font-medium text-[#64748B]">{alert.division}</p>
-            </div>
-            <StatusBadge label={formatPriorityLabel(alert.priority)} tone={getAlertTone(alert.priority)} />
-          </div>
-          <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium text-[#64748B]">
-            <span>{alert.timeReported}</span>
-            <span>{alert.status}</span>
-          </div>
-          <Link
-            href={alert.actionHref}
-            className="mt-4 inline-flex h-8 items-center justify-center rounded-md border border-[#E5E7EB] bg-white px-3 text-xs font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
-          >
-            {alert.actionLabel}
-          </Link>
-        </article>
-      ))}
+    <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid content-start gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Catatan Penting</p>
+        {visibleAlerts.length > 0 ? (
+          visibleAlerts.map((alert) => (
+            <PriorityRow
+              key={`${alert.division}-${alert.title}`}
+              href={alert.actionHref}
+              meta={`${alert.division} / ${formatDisplayLabel(alert.status)}`}
+              title={alert.title}
+              tone={getAlertTone(alert.priority)}
+            />
+          ))
+        ) : (
+          <CompactEmptyState title="Tidak Ada Kendala Mendesak" />
+        )}
+      </div>
+
+      <div className="grid content-start gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Tindak Lanjut</p>
+        {visibleFollowUps.length > 0 ? (
+          visibleFollowUps.map((item) => (
+            <PriorityRow
+              key={`${item.owner}-${item.title}`}
+              href={item.actionHref}
+              meta={`${item.category} / ${item.owner}`}
+              title={item.title}
+              tone={getAlertTone(item.priority)}
+            />
+          ))
+        ) : (
+          <CompactEmptyState title="Tidak Ada Follow-up Aktif" />
+        )}
+      </div>
     </div>
   )
 }
 
-function ActiveFollowUpBoard({ followUps }: { followUps: ActiveFollowUp[] }) {
-  if (followUps.length === 0) {
-    return (
-      <EmptyState
-        title="Tidak Ada Kendala Aktif"
-        description="Belum ada blocker resmi dari jadwal, divisi, tugas, approval, peserta, atau live monitor."
-        nextAction="tetap cek update jadwal, divisi, dan tugas selama persiapan event."
-      />
-    )
-  }
-
+function PriorityRow({
+  href,
+  meta,
+  title,
+  tone,
+}: {
+  href: string
+  meta: string
+  title: string
+  tone: Tone
+}) {
   return (
-    <div className="grid gap-3">
-      {followUps.slice(0, 6).map((item) => (
-        <article key={`${item.owner}-${item.title}`} className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[#111827]" title={item.title}>
-                {item.title}
-              </p>
-              <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-[#64748B]">{item.detail}</p>
-            </div>
-            <StatusBadge label={formatPriorityLabel(item.priority)} tone={getAlertTone(item.priority)} />
-          </div>
-          <div className="mt-3 grid gap-2 text-xs font-medium text-[#64748B] sm:grid-cols-2">
-            <span className="truncate">Jenis: {item.category}</span>
-            <span className="truncate sm:text-right">PIC: {item.owner}</span>
-            <span className="truncate">Deadline: {item.deadline}</span>
-            <span className="truncate sm:text-right">Status: {formatStatusLabel(item.status)}</span>
-          </div>
-          <Link
-            href={item.actionHref}
-            className="mt-4 inline-flex h-8 items-center justify-center rounded-md border border-[#E5E7EB] bg-white px-3 text-xs font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
-          >
-            {item.actionLabel}
-          </Link>
-        </article>
-      ))}
-    </div>
+    <Link
+      href={href}
+      className="grid min-w-0 gap-2 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 transition hover:border-[#081C3A]/30 hover:bg-white"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="min-w-0 text-sm font-semibold leading-5 text-[#111827]">{title}</p>
+        <span className={cn("mt-1 size-2.5 shrink-0 rounded-full", getDotClassName(tone))} />
+      </div>
+      <p className="line-clamp-1 text-xs font-medium text-[#64748B]">{meta}</p>
+    </Link>
   )
 }
 
@@ -427,7 +361,7 @@ function ReadinessChecklist({ items }: { items: ReadinessItem[] }) {
   return (
     <div className="grid gap-2">
       {items.map((item) => (
-        <div key={item.label} className="grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div key={item.label} className="grid gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               <span className={cn("size-2.5 shrink-0 rounded-full", getDotClassName(item.tone))} />
@@ -450,7 +384,7 @@ function ReadinessChecklist({ items }: { items: ReadinessItem[] }) {
   )
 }
 
-function TodayOperationsTable({
+function AgendaPreview({
   eventIsLive,
   now,
   schedules,
@@ -464,72 +398,99 @@ function TodayOperationsTable({
       <EmptyState
         title={WAITING}
         description="Rundown resmi belum dipublikasikan."
-        nextAction="buka Schedule Management dan isi jadwal resmi hari event."
+        nextAction="buka Manajemen Jadwal dan isi agenda resmi hari event."
       />
     )
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Jam", "Kegiatan", "Venue", "PIC", "Status"].map((heading) => (
-              <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {schedules.map((schedule) => {
-            const status = getScheduleDisplayStatus(schedule, eventIsLive, now)
+    <div className="grid gap-2">
+      {schedules.slice(0, 6).map((schedule) => {
+        const status = getScheduleDisplayStatus(schedule, eventIsLive, now)
 
-            return (
-              <tr key={schedule.id} className="align-top">
-                <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">
-                  {formatScheduleTime(schedule.time)}
-                </td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 font-medium text-[#111827]">{schedule.title}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{schedule.venue}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{schedule.pic}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                  <StatusBadge label={status.label} tone={status.tone} />
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+        return (
+          <Link
+            key={schedule.id}
+            href="/dashboard/schedules"
+            className="grid gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 transition hover:border-[#081C3A]/30 hover:bg-white sm:grid-cols-[92px_minmax(0,1fr)_auto] sm:items-center"
+          >
+            <span className="text-sm font-semibold text-[#081C3A]">{formatScheduleTime(schedule.time)}</span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold text-[#111827]">{schedule.title}</span>
+              <span className="mt-0.5 block truncate text-xs font-medium text-[#64748B]">{schedule.venue} / {schedule.pic}</span>
+            </span>
+            <StatusBadge label={status.label} tone={status.tone} />
+          </Link>
+        )
+      })}
+      <Link
+        href="/dashboard/event-day"
+        className="inline-flex h-9 w-fit items-center rounded-md border border-[#081C3A]/15 bg-white px-3 text-sm font-semibold text-[#081C3A] transition hover:bg-[#F8F9FB]"
+      >
+        Buka Hari Kegiatan
+      </Link>
     </div>
   )
 }
 
-function ImportantAnnouncements({ announcements }: { announcements: AnnouncementRecord[] }) {
-  if (announcements.length === 0) {
+function CommunicationFeed({
+  activity,
+  announcements,
+}: {
+  activity: AuditLogRecord[]
+  announcements: AnnouncementRecord[]
+}) {
+  const visibleAnnouncements = announcements.slice(0, 3)
+  const visibleActivity = activity.filter((item) => item.action !== "system.seeded").slice(0, 3)
+
+  if (visibleAnnouncements.length === 0 && visibleActivity.length === 0) {
     return (
       <EmptyState
-        title="Belum Ada Pengumuman"
-        description="Pengumuman penting akan muncul setelah dipublikasikan."
-        nextAction="buat pengumuman resmi jika ada update untuk panitia atau peserta."
+        title="Belum Ada Update"
+        description="Pengumuman dan aktivitas terbaru akan muncul setelah data resmi masuk."
+        nextAction="buat pengumuman atau update operasional dari modul terkait."
       />
     )
   }
 
   return (
-    <div className="grid gap-3">
-      {announcements.map((announcement) => (
-        <article key={announcement.id} className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
-          <div className="flex items-start justify-between gap-3">
-            <p className="min-w-0 text-sm font-semibold text-[#111827]">{announcement.title}</p>
-            <StatusBadge label={formatStatusLabel(announcement.priority)} tone={getAnnouncementTone(announcement.priority)} />
-          </div>
-          <div className="mt-3 grid gap-1 text-xs font-medium text-[#64748B]">
-            <span>Divisi: {formatPublisher(announcement.createdBy)}</span>
-            <span>Terbit: {announcement.publishedAt ? formatShortDateTime(announcement.publishedAt) : NOT_PUBLISHED}</span>
-          </div>
-        </article>
-      ))}
+    <div className="grid gap-4">
+      <div className="grid gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Pengumuman</p>
+        {visibleAnnouncements.length > 0 ? (
+          visibleAnnouncements.map((announcement) => (
+            <Link
+              key={announcement.id}
+              href="/dashboard/announcements"
+              className="grid gap-2 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 transition hover:border-[#081C3A]/30 hover:bg-white"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 text-sm font-semibold text-[#111827]">{announcement.title}</p>
+                <StatusBadge label={formatStatusLabel(announcement.priority)} tone={getAnnouncementTone(announcement.priority)} />
+              </div>
+              <p className="line-clamp-2 text-xs font-medium leading-5 text-[#64748B]">{announcement.body}</p>
+            </Link>
+          ))
+        ) : (
+          <CompactEmptyState title="Belum Ada Pengumuman" />
+        )}
+      </div>
+
+      <div className="grid gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Aktivitas Terbaru</p>
+        {visibleActivity.length > 0 ? (
+          visibleActivity.map((item) => (
+            <div key={item.id} className="grid gap-1 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
+              <p className="truncate text-sm font-semibold text-[#111827]">{formatAction(item.action)}</p>
+              <p className="truncate text-xs font-medium text-[#64748B]">
+                {item.userName} / {formatShortDateTime(item.timestamp)}
+              </p>
+            </div>
+          ))
+        ) : (
+          <CompactEmptyState title="Belum Ada Aktivitas" />
+        )}
+      </div>
     </div>
   )
 }
@@ -552,9 +513,11 @@ function DivisionStatusBoard({ summary }: { summary: DashboardSummary }) {
         const record = findDivision(summary.committeeStatus, division.id)
         const status = getDivisionHealth(record)
         const pendingTasks = record ? countDivisionTasks(summary.upcomingTasks, record) : 0
+        const taskSummary = record ? `${record.activeTasks} aktif / ${pendingTasks} tertunda` : NO_DATA
+        const focus = record?.focus ?? WAITING
 
         return (
-          <article key={division.id} className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
+          <article key={division.id} className="rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-[#111827]">{division.label}</p>
@@ -562,252 +525,18 @@ function DivisionStatusBoard({ summary }: { summary: DashboardSummary }) {
               </div>
               <StatusBadge label={status} tone={getDivisionTone(status)} />
             </div>
-            <div className="mt-4 grid gap-2 text-sm">
-              <MetricLine label="Tugas Aktif" value={record ? String(record.activeTasks) : NO_DATA} />
-              <MetricLine label="Tugas Pending" value={record ? String(pendingTasks) : NO_DATA} />
-              <MetricLine label="Catatan" value={record?.focus ?? WAITING} />
+            <div className="mt-3 grid gap-2 border-t border-[#E5E7EB] pt-3 text-xs font-medium text-[#64748B]">
+              <div className="flex items-center justify-between gap-3">
+                <span>Tugas</span>
+                <span className="truncate text-right font-semibold text-[#111827]">{formatDisplayLabel(taskSummary)}</span>
+              </div>
+              <p className="line-clamp-2 leading-5">
+                Catatan: <span className="font-semibold text-[#111827]">{formatDisplayLabel(focus)}</span>
+              </p>
             </div>
           </article>
         )
       })}
-    </div>
-  )
-}
-
-function DivisionHandoffBoard({ handoffs }: { handoffs: DivisionHandoff[] }) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[820px] border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Dari", "Ke", "Sinyal", "Status", "Tindak Lanjut"].map((heading) => (
-              <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {handoffs.map((handoff) => (
-            <tr key={`${handoff.from}-${handoff.to}`} className="align-top">
-              <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{handoff.from}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827]">{handoff.to}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{handoff.signal}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4">
-                <StatusBadge label={handoff.status} tone={handoff.tone} />
-              </td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0 text-[#64748B]">{handoff.action}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function VenueMonitoring({ schedules }: { schedules: ScheduleRecord[] }) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Venue", "Kegiatan Aktif", "PIC", "Status", "Jadwal Berikutnya"].map((heading) => (
-              <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {OFFICIAL_VENUES.map((venue) => {
-            const venueSchedule = schedules.find((schedule) => schedule.venue.toLowerCase() === venue.toLowerCase())
-
-            return (
-              <tr key={venue}>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{venue}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{venueSchedule?.title ?? NO_DATA}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{venueSchedule?.pic ?? WAITING}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4">
-                  <StatusBadge label={venueSchedule ? formatStatusLabel(venueSchedule.status) : WAITING} tone={venueSchedule ? "info" : "neutral"} />
-                </td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0 text-[#64748B]">
-                  {venueSchedule ? `${formatScheduleTime(venueSchedule.time)} - ${venueSchedule.title}` : NO_DATA}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function PendingApprovals({ announcements }: { announcements: AnnouncementRecord[] }) {
-  const pendingAnnouncements = announcements.filter((announcement) => announcement.status === "pending_approval")
-
-  if (pendingAnnouncements.length === 0) {
-    return (
-      <EmptyState
-        title="Tidak Ada Approval Pending"
-        description="Belum ada permintaan yang menunggu keputusan Super Admin."
-        nextAction="review Announcement Center jika ada pengumuman baru dari divisi."
-      />
-    )
-  }
-
-  return (
-    <div className="grid gap-3">
-      {pendingAnnouncements.slice(0, 5).map((announcement) => (
-        <article key={announcement.id} className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[#111827]">{announcement.title}</p>
-              <p className="mt-1 text-xs font-medium text-[#64748B]">{formatPublisher(announcement.createdBy)}</p>
-            </div>
-            <StatusBadge label={formatStatusLabel(announcement.priority)} tone={getAnnouncementTone(announcement.priority)} />
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/dashboard/announcements" className="inline-flex h-8 items-center rounded-md bg-[#0F172A] px-3 text-xs font-semibold text-white">
-              Setujui
-            </Link>
-            <Link href="/dashboard/announcements" className="inline-flex h-8 items-center rounded-md border border-[#E5E7EB] bg-white px-3 text-xs font-semibold text-[#111827]">
-              Tolak
-            </Link>
-          </div>
-        </article>
-      ))}
-    </div>
-  )
-}
-
-function RecentActivities({ activity }: { activity: AuditLogRecord[] }) {
-  if (activity.length === 0) {
-    return (
-      <EmptyState
-        title={WAITING}
-        description="Aktivitas sistem akan muncul setelah ada update resmi."
-        nextAction="mulai dari pengisian jadwal, tugas, atau pengumuman resmi."
-      />
-    )
-  }
-
-  return (
-    <div className="grid gap-3">
-      {activity.slice(0, 6).map((item) => (
-        <article key={item.id} className="grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 md:grid-cols-[minmax(0,1fr)_150px] md:items-center">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#111827]">{formatAction(item.action)}</p>
-            <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{item.userName} - {formatPublisher(item.role)}</p>
-          </div>
-          <p className="text-xs font-medium text-[#64748B] md:text-right">{formatShortDateTime(item.timestamp)}</p>
-        </article>
-      ))}
-    </div>
-  )
-}
-
-function UpcomingTasks({ tasks }: { tasks: TaskRecord[] }) {
-  if (tasks.length === 0) {
-    return (
-      <EmptyState
-        title={WAITING}
-        description="Deadline operasional akan muncul setelah tugas ditugaskan."
-        nextAction="buat tugas untuk PIC divisi yang perlu follow-up."
-      />
-    )
-  }
-
-  return (
-    <div className="grid gap-3">
-      {tasks.map((task) => (
-        <article key={task.id} className="grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4 md:grid-cols-[minmax(0,1fr)_170px_auto] md:items-center">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#111827]">{task.title}</p>
-            <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{task.division} - {task.assigneeName}</p>
-          </div>
-          <p className="text-sm font-medium text-[#64748B]">{task.deadline}</p>
-          <StatusBadge label={task.priority} tone={getTaskPriorityTone(task.priority)} />
-        </article>
-      ))}
-    </div>
-  )
-}
-
-function SystemHealthPanel({ summary }: { summary: DashboardSummary }) {
-  const publishedAnnouncements = summary.announcements.filter((announcement) => announcement.status === "published").length
-  const confirmedSponsors = sponsorProspects.filter((sponsor) => sponsor.proposalStatus === "Confirmed").length
-  const ongoingSponsors = sponsorProspects.filter((sponsor) => sponsor.proposalStatus === "On Going").length
-  const items = [
-    {
-      label: "Lomba Berjalan",
-      value: summary.liveMatches.length || NO_ACTIVE_COMPETITION,
-      description: "Aktif setelah operator/PJ Lomba membuka live monitor.",
-    },
-    {
-      label: "Jadwal Terbit",
-      value: summary.todaySchedule.length || NOT_PUBLISHED,
-      description: "Isi jadwal resmi sebelum PIC melakukan handoff venue.",
-    },
-    {
-      label: "Peserta Terverifikasi",
-      value: getParticipantVerifiedStatus(summary),
-      description: "Mulai dari publish data peserta resmi di modul Peserta.",
-    },
-    {
-      label: "Pengumuman Terbit",
-      value: publishedAnnouncements || NOT_PUBLISHED,
-      description: "Buat pengumuman, lalu approval/publish dari modul Pengumuman.",
-    },
-    {
-      label: "Media Terunggah",
-      value: getMediaUploadStatus(summary),
-      description: "Upload foto/video resmi dari Dokumentasi sebelum publikasi Humas.",
-    },
-    {
-      label: "Progress Sponsor",
-      value: `${ongoingSponsors} On Going / ${confirmedSponsors} Confirmed`,
-      description: "Update sponsor tetap mengikuti data prospek resmi.",
-    },
-  ]
-
-  return (
-    <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-      {items.map((item) => (
-        <MetricLine key={item.label} description={item.description} label={item.label} value={String(item.value)} />
-      ))}
-    </div>
-  )
-}
-
-function McsIdentityCard() {
-  return (
-    <aside className="rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
-      <div className="flex items-center gap-2">
-        {brandAssets.map((asset) => (
-          <span key={asset.name} className="relative grid size-10 place-items-center rounded-full border border-[#E5E7EB] bg-white p-1.5">
-            <Image src={asset.src} alt={asset.name} width={32} height={32} className="max-h-full w-auto object-contain" />
-          </span>
-        ))}
-      </div>
-      <h3 className="mt-5 text-xl font-semibold tracking-normal text-[#111827]">{mcsEvent.shortName}</h3>
-      <p className="mt-1 text-sm font-medium text-[#64748B]">{mcsEvent.theme}</p>
-      <div className="mt-5 grid gap-2 text-sm">
-        <HeaderLine label="Tanggal" value="22-25 Juni 2026" />
-        <HeaderLine label="Sekolah" value={mcsEvent.school} />
-        <HeaderLine label="Penyelenggara" value="OSIS & MPK" />
-      </div>
-    </aside>
-  )
-}
-
-function MetricLine({ description, label, value }: { description?: string; label: string; value: string }) {
-  return (
-    <div className="grid gap-1 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] px-3 py-2.5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="min-w-0 truncate text-sm font-medium text-[#64748B]">{label}</span>
-        <span className="max-w-[55%] truncate text-right text-sm font-semibold text-[#111827]">{formatDisplayLabel(value)}</span>
-      </div>
-      {description ? <p className="text-xs font-medium leading-5 text-[#64748B]">{description}</p> : null}
     </div>
   )
 }
@@ -824,11 +553,11 @@ function EmptyState({
   const displayTitle = getEmptyStateTitle(title)
 
   return (
-    <div className="grid min-h-32 place-items-center rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-8 text-center">
+    <div className="grid min-h-32 place-items-center rounded-md border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-8 text-center">
       <div className="max-w-sm">
         <p className="text-sm font-semibold text-[#111827]">{displayTitle}</p>
         <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
-        <p className="mt-3 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#0F172A]">
+        <p className="mt-3 rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#081C3A]">
           Tindak Lanjut: {nextAction ?? getEmptyStateAction(displayTitle)}
         </p>
       </div>
@@ -836,62 +565,21 @@ function EmptyState({
   )
 }
 
+function CompactEmptyState({ title }: { title: string }) {
+  return (
+    <div className="rounded-md border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-3 py-3 text-sm font-semibold text-[#64748B]">
+      {title}
+    </div>
+  )
+}
+
 function StatusBadge({ label, tone = "neutral" }: { label: string; tone?: Tone }) {
   return (
-    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold", getToneClassName(tone))}>
+    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-xs font-semibold", getToneClassName(tone))}>
       {tone === "success" ? <CircleDot className="size-3" aria-hidden="true" /> : null}
       {formatDisplayLabel(label)}
     </span>
   )
-}
-
-function getLiveEventStatus(summary: DashboardSummary, phase: EventPhase, liveMatch: MatchRecord | undefined, now: Date) {
-  const nextActivity = getNextActivity(summary.todaySchedule, now)
-
-  if (liveMatch?.status === "live") {
-    return {
-      currentActivity: `${liveMatch.sport} ${liveMatch.round}`,
-      currentCompetition: `${liveMatch.teamA} vs ${liveMatch.teamB}`,
-      currentPic: WAITING,
-      currentVenue: liveMatch.venue,
-      isLive: true,
-      nextActivity: nextActivity.title,
-      nextTime: nextActivity.time,
-      nextVenue: nextActivity.venue,
-      status: "Live",
-      timeRemaining: nextActivity.countdown,
-    }
-  }
-
-  const currentSchedule = phase === "Live" ? summary.todaySchedule.find((schedule) => getScheduleDisplayStatus(schedule, true, now).label === "Live") : undefined
-
-  if (currentSchedule) {
-    return {
-      currentActivity: currentSchedule.title,
-      currentCompetition: currentSchedule.type === "match" ? currentSchedule.title : NO_ACTIVE_COMPETITION,
-      currentPic: currentSchedule.pic,
-      currentVenue: currentSchedule.venue,
-      isLive: true,
-      nextActivity: nextActivity.title,
-      nextTime: nextActivity.time,
-      nextVenue: nextActivity.venue,
-      status: "Live",
-      timeRemaining: nextActivity.countdown,
-    }
-  }
-
-  return {
-    currentActivity: phase === "Preparation" ? "Persiapan event" : NO_ACTIVE_COMPETITION,
-    currentCompetition: NO_ACTIVE_COMPETITION,
-    currentPic: WAITING,
-    currentVenue: WAITING,
-    isLive: false,
-    nextActivity: nextActivity.title,
-    nextTime: nextActivity.time,
-    nextVenue: nextActivity.venue,
-    status: phase,
-    timeRemaining: nextActivity.countdown,
-  }
 }
 
 function getNextActivity(schedules: ScheduleRecord[], now: Date) {
@@ -944,12 +632,12 @@ function getOperationalAlerts(summary: DashboardSummary, phase: EventPhase, now:
       ? [
           {
             actionHref: "/dashboard/announcements",
-            actionLabel: "Review Approval",
-            division: "Announcement Center",
+            actionLabel: "Review Persetujuan",
+            division: "Pusat Pengumuman",
             priority: "Warning" as const,
-            status: "Pending Approval",
+            status: "Menunggu Persetujuan",
             timeReported: formatClock(now),
-            title: "Approval pengumuman tertunda",
+            title: "Persetujuan pengumuman tertunda",
           },
         ]
       : []
@@ -962,7 +650,7 @@ function getOperationalAlerts(summary: DashboardSummary, phase: EventPhase, now:
             actionLabel: "Cek Sponsor",
             division: "Humas & Sponsorship",
             priority: "Information" as const,
-            status: `${sponsorProspects.length} On Going`,
+            status: `${sponsorProspects.length} berjalan`,
             timeReported: WAITING,
             title: "Follow-up sponsor berjalan",
           },
@@ -974,12 +662,12 @@ function getOperationalAlerts(summary: DashboardSummary, phase: EventPhase, now:
       ? [
           {
             actionHref: "/dashboard/live-match",
-            actionLabel: "Buka Live Monitor",
+            actionLabel: "Buka Pantauan Lomba",
             division: "PJ Lomba",
             priority: "Information" as const,
-            status: "Waiting",
+            status: "Menunggu",
             timeReported: formatClock(now),
-            title: "Live monitor menunggu update",
+            title: "Pantauan lomba menunggu update",
           },
         ]
       : []
@@ -1040,7 +728,7 @@ function getActiveFollowUps(summary: DashboardSummary, phase: EventPhase, now: D
       actionLabel: "Buka Tugas",
       category: task.status === "Blocked" ? "Kendala tugas" : "Prioritas tinggi",
       deadline: task.deadline,
-      detail: `${task.division} - ${task.assigneeName}. Deadline: ${task.deadline}.`,
+      detail: `${task.division} - ${task.assigneeName}. Batas waktu: ${task.deadline}.`,
       owner: task.assigneeName,
       priority: task.status === "Blocked" ? "Urgent" : "Warning",
       status: task.status,
@@ -1052,14 +740,14 @@ function getActiveFollowUps(summary: DashboardSummary, phase: EventPhase, now: D
       ? [
           {
             actionHref: "/dashboard/announcements",
-            actionLabel: "Review Approval",
-            category: "Approval",
+            actionLabel: "Review Persetujuan",
+            category: "Persetujuan",
             deadline: DEADLINE_UNSET,
             detail: `${summary.metrics.pendingAnnouncements} pengumuman perlu review pimpinan.`,
-            owner: "Announcement Center",
+            owner: "Pusat Pengumuman",
             priority: "Warning" as const,
-            status: "Pending Approval",
-            title: "Announcement approval tertunda",
+            status: "Menunggu Persetujuan",
+            title: "Persetujuan pengumuman tertunda",
           },
         ]
       : []
@@ -1103,14 +791,14 @@ function getActiveFollowUps(summary: DashboardSummary, phase: EventPhase, now: D
       ? [
           {
             actionHref: "/dashboard/live-match",
-            actionLabel: "Buka Live Monitor",
-            category: "Live monitor",
+            actionLabel: "Buka Pantauan Lomba",
+            category: "Pantauan Lomba",
             deadline: formatClock(now),
-            detail: `Belum ada update live match pada ${formatClock(now)}.`,
+            detail: `Belum ada update pertandingan live pada ${formatClock(now)}.`,
             owner: "PJ Lomba",
             priority: "Information" as const,
             status: WAITING,
-            title: "Live monitor belum terisi",
+            title: "Pantauan lomba belum terisi",
           },
         ]
       : []
@@ -1124,74 +812,6 @@ function getActiveFollowUps(summary: DashboardSummary, phase: EventPhase, now: D
     ...participantFollowUps,
     ...mediaFollowUps,
     ...liveMonitorFollowUps,
-  ]
-}
-
-function getDivisionHandoffs(summary: DashboardSummary): DivisionHandoff[] {
-  if (summary.divisionHandoffs.length > 0) {
-    return summary.divisionHandoffs.map((handoff) => ({
-      action: handoff.notes ?? `Owner: ${handoff.ownerName}. Deadline: ${handoff.deadline}.`,
-      from: handoff.sourceDivisionName,
-      signal: handoff.activity,
-      status: handoff.status,
-      to: handoff.targetDivisionName,
-      tone: getHandoffTone(handoff.status),
-    }))
-  }
-
-  const hasSchedule = summary.todaySchedule.length > 0
-  const hasParticipants = summary.metrics.totalParticipants > 0
-  const hasMedia = summary.metrics.mediaUploaded > 0
-  const hasPublishedAnnouncements = summary.announcements.some((announcement) => announcement.status === "published")
-  const security = findDivision(summary.committeeStatus, "keamanan")
-  const equipment = findDivision(summary.committeeStatus, "perlengkapan")
-  const documentation = findDivision(summary.committeeStatus, "dokumentasi")
-  const humas = findDivision(summary.committeeStatus, "humas")
-
-  return [
-    {
-      action: hasSchedule ? "PJ Lomba cek slot match dan PIC lapangan." : "Acara isi rundown/jadwal resmi terlebih dulu.",
-      from: "Acara",
-      signal: hasSchedule ? `${summary.todaySchedule.length} jadwal terbit` : "Jadwal belum dipublikasikan",
-      status: hasSchedule ? "Siap diteruskan" : "Butuh Jadwal",
-      to: "PJ Lomba",
-      tone: hasSchedule ? "success" : "warning",
-    },
-    {
-      action: hasParticipants ? "Keamanan cocokkan venue dan alur peserta." : "PJ Lomba publish data peserta dulu.",
-      from: "PJ Lomba",
-      signal: hasParticipants ? `${summary.metrics.totalParticipants} peserta tercatat` : "Peserta belum terbit",
-      status: hasParticipants ? "Siap briefing" : "Belum Lengkap",
-      to: "Keamanan",
-      tone: hasParticipants ? "success" : "warning",
-    },
-    {
-      action:
-        equipment?.status === "Attention"
-          ? "Perlengkapan update kebutuhan alat dan blocker venue."
-          : "Perlengkapan konfirmasi setup venue sebelum sesi.",
-      from: "Keamanan",
-      signal: security ? `${security.name}: ${formatStatusLabel(security.status)}` : "Status keamanan belum ada",
-      status: equipment ? formatStatusLabel(equipment.status) : WAITING,
-      to: "Perlengkapan",
-      tone: equipment ? getDivisionTone(getDivisionHealth(equipment)) : "neutral",
-    },
-    {
-      action: hasMedia ? "Dokumentasi teruskan aset siap publikasi ke Humas." : "Dokumentasi upload foto/video resmi.",
-      from: "Perlengkapan",
-      signal: equipment ? `${equipment.name}: ${equipment.focus}` : "Status perlengkapan belum ada",
-      status: hasMedia ? "Aset tersedia" : "Butuh Media",
-      to: "Dokumentasi",
-      tone: hasMedia ? "success" : "warning",
-    },
-    {
-      action: hasPublishedAnnouncements ? "Humas lanjutkan publikasi dan update sponsor." : "Humas siapkan pengumuman resmi setelah aset tersedia.",
-      from: "Dokumentasi",
-      signal: documentation ? `${documentation.name}: ${documentation.focus}` : "Status dokumentasi belum ada",
-      status: hasPublishedAnnouncements ? "Publikasi aktif" : "Belum Publikasi",
-      to: humas?.name ?? "Humas",
-      tone: hasPublishedAnnouncements ? "success" : "warning",
-    },
   ]
 }
 
@@ -1237,13 +857,13 @@ function getReadinessItems(summary: DashboardSummary, phase: EventPhase, followU
       actionLabel: "Panitia",
       label: "Panitia on duty",
       owner: "Koordinator Divisi",
-      status: summary.metrics.onDutyPanitia > 0 ? `${summary.metrics.onDutyPanitia} on duty` : WAITING,
+      status: summary.metrics.onDutyPanitia > 0 ? `${summary.metrics.onDutyPanitia} bertugas` : WAITING,
       tone: summary.metrics.onDutyPanitia > 0 ? "success" : "warning",
     },
     {
       actionHref: "/dashboard/announcements",
-      actionLabel: "Approval",
-      label: "Approval pengumuman",
+      actionLabel: "Persetujuan",
+      label: "Persetujuan pengumuman",
       owner: "Pimpinan",
       status: summary.metrics.pendingAnnouncements === 0 ? "Clear" : `${summary.metrics.pendingAnnouncements} menunggu`,
       tone: summary.metrics.pendingAnnouncements === 0 ? "success" : "warning",
@@ -1267,16 +887,16 @@ function getReadinessItems(summary: DashboardSummary, phase: EventPhase, followU
     {
       actionHref: "/dashboard/live-match",
       actionLabel: "Live",
-      label: "Live monitor",
+      label: "Pantauan Lomba",
       owner: "Operator / PJ Lomba",
-      status: phase !== "Live" ? "Preparation" : summary.liveMatches.length > 0 ? `${summary.liveMatches.length} aktif` : WAITING,
+      status: phase !== "Live" ? "Persiapan" : summary.liveMatches.length > 0 ? `${summary.liveMatches.length} aktif` : WAITING,
       tone: phase !== "Live" || summary.liveMatches.length > 0 ? "success" : "warning",
     },
     {
       actionHref: "/dashboard",
       actionLabel: "Review",
       label: "Follow-up aktif",
-      owner: "Command Center",
+      owner: "Pimpinan Panitia",
       status: followUps.length === 0 ? "Clear" : `${followUps.length} terbuka`,
       tone: followUps.length === 0 ? "success" : "warning",
     },
@@ -1304,15 +924,17 @@ function getEventState(startDate: string, endDate: string, now: Date) {
   const totalDays = getDateDifference(startDate, endDate) + 1
 
   if (today < startDate) {
+    const daysUntilEvent = Math.max(getDateDifference(today, startDate), 1)
+
     return {
-      dayLabel: `Day 0 of ${totalDays}`,
+      dayLabel: `H-${daysUntilEvent}`,
       phase: "Preparation" as EventPhase,
     }
   }
 
   if (today > endDate) {
     return {
-      dayLabel: "Post Event",
+      dayLabel: "Pasca Event",
       phase: "Completed" as EventPhase,
     }
   }
@@ -1320,7 +942,7 @@ function getEventState(startDate: string, endDate: string, now: Date) {
   const currentDay = Math.min(Math.max(getDateDifference(startDate, today) + 1, 1), totalDays)
 
   return {
-    dayLabel: `Day ${currentDay} of ${totalDays}`,
+    dayLabel: `Hari ${currentDay} dari ${totalDays}`,
     phase: "Live" as EventPhase,
   }
 }
@@ -1356,16 +978,16 @@ function getDurationMinutes(duration: string) {
 function getCountdownLabel(target: Date, now: Date) {
   const diff = target.getTime() - now.getTime()
 
-  if (diff <= 0) return "Now"
+  if (diff <= 0) return "Sekarang"
 
   const totalMinutes = Math.ceil(diff / 60_000)
   const days = Math.floor(totalMinutes / 1440)
   const hours = Math.floor((totalMinutes % 1440) / 60)
   const minutes = totalMinutes % 60
 
-  if (days > 0) return `${days}d ${hours}h`
-  if (hours > 0) return `${hours}h ${minutes}m`
-  return `${minutes}m`
+  if (days > 0) return `${days} hari ${hours} jam`
+  if (hours > 0) return `${hours} jam ${minutes} menit`
+  return `${minutes} menit`
 }
 
 function getJakartaDateKey(value: Date) {
@@ -1385,7 +1007,7 @@ function getDateDifference(startDate: string, endDate: string) {
 }
 
 function formatLongDate(value: Date) {
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat("id-ID", {
     dateStyle: "full",
     timeZone: "Asia/Jakarta",
   }).format(value)
@@ -1413,17 +1035,6 @@ function formatScheduleTime(time: string) {
   return `${time.replace(".", ":")} WIB`
 }
 
-function formatPublisher(value: string) {
-  if (!value) return NOT_PUBLISHED
-
-  return value
-    .replace(/^user_/, "")
-    .split("_")
-    .filter(Boolean)
-    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(" ")
-}
-
 function formatAction(action: string) {
   return action
     .split(".")
@@ -1443,7 +1054,7 @@ function formatStatusLabel(value: string) {
 
 function formatDisplayLabel(value: string) {
   const labels: Record<string, string> = {
-    "Announcement approval pending": "Approval pengumuman tertunda",
+    "Announcement approval pending": "Persetujuan pengumuman tertunda",
     Attention: "Perlu Perhatian",
     "Attention Required": "Perlu Perhatian",
     "Butuh Jadwal": "Butuh Jadwal",
@@ -1458,12 +1069,12 @@ function formatDisplayLabel(value: string) {
     "No Data Available": "Belum Ada Data",
     "Not Published Yet": "Belum Dipublikasikan",
     Preparation: "Persiapan",
-    "Pending Approval": "Menunggu Approval",
+    "Pending Approval": "Menunggu Persetujuan",
     "Perlu Verifikasi": "Perlu Verifikasi",
     Scheduled: "Terjadwal",
     Stable: "Stabil",
     Upcoming: "Akan Datang",
-    Urgent: "Urgent",
+    Urgent: "Mendesak",
     Waiting: "Menunggu",
     "Waiting For Updates": "Menunggu Update",
     Watch: "Perlu Dipantau",
@@ -1471,12 +1082,6 @@ function formatDisplayLabel(value: string) {
   }
 
   return labels[value] ?? value
-}
-
-function formatPriorityLabel(priority: OperationalAlert["priority"]) {
-  if (priority === "Urgent") return "Urgent"
-  if (priority === "Warning") return "Perlu Dicek"
-  return "Info"
 }
 
 function getDivisionIssueCategory(division: CommitteeDivision) {
@@ -1503,13 +1108,6 @@ function getGreeting(value: Date) {
   return "Selamat Malam"
 }
 
-function getEventPhaseTone(phase: EventPhase): Tone {
-  if (phase === "Live") return "success"
-  if (phase === "Completed" || phase === "Post Event") return "neutral"
-  if (phase === "Break") return "gold"
-  return "warning"
-}
-
 function getAlertTone(priority: OperationalAlert["priority"]): Tone {
   if (priority === "Urgent") return "danger"
   if (priority === "Warning") return "warning"
@@ -1526,19 +1124,6 @@ function getDivisionTone(status: DivisionHealth): Tone {
   if (status === "Healthy") return "success"
   if (status === "Critical" || status === "Attention Required") return "danger"
   if (status === "Watch") return "warning"
-  return "neutral"
-}
-
-function getHandoffTone(status: string): Tone {
-  if (status === "Selesai") return "success"
-  if (status === "Terblokir") return "danger"
-  if (status === "Diterima") return "info"
-  return "warning"
-}
-
-function getTaskPriorityTone(priority: TaskPriority): Tone {
-  if (priority === "High") return "danger"
-  if (priority === "Medium") return "warning"
   return "neutral"
 }
 
@@ -1562,9 +1147,9 @@ function getEmptyStateTitle(title: string) {
 function getEmptyStateAction(title: string) {
   const normalizedTitle = title.toLowerCase()
 
-  if (normalizedTitle.includes("approval")) return "buka antrean approval saat ada permintaan masuk."
+  if (normalizedTitle.includes("approval")) return "buka antrean persetujuan saat ada permintaan masuk."
   if (normalizedTitle.includes("alert")) return "pantau update divisi dan jadwal secara berkala."
-  if (normalizedTitle.includes("tugas") || normalizedTitle.includes("task")) return "tugaskan PIC atau publikasikan tugas operasional berikutnya."
+  if (normalizedTitle.includes("tugas") || normalizedTitle.includes("task")) return "tugaskan PIC atau publikasikan tugas kepanitiaan berikutnya."
   return "publikasikan data resmi dari modul penanggung jawab."
 }
 

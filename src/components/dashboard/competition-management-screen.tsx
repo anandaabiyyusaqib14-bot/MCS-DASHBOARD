@@ -45,7 +45,7 @@ import { cn } from "@/lib/utils"
 const ALL = "all"
 const EMPTY = "Belum Ada Data"
 const WAITING = "Menunggu Setup Lomba"
-const BRACKET_UNAVAILABLE = "Bracket Not Generated Yet"
+const BRACKET_UNAVAILABLE = "Bracket Belum Dibuat"
 const MATCH_UNAVAILABLE = "Data match belum tersedia."
 const NO_MATCHES = "Belum Ada Match Terjadwal"
 const NO_PARTICIPANTS = "Belum Ada Peserta Terdaftar"
@@ -168,20 +168,20 @@ type ModalType = "add" | "edit" | "generateBracket" | "inputResult" | "verifyPar
 type WorkspaceTab = "matches" | "participants" | "results" | "schedule" | "reports"
 
 const detailTabs: Array<{ label: string; value: DrawerTab }> = [
-  { label: "Overview", value: "overview" },
-  { label: "Participants", value: "participants" },
+  { label: "Ringkasan", value: "overview" },
+  { label: "Peserta", value: "participants" },
   { label: "Bracket", value: "bracket" },
-  { label: "Schedule", value: "schedule" },
-  { label: "Results", value: "results" },
-  { label: "History", value: "history" },
+  { label: "Jadwal", value: "schedule" },
+  { label: "Hasil", value: "results" },
+  { label: "Riwayat", value: "history" },
 ]
 
 const workspaceTabs: Array<{ label: string; value: WorkspaceTab }> = [
-  { label: "Matches", value: "matches" },
-  { label: "Participants", value: "participants" },
-  { label: "Results", value: "results" },
-  { label: "Schedule", value: "schedule" },
-  { label: "Reports", value: "reports" },
+  { label: "Match", value: "matches" },
+  { label: "Peserta", value: "participants" },
+  { label: "Hasil", value: "results" },
+  { label: "Jadwal", value: "schedule" },
+  { label: "Laporan", value: "reports" },
 ]
 
 export function CompetitionManagementScreen({
@@ -242,12 +242,12 @@ export function CompetitionManagementScreen({
 
   const statusOptions = useMemo(
     () => [
-      { label: "All Statuses", value: ALL },
-      { label: "Upcoming", value: "Upcoming" },
+      { label: "Semua Status", value: ALL },
+      { label: "Akan Datang", value: "Upcoming" },
       { label: "Live", value: "Live" },
-      { label: "Completed", value: "Completed" },
-      { label: "Delayed", value: "Delayed" },
-      { label: "Cancelled", value: "Cancelled" },
+      { label: "Selesai", value: "Completed" },
+      { label: "Tertunda", value: "Delayed" },
+      { label: "Dibatalkan", value: "Cancelled" },
     ],
     [],
   )
@@ -305,19 +305,19 @@ export function CompetitionManagementScreen({
 
       <FilterPanel>
         <FilterSelect
-          label="Competition"
-          options={[{ label: "All Competitions", value: ALL }, ...options.competitions]}
+          label="Lomba"
+          options={[{ label: "Semua Lomba", value: ALL }, ...options.competitions]}
           value={activeCompetitionId}
           onChange={setActiveCompetitionId}
         />
-        <FilterSelect label="Category" options={options.categories} value={category} onChange={setCategory} />
+        <FilterSelect label="Kategori" options={options.categories} value={category} onChange={setCategory} />
         <FilterSelect label="Status" options={statusOptions} value={status} onChange={setStatus} />
-        <FilterSelect label="Venue" options={options.venues} value={venue} onChange={setVenue} />
+        <FilterSelect label="Tempat" options={options.venues} value={venue} onChange={setVenue} />
         <FilterSelect label="PIC" options={options.pics} value={pic} onChange={setPic} />
-        <FilterSelect label="Date" options={options.dates} value={date} onChange={setDate} />
+        <FilterSelect label="Tanggal" options={options.dates} value={date} onChange={setDate} />
         <FilterInput
-          label="Search"
-          placeholder="Search competition, venue, PIC, match ID"
+          label="Cari"
+          placeholder="Cari lomba, tempat, PIC, ID match"
           type="search"
           value={query}
           onChange={setQuery}
@@ -327,15 +327,15 @@ export function CompetitionManagementScreen({
       <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid min-w-0 gap-5">
           <SectionPanel
-            title="Today's Matches"
-            description="Primary operations table for match timing, venue ownership, status, and result readiness."
+            title="Match Hari Ini"
+            description="Tabel utama untuk waktu match, tempat, PIC, status, dan kesiapan hasil."
           >
             <TodayMatchesTable matches={todayMatches} />
           </SectionPanel>
 
           <SectionPanel
-            title="Competition Workspace"
-            description="Operational tabs for matches, participants, results, schedules, and reports."
+            title="Ruang Kerja Lomba"
+            description="Tab kerja untuk match, peserta, hasil, jadwal, dan laporan."
           >
             <WorkspaceTabs activeTab={activeWorkspaceTab} onChange={setActiveWorkspaceTab} />
 
@@ -356,7 +356,7 @@ export function CompetitionManagementScreen({
                   <PaginationFooter total={filteredCompetitions.length} />
                 </>
               ) : (
-                <EmptyState title="No Competition Available" description={WAITING} />
+                <EmptyState title="Belum Ada Lomba" description={WAITING} />
               )
             ) : null}
 
@@ -375,8 +375,8 @@ export function CompetitionManagementScreen({
       </section>
 
       <SectionPanel
-        title="Bracket Progress"
-        description="Simplified bracket state for the selected competition without a large tournament tree."
+        title="Progress Bracket"
+        description="Ringkasan bracket untuk lomba terpilih tanpa tampilan turnamen besar."
         action={
           <button
             type="button"
@@ -384,7 +384,7 @@ export function CompetitionManagementScreen({
             disabled={!currentCompetition}
             onClick={() => currentCompetition ? openDrawer(currentCompetition, "bracket") : undefined}
           >
-            Open Full Bracket
+            Buka Bracket Lengkap
           </button>
         }
       >
@@ -392,24 +392,24 @@ export function CompetitionManagementScreen({
       </SectionPanel>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <SectionPanel title="Participant Status" description="Participant verification state from official registration records.">
+        <SectionPanel title="Status Peserta" description="Status verifikasi peserta dari data pendaftaran resmi.">
           <CompactStats
             items={[
-              { label: "Registered", value: participantStats.registered || NO_PARTICIPANTS, tone: "neutral" },
-              { label: "Verified", value: participantStats.verified, tone: "success" },
-              { label: "Pending", value: participantStats.pending, tone: "warning" },
-              { label: "Disqualified", value: participantStats.disqualified, tone: "danger" },
+              { label: "Terdaftar", value: participantStats.registered || NO_PARTICIPANTS, tone: "neutral" },
+              { label: "Terverifikasi", value: participantStats.verified, tone: "success" },
+              { label: "Menunggu", value: participantStats.pending, tone: "warning" },
+              { label: "Diskualifikasi", value: participantStats.disqualified, tone: "danger" },
             ]}
           />
           <ParticipantStatusTable participants={participantRows} />
         </SectionPanel>
 
-        <SectionPanel title="Recent Activities" description="Score, bracket, participant, and schedule changes.">
+        <SectionPanel title="Aktivitas Terbaru" description="Perubahan skor, bracket, peserta, dan jadwal.">
           <RecentActivity activity={activity} />
         </SectionPanel>
       </section>
 
-      <SectionPanel title="Quick Actions" description="Maximum five core actions for live competition execution.">
+      <SectionPanel title="Aksi Cepat" description="Aksi utama untuk eksekusi lomba dan match berjalan.">
         <QuickActions
           canScore={canScore}
           canUpdate={canUpdate}
@@ -486,7 +486,7 @@ function CompetitionTabs({
           className={getTabClassName(activeCompetitionId === ALL)}
           onClick={() => onChange(ALL)}
         >
-          All
+          Semua
         </button>
         {competitions.map((competition) => (
           <button
@@ -538,15 +538,15 @@ function CompetitionOperationsHeader({
             <span className="h-1 w-1 rounded-full bg-[#D4A017]" aria-hidden="true" />
             <span>{eventInfo.theme}</span>
           </div>
-          <h2 className="mt-3 text-2xl font-semibold tracking-normal text-[#111827]">Competition Dashboard</h2>
+          <h2 className="mt-3 text-2xl font-semibold tracking-normal text-[#111827]">Manajemen Lomba</h2>
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
-            <HeaderFact label="Current Competition" value={competition?.shortName ?? EMPTY} />
-            <HeaderFact label="Current Round" value={round} />
-            <HeaderFact label="Date" value={dateLabel} />
-            <HeaderFact label="Time" value={`${timeLabel} WIB`} />
+            <HeaderFact label="Lomba Saat Ini" value={competition?.shortName ?? EMPTY} />
+            <HeaderFact label="Babak Saat Ini" value={round} />
+            <HeaderFact label="Tanggal" value={dateLabel} />
+            <HeaderFact label="Waktu" value={`${timeLabel} WIB`} />
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <StatusBadge label={competition?.status ?? WAITING} tone={competitionStatusTone(competition?.status ?? "")} />
+            <StatusBadge label={competition?.status ? formatCompetitionStatusLabel(competition.status) : WAITING} tone={competitionStatusTone(competition?.status ?? "")} />
             <span className="rounded-full border border-[#FEF3C7] bg-[#FFFBEB] px-2.5 py-1 text-xs font-semibold text-[#92400E]">
               {eventDayLabel}
             </span>
@@ -555,14 +555,14 @@ function CompetitionOperationsHeader({
         </div>
 
         <div className="flex flex-wrap gap-2 lg:justify-end">
-          <HeaderIconButton icon={Bell} label={`Notifications (${notificationCount})`} />
+          <HeaderIconButton icon={Bell} label={`Notifikasi (${notificationCount})`} />
           <HeaderIconButton icon={UserCircle} label={`${operator.name} - ${operator.roleLabel}`} />
           <Link
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#0F172A] bg-[#0F172A] px-3 text-sm font-semibold text-white transition hover:bg-[#1E293B]"
             href="/"
           >
             <ExternalLink className="size-4" aria-hidden="true" />
-            Public Website
+            Website Publik
           </Link>
         </div>
       </div>
@@ -616,42 +616,42 @@ function CompetitionStatusOverview({
     {
       detail: currentCompetition?.shortName ?? EMPTY,
       icon: GitBranch,
-      label: "Current Round",
+      label: "Babak Saat Ini",
       tone: "navy",
       value: round,
     },
     {
-      detail: "Official schedule rows",
+      detail: "Jadwal resmi",
       icon: CalendarClock,
-      label: "Matches Today",
+      label: "Match Hari Ini",
       tone: "info",
       value: todayMatches.length > 0 ? String(todayMatches.length) : NO_MATCHES,
     },
     {
-      detail: "Published match status",
+      detail: "Status match terpublikasi",
       icon: CheckCircle2,
-      label: "Completed Matches",
+      label: "Match Selesai",
       tone: "success",
       value: String(completedMatches),
     },
     {
-      detail: "Upcoming or delayed",
+      detail: "Akan datang atau tertunda",
       icon: Clock3,
-      label: "Pending Matches",
+      label: "Match Tertunda",
       tone: pendingMatches > 0 ? "warning" : "neutral",
       value: String(pendingMatches),
     },
     {
-      detail: "Official registrations",
+      detail: "Pendaftaran resmi",
       icon: Users,
-      label: "Verified Participants",
+      label: "Peserta Terverifikasi",
       tone: participantStats.verified > 0 ? "success" : "neutral",
       value: participantStats.verified > 0 ? String(participantStats.verified) : NO_PARTICIPANTS,
     },
     {
       detail: venueStatus.detail,
       icon: MapPin,
-      label: "Venue Status",
+      label: "Status Tempat",
       tone: venueStatus.tone,
       value: venueStatus.value,
     },
@@ -708,7 +708,7 @@ function TodayMatchesTable({
   matches: CompetitionScheduleRow[]
 }) {
   if (matches.length === 0) {
-    return <EmptyState title={NO_MATCHES} description="Official match schedules are not available yet." />
+    return <EmptyState title={NO_MATCHES} description="Jadwal match resmi belum tersedia." />
   }
 
   const visibleMatches = compact ? matches.slice(0, 8) : matches
@@ -719,7 +719,7 @@ function TodayMatchesTable({
         <table className="w-full min-w-[880px] border-separate border-spacing-0 text-left text-sm">
           <thead className="bg-[#F8F9FB] text-xs font-semibold uppercase text-[#64748B]">
             <tr>
-              {["Time", "Match", "Venue", "PIC", "Status", "Result"].map((heading) => (
+              {["Waktu", "Match", "Tempat", "PIC", "Status", "Hasil"].map((heading) => (
                 <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3">
                   {heading}
                 </th>
@@ -737,7 +737,7 @@ function TodayMatchesTable({
                 <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{match.venue}</td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{match.pic}</td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4">
-                  <StatusBadge label={match.status} tone={competitionStatusTone(match.status)} />
+                  <StatusBadge label={formatCompetitionStatusLabel(match.status)} tone={competitionStatusTone(match.status)} />
                 </td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827]">{match.result}</td>
               </tr>
@@ -754,11 +754,11 @@ function TodayMatchesTable({
                 <p className="text-sm font-semibold text-[#111827]">{match.match}</p>
                 <p className="mt-1 text-xs font-medium text-[#64748B]">{match.time} - {match.venue}</p>
               </div>
-              <StatusBadge label={match.status} tone={competitionStatusTone(match.status)} />
+              <StatusBadge label={formatCompetitionStatusLabel(match.status)} tone={competitionStatusTone(match.status)} />
             </div>
             <dl className="mt-4 grid gap-2 text-sm">
               <DetailLine label="PIC" value={match.pic} />
-              <DetailLine label="Result" value={match.result} />
+              <DetailLine label="Hasil" value={match.result} />
             </dl>
           </article>
         ))}
@@ -794,7 +794,7 @@ function CompetitionTable({
         <table className="w-full min-w-[1120px] border-separate border-spacing-0 text-left text-sm">
           <thead className="sticky top-0 z-10 bg-[#F8F9FB] text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
             <tr>
-              {["Competition", "Category", "Venue", "PIC", "Participants", "Progress", "Status", "Actions"].map((heading) => (
+              {["Lomba", "Kategori", "Tempat", "PIC", "Peserta", "Progress", "Status", "Aksi"].map((heading) => (
                 <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3">
                   {heading}
                 </th>
@@ -818,15 +818,15 @@ function CompetitionTable({
                   <ProgressCell value={competition.progress} />
                 </td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4">
-                  <StatusBadge label={competition.status} tone={competitionStatusTone(competition.status)} />
+                  <StatusBadge label={formatCompetitionStatusLabel(competition.status)} tone={competitionStatusTone(competition.status)} />
                 </td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4">
                   <div className="flex flex-wrap gap-1.5">
-                    <IconAction label="View" icon={Eye} onClick={() => onView(competition)} />
+                    <IconAction label="Buka" icon={Eye} onClick={() => onView(competition)} />
                     <IconAction disabled={!canUpdate} label="Edit" icon={Edit3} onClick={() => onEdit(competition)} />
                     <IconAction disabled={!canUpdate} label="Bracket" icon={GitBranch} onClick={() => onBracket(competition)} />
-                    <IconAction disabled={!canScore} label="Results" icon={Trophy} onClick={() => onInputResult(competition)} />
-                    <IconAction disabled={!canDelete} label="Delete" icon={Trash2} tone="danger" onClick={() => onDelete(competition)} />
+                    <IconAction disabled={!canScore} label="Hasil" icon={Trophy} onClick={() => onInputResult(competition)} />
+                    <IconAction disabled={!canDelete} label="Hapus" icon={Trash2} tone="danger" onClick={() => onDelete(competition)} />
                   </div>
                 </td>
               </tr>
@@ -843,21 +843,21 @@ function CompetitionTable({
                 <h4 className="truncate text-sm font-semibold text-[#111827]">{competition.shortName}</h4>
                 <p className="mt-1 text-xs font-medium text-[#64748B]">{competition.category}</p>
               </div>
-              <StatusBadge label={competition.status} tone={competitionStatusTone(competition.status)} />
+              <StatusBadge label={formatCompetitionStatusLabel(competition.status)} tone={competitionStatusTone(competition.status)} />
             </div>
             <dl className="mt-4 grid gap-2 text-sm">
               <DetailLine label="PIC" value={competition.pic} />
-              <DetailLine label="Venue" value={competition.venue} />
-              <DetailLine label="Participants" value={String(competition.participantCount)} />
+              <DetailLine label="Tempat" value={competition.venue} />
+              <DetailLine label="Peserta" value={String(competition.participantCount)} />
               <DetailLine label="Progress" value={`${competition.progress}%`} />
             </dl>
             <div className="mt-4 flex flex-wrap gap-1.5">
-              <RowActionButton onClick={() => onView(competition)}>View</RowActionButton>
+              <RowActionButton onClick={() => onView(competition)}>Buka</RowActionButton>
               <RowActionButton disabled={!canUpdate} onClick={() => onBracket(competition)}>
                 Bracket
               </RowActionButton>
               <RowActionButton disabled={!canScore} onClick={() => onInputResult(competition)}>
-                Results
+                Hasil
               </RowActionButton>
             </div>
           </article>
@@ -924,19 +924,19 @@ function OperationalSidebar({
 }) {
   return (
     <aside className="grid min-w-0 content-start gap-4">
-      <SidePanel title="Live Match" description="Compact score desk state.">
+      <SidePanel title="Match Live" description="Ringkasan skor yang sedang berjalan.">
         <LiveMatchList matches={liveMatches} />
       </SidePanel>
 
-      <SidePanel title="Venue Status" description="Usage inferred from official schedule status.">
+      <SidePanel title="Status Tempat" description="Pemakaian tempat berdasarkan jadwal resmi.">
         <VenueStatusList matches={todayMatches} />
       </SidePanel>
 
-      <SidePanel title="Competition Alerts" description="Delayed, cancelled, or blocked operational items.">
+      <SidePanel title="Kendala Lomba" description="Match mundur, batal, atau item yang perlu tindak lanjut.">
         <CompetitionAlerts matches={todayMatches} />
       </SidePanel>
 
-      <SidePanel title="Upcoming Matches" description="Next published match blocks.">
+      <SidePanel title="Match Berikutnya" description="Blok match berikutnya yang sudah dipublikasikan.">
         <TodayMatchesList matches={upcomingMatches.filter((match) => match.status === "Upcoming")} />
       </SidePanel>
     </aside>
@@ -957,7 +957,7 @@ function SidePanel({ children, description, title }: { children: ReactNode; desc
 
 function LiveMatchList({ matches }: { matches: CompetitionLiveMatchRow[] }) {
   if (matches.length === 0) {
-    return <CompactEmptyState title={MATCH_UNAVAILABLE} description="No live competition is currently published." />
+    return <CompactEmptyState title={MATCH_UNAVAILABLE} description="Belum ada match live yang dipublikasikan." />
   }
 
   return (
@@ -969,11 +969,11 @@ function LiveMatchList({ matches }: { matches: CompetitionLiveMatchRow[] }) {
               <p className="truncate text-sm font-semibold text-[#111827]">{match.competition}</p>
               <p className="mt-1 line-clamp-2 text-xs font-medium text-[#64748B]">{match.match}</p>
             </div>
-            <StatusBadge label={match.status} tone={competitionStatusTone(match.status)} />
+            <StatusBadge label={formatCompetitionStatusLabel(match.status)} tone={competitionStatusTone(match.status)} />
           </div>
           <div className="mt-3 grid gap-2 text-sm">
-            <DetailLine label="Score" value={match.score} />
-            <DetailLine label="Venue" value={match.venue} />
+            <DetailLine label="Skor" value={match.score} />
+            <DetailLine label="Tempat" value={match.venue} />
             <DetailLine label="PIC" value={match.pic} />
           </div>
         </div>
@@ -984,7 +984,7 @@ function LiveMatchList({ matches }: { matches: CompetitionLiveMatchRow[] }) {
 
 function TodayMatchesList({ matches }: { matches: CompetitionScheduleRow[] }) {
   if (matches.length === 0) {
-    return <CompactEmptyState title={NO_MATCHES} description="Official match schedules are not available yet." />
+    return <CompactEmptyState title={NO_MATCHES} description="Jadwal match resmi belum tersedia." />
   }
 
   return (
@@ -993,7 +993,7 @@ function TodayMatchesList({ matches }: { matches: CompetitionScheduleRow[] }) {
         <div key={match.id} className="grid gap-2 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 text-sm">
           <div className="flex items-start justify-between gap-3">
             <p className="min-w-0 font-semibold text-[#111827]">{match.match}</p>
-            <StatusBadge label={match.status} tone={competitionStatusTone(match.status)} />
+            <StatusBadge label={formatCompetitionStatusLabel(match.status)} tone={competitionStatusTone(match.status)} />
           </div>
           <div className="grid gap-1 text-xs font-medium text-[#64748B]">
             <span>{match.time}</span>
@@ -1009,7 +1009,7 @@ function VenueStatusList({ matches }: { matches: CompetitionScheduleRow[] }) {
   const venues = getVenueRows(matches)
 
   if (venues.length === 0) {
-    return <CompactEmptyState title="Venue Status Not Published" description="Venue usage will appear after official schedules are available." />
+    return <CompactEmptyState title="Status Tempat Belum Dipublikasikan" description="Pemakaian tempat muncul setelah jadwal resmi tersedia." />
   }
 
   return (
@@ -1031,7 +1031,7 @@ function CompetitionAlerts({ matches }: { matches: CompetitionScheduleRow[] }) {
   const alerts = matches.filter((match) => match.status === "Delayed" || match.status === "Cancelled")
 
   if (alerts.length === 0) {
-    return <CompactEmptyState title="No Published Alerts" description="Competition alerts will appear when schedule issues are recorded." />
+    return <CompactEmptyState title="Belum Ada Kendala Dipublikasikan" description="Kendala lomba muncul ketika masalah jadwal dicatat." />
   }
 
   return (
@@ -1055,9 +1055,9 @@ function ParticipantStatusTable({ participants }: { participants: CompetitionPar
   if (participants.length === 0) {
     return (
       <DrawerTable
-        columns={["Name", "Class", "Department", "Status", "Attendance"]}
+        columns={["Nama", "Kelas", "Jurusan", "Status", "Kehadiran"]}
         emptyTitle={NO_PARTICIPANTS}
-        emptyDescription="Official participant records are not published yet."
+        emptyDescription="Data peserta resmi belum dipublikasikan."
       />
     )
   }
@@ -1068,7 +1068,7 @@ function ParticipantStatusTable({ participants }: { participants: CompetitionPar
         <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
           <thead className="bg-[#F8F9FB] text-xs font-semibold uppercase text-[#64748B]">
             <tr>
-              {["Name", "Class", "Department", "Status", "Attendance"].map((heading) => (
+              {["Nama", "Kelas", "Jurusan", "Status", "Kehadiran"].map((heading) => (
                 <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3">
                   {heading}
                 </th>
@@ -1085,7 +1085,7 @@ function ParticipantStatusTable({ participants }: { participants: CompetitionPar
                 <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{participant.className}</td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{participant.department}</td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4">
-                  <StatusBadge label={participant.status} tone={participantStatusTone(participant.status)} />
+                  <StatusBadge label={formatParticipantStatusLabel(participant.status)} tone={participantStatusTone(participant.status)} />
                 </td>
                 <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827]">{participant.attendance}</td>
               </tr>
@@ -1102,11 +1102,11 @@ function ParticipantStatusTable({ participants }: { participants: CompetitionPar
                 <p className="text-sm font-semibold text-[#111827]">{participant.name}</p>
                 <p className="mt-1 text-xs font-medium text-[#64748B]">{participant.className} - {participant.department}</p>
               </div>
-              <StatusBadge label={participant.status} tone={participantStatusTone(participant.status)} />
+              <StatusBadge label={formatParticipantStatusLabel(participant.status)} tone={participantStatusTone(participant.status)} />
             </div>
             <dl className="mt-4 grid gap-2 text-sm">
-              <DetailLine label="Competition" value={participant.competition} />
-              <DetailLine label="Attendance" value={participant.attendance} />
+              <DetailLine label="Lomba" value={participant.competition} />
+              <DetailLine label="Kehadiran" value={participant.attendance} />
             </dl>
           </article>
         ))}
@@ -1118,15 +1118,15 @@ function ParticipantStatusTable({ participants }: { participants: CompetitionPar
 function ResultsWorkspace() {
   return (
     <DrawerTable
-      columns={["Match", "Score", "Winner", "Updated By", "Approval Status"]}
-      emptyTitle="No Results Submitted"
-      emptyDescription="Result records will appear after PJ Lomba or operators submit official match results."
+      columns={["Match", "Skor", "Pemenang", "Diupdate Oleh", "Status Persetujuan"]}
+      emptyTitle="Belum Ada Hasil Masuk"
+      emptyDescription="Catatan hasil muncul setelah PJ Lomba atau operator mengirim hasil match resmi."
     />
   )
 }
 
 function ReportsWorkspace() {
-  const reports = ["Competition Report", "Participant Report", "Match Report", "Bracket Report", "Result Report"]
+  const reports = ["Laporan Lomba", "Laporan Peserta", "Laporan Match", "Laporan Bracket", "Laporan Hasil"]
 
   return (
     <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5">
@@ -1138,7 +1138,7 @@ function ReportsWorkspace() {
         >
           <FileText className="size-4 text-[#64748B]" aria-hidden="true" />
           <span className="text-sm font-semibold text-[#111827]">{report}</span>
-          <span className="text-xs font-medium text-[#64748B]">Data Not Published Yet</span>
+          <span className="text-xs font-medium text-[#64748B]">Data Belum Dipublikasikan</span>
         </button>
       ))}
     </div>
@@ -1158,7 +1158,7 @@ function BracketProgressGrid({
   const rows = selectedBracket ? [selectedBracket] : bracketRows.slice(0, 4)
 
   if (rows.length === 0) {
-    return <EmptyState title={BRACKET_UNAVAILABLE} description="Bracket progress will appear after official bracket generation." />
+    return <EmptyState title={BRACKET_UNAVAILABLE} description="Progress bracket muncul setelah bracket resmi dibuat." />
   }
 
   return (
@@ -1173,9 +1173,9 @@ function BracketProgressGrid({
             <GitBranch className="size-4 shrink-0 text-[#D4A017]" aria-hidden="true" />
           </div>
           <dl className="mt-4 grid gap-2 text-sm">
-            <DetailLine label="Qualified Teams" value={row.totalTeams} />
-            <DetailLine label="Upcoming Matches" value={row.nextMatch} />
-            <DetailLine label="Completed Matches" value={row.matchesCompleted} />
+            <DetailLine label="Tim Lolos" value={row.totalTeams} />
+            <DetailLine label="Match Berikutnya" value={row.nextMatch} />
+            <DetailLine label="Match Selesai" value={row.matchesCompleted} />
           </dl>
         </article>
       ))}
@@ -1204,11 +1204,11 @@ function QuickActions({
 }) {
   return (
     <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5">
-      <QuickActionButton disabled={!canScore || !currentCompetition} icon={Trophy} label="Input Result" onClick={onInputResult} />
+      <QuickActionButton disabled={!canScore || !currentCompetition} icon={Trophy} label="Input Hasil" onClick={onInputResult} />
       <QuickActionButton disabled={!canUpdate || !currentCompetition} icon={GitBranch} label="Update Bracket" onClick={onGenerateBracket} />
-      <QuickActionButton disabled={!currentCompetition} icon={ShieldCheck} label="Verify Participant" onClick={onVerifyParticipant} />
-      <QuickActionButton icon={CalendarClock} label="Open Schedule" onClick={onOpenSchedule} />
-      <QuickActionButton icon={Download} label="Generate Report" onClick={onReport} />
+      <QuickActionButton disabled={!currentCompetition} icon={ShieldCheck} label="Verifikasi Peserta" onClick={onVerifyParticipant} />
+      <QuickActionButton icon={CalendarClock} label="Buka Jadwal" onClick={onOpenSchedule} />
+      <QuickActionButton icon={Download} label="Buat Laporan" onClick={onReport} />
     </div>
   )
 }
@@ -1256,7 +1256,7 @@ function CompactStats({
 
 function RecentActivity({ activity }: { activity: CompetitionActivityRow[] }) {
   if (activity.length === 0) {
-    return <EmptyState title="Waiting For Competition Setup" description="Competition changes will appear after official updates exist." />
+    return <EmptyState title="Menunggu Setup Lomba" description="Perubahan lomba muncul setelah ada update resmi." />
   }
 
   return (
@@ -1266,7 +1266,7 @@ function RecentActivity({ activity }: { activity: CompetitionActivityRow[] }) {
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-[#111827]">{item.action}</p>
             <p className="mt-1 text-sm font-medium text-[#64748B]">
-              {item.resource} by {item.actor}
+              {item.resource} oleh {item.actor}
             </p>
           </div>
           <span className="text-xs font-semibold text-[#64748B]">{item.time}</span>
@@ -1279,13 +1279,13 @@ function RecentActivity({ activity }: { activity: CompetitionActivityRow[] }) {
 function PaginationFooter({ total }: { total: number }) {
   return (
     <div className="flex flex-col gap-3 border-t border-[#E5E7EB] bg-[#F8F9FB] px-5 py-3 text-sm font-medium text-[#64748B] sm:flex-row sm:items-center sm:justify-between">
-      <span>Showing {total} competition{total === 1 ? "" : "s"}</span>
+      <span>Menampilkan {total} lomba</span>
       <div className="flex gap-2">
         <button type="button" className="h-8 rounded-md border border-[#E5E7EB] bg-white px-3 text-xs font-semibold text-[#64748B]" disabled>
-          Previous
+          Sebelumnya
         </button>
         <button type="button" className="h-8 rounded-md border border-[#E5E7EB] bg-white px-3 text-xs font-semibold text-[#64748B]" disabled>
-          Next
+          Berikutnya
         </button>
       </div>
     </div>
@@ -1306,18 +1306,18 @@ function AddCompetitionModal({
   return (
     <ManagementModal
       open={open}
-      title="Add Competition"
-      description="Only official MCS 1 competitions can be selected."
-      footer={<ModalFooter primaryLabel="Save Competition" onClose={onClose} />}
+      title="Tambah Lomba"
+      description="Hanya cabang resmi MCS 1 yang dapat dipilih."
+      footer={<ModalFooter primaryLabel="Simpan Lomba" onClose={onClose} />}
       onClose={onClose}
     >
       <FormGrid>
-        <FormSelect label="Competition Name" options={competitionOptions} />
-        <FormField label="Category" placeholder="Competition category" />
-        <FormSelect label="Venue" options={venueOptions} />
-        <FormField label="PIC" placeholder="Responsible committee" />
-        <FormField label="Competition Date" placeholder="Date and time" />
-        <FormTextarea label="Description" placeholder="Competition description or setup notes" />
+        <FormSelect label="Nama Lomba" options={competitionOptions} />
+        <FormField label="Kategori" placeholder="Kategori lomba" />
+        <FormSelect label="Tempat" options={venueOptions} />
+        <FormField label="PIC" placeholder="Panitia penanggung jawab" />
+        <FormField label="Tanggal Lomba" placeholder="Tanggal dan waktu" />
+        <FormTextarea label="Catatan" placeholder="Deskripsi lomba atau catatan setup" />
       </FormGrid>
     </ManagementModal>
   )
@@ -1337,18 +1337,18 @@ function EditCompetitionModal({
   return (
     <ManagementModal
       open={open}
-      title="Edit Competition"
-      description={selectedCompetition?.shortName ?? "Official MCS 1 competition"}
-      footer={<ModalFooter primaryLabel="Save Changes" onClose={onClose} />}
+      title="Edit Lomba"
+      description={selectedCompetition?.shortName ?? "Lomba resmi MCS 1"}
+      footer={<ModalFooter primaryLabel="Simpan Perubahan" onClose={onClose} />}
       onClose={onClose}
     >
       <FormGrid>
-        <FormField label="Competition Name" value={selectedCompetition?.shortName ?? ""} />
-        <FormField label="Category" value={selectedCompetition?.category ?? ""} />
-        <FormSelect label="Venue" options={venueOptions} value={selectedCompetition?.venue} />
+        <FormField label="Nama Lomba" value={selectedCompetition?.shortName ?? ""} />
+        <FormField label="Kategori" value={selectedCompetition?.category ?? ""} />
+        <FormSelect label="Tempat" options={venueOptions} value={selectedCompetition?.venue} />
         <FormField label="PIC" value={selectedCompetition?.pic ?? ""} />
-        <FormField label="Competition Status" value={selectedCompetition?.status ?? ""} />
-        <FormTextarea label="Notes" placeholder="Competition update notes" />
+        <FormField label="Status Lomba" value={selectedCompetition?.status ? formatCompetitionStatusLabel(selectedCompetition.status) : ""} />
+        <FormTextarea label="Catatan" placeholder="Catatan update lomba" />
       </FormGrid>
     </ManagementModal>
   )
@@ -1366,15 +1366,15 @@ function GenerateBracketModal({
   return (
     <ManagementModal
       open={open}
-      title="Generate Bracket"
-      description={selectedCompetition ? `Bracket setup for ${selectedCompetition.shortName}` : "Bracket setup"}
-      footer={<ModalFooter primaryLabel="Generate Bracket" onClose={onClose} />}
+      title="Buat Bracket"
+      description={selectedCompetition ? `Setup bracket untuk ${selectedCompetition.shortName}` : "Setup bracket"}
+      footer={<ModalFooter primaryLabel="Buat Bracket" onClose={onClose} />}
       onClose={onClose}
     >
       <FormGrid>
-        <FormField label="Competition" value={selectedCompetition?.shortName ?? EMPTY} />
+        <FormField label="Lomba" value={selectedCompetition?.shortName ?? EMPTY} />
         <FormSelect
-          label="Round"
+          label="Babak"
           options={[
             { label: "Round of 16", value: "round-of-16" },
             { label: "Quarter Final", value: "quarter-final" },
@@ -1383,7 +1383,7 @@ function GenerateBracketModal({
             { label: "Grand Final", value: "grand-final" },
           ]}
         />
-        <FormTextarea label="Bracket Notes" placeholder={BRACKET_UNAVAILABLE} />
+        <FormTextarea label="Catatan Bracket" placeholder={BRACKET_UNAVAILABLE} />
       </FormGrid>
     </ManagementModal>
   )
@@ -1401,18 +1401,18 @@ function InputResultModal({
   return (
     <ManagementModal
       open={open}
-      title="Input Result"
-      description={selectedCompetition ? `Result entry for ${selectedCompetition.shortName}` : "Result entry"}
-      footer={<ModalFooter primaryLabel="Submit Result" onClose={onClose} />}
+      title="Input Hasil"
+      description={selectedCompetition ? `Input hasil untuk ${selectedCompetition.shortName}` : "Input hasil"}
+      footer={<ModalFooter primaryLabel="Kirim Hasil" onClose={onClose} />}
       onClose={onClose}
     >
       <FormGrid>
-        <FormField label="Match" placeholder="Select match" />
-        <FormField label="Team A / Participant A" placeholder="Team A" />
-        <FormField label="Team B / Participant B" placeholder="Team B" />
-        <FormField label="Score" placeholder="0 - 0" />
-        <FormField label="Winner" placeholder="Winner" />
-        <FormTextarea label="Notes" placeholder="Result notes" />
+        <FormField label="Match" placeholder="Pilih match" />
+        <FormField label="Tim/Peserta A" placeholder="Tim A" />
+        <FormField label="Tim/Peserta B" placeholder="Tim B" />
+        <FormField label="Skor" placeholder="0 - 0" />
+        <FormField label="Pemenang" placeholder="Pemenang" />
+        <FormTextarea label="Catatan" placeholder="Catatan hasil" />
       </FormGrid>
     </ManagementModal>
   )
@@ -1430,22 +1430,22 @@ function VerifyParticipantModal({
   return (
     <ManagementModal
       open={open}
-      title="Verify Participant"
-      description={selectedCompetition ? `Verification for ${selectedCompetition.shortName}` : "Participant verification"}
-      footer={<ModalFooter primaryLabel="Verify Participant" onClose={onClose} />}
+      title="Verifikasi Peserta"
+      description={selectedCompetition ? `Verifikasi untuk ${selectedCompetition.shortName}` : "Verifikasi peserta"}
+      footer={<ModalFooter primaryLabel="Verifikasi Peserta" onClose={onClose} />}
       onClose={onClose}
     >
       <FormGrid>
-        <FormField label="Participant Name" placeholder={NO_PARTICIPANTS} />
-        <FormField label="Class" placeholder={EMPTY} />
-        <FormField label="Department" placeholder={EMPTY} />
+        <FormField label="Nama Peserta" placeholder={NO_PARTICIPANTS} />
+        <FormField label="Kelas" placeholder={EMPTY} />
+        <FormField label="Jurusan" placeholder={EMPTY} />
         <FormSelect
           label="Verification"
           options={[
-            { label: "Pending", value: "pending" },
-            { label: "Verified", value: "verified" },
-            { label: "Rejected", value: "rejected" },
-            { label: "Disqualified", value: "disqualified" },
+            { label: "Menunggu", value: "pending" },
+            { label: "Terverifikasi", value: "verified" },
+            { label: "Ditolak", value: "rejected" },
+            { label: "Diskualifikasi", value: "disqualified" },
           ]}
         />
       </FormGrid>
@@ -1484,20 +1484,20 @@ function CompetitionDetailDrawer({
   return (
     <div className="fixed inset-0 z-50 bg-[#0F172A]/20" role="presentation" onMouseDown={(event) => event.target === event.currentTarget ? onClose() : undefined}>
       <aside
-        aria-label="Competition detail drawer"
+        aria-label="Detail lomba"
         className="ml-auto flex h-full w-full max-w-2xl flex-col border-l border-[#E5E7EB] bg-white shadow-xl"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-[#E5E7EB] p-5">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Competition Detail Drawer</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Detail Lomba</p>
             <h3 className="mt-2 text-xl font-semibold text-[#111827]">{competition.shortName}</h3>
             <p className="mt-1 text-sm font-medium text-[#64748B]">{competition.category} - {competition.venue}</p>
           </div>
           <button
             type="button"
             className="grid size-9 shrink-0 place-items-center rounded-md border border-[#E5E7EB] bg-white text-[#64748B] transition hover:bg-[#F8F9FB]"
-            aria-label="Close drawer"
+            aria-label="Tutup drawer"
             onClick={onClose}
           >
             <X className="size-4" aria-hidden="true" />
@@ -1535,14 +1535,14 @@ function CompetitionDetailDrawer({
 function DrawerOverview({ competition }: { competition: CompetitionManagementCompetition }) {
   return (
     <div className="grid gap-3 text-sm">
-      <DetailLine label="Competition Name" value={competition.shortName} />
-      <DetailLine label="Category" value={competition.category} />
-      <DetailLine label="Venue" value={competition.venue} />
+      <DetailLine label="Nama Lomba" value={competition.shortName} />
+      <DetailLine label="Kategori" value={competition.category} />
+      <DetailLine label="Tempat" value={competition.venue} />
       <DetailLine label="PIC" value={competition.pic} />
-      <DetailLine label="Competition Date" value={competition.scheduleLabel} />
-      <DetailLine label="Competition Status" value={competition.status} />
-      <DetailLine label="Competition Type" value={competition.competitionGroup} />
-      <DetailLine label="Competition Rules" value="Use official Juknis Management records." />
+      <DetailLine label="Tanggal Lomba" value={competition.scheduleLabel} />
+      <DetailLine label="Status Lomba" value={formatCompetitionStatusLabel(competition.status)} />
+      <DetailLine label="Tipe Lomba" value={competition.competitionGroup} />
+      <DetailLine label="Aturan Lomba" value="Gunakan data resmi dari Manajemen Juknis." />
     </div>
   )
 }
@@ -1553,22 +1553,22 @@ function DrawerParticipants({ participants }: { participants: CompetitionPartici
 
 function DrawerBracket({ bracket }: { bracket?: BracketOverviewRow }) {
   if (!bracket || bracket.currentRound === BRACKET_UNAVAILABLE) {
-    return <CompactEmptyState title={BRACKET_UNAVAILABLE} description="Round of 16, Quarter Final, Semi Final, and Final will appear after generation." />
+    return <CompactEmptyState title={BRACKET_UNAVAILABLE} description="Round of 16, Quarter Final, Semi Final, dan Final muncul setelah bracket dibuat." />
   }
 
   return (
     <div className="grid gap-3 text-sm">
-      <DetailLine label="Current Round" value={bracket.currentRound} />
-      <DetailLine label="Remaining Teams" value={bracket.totalTeams} />
-      <DetailLine label="Completed Matches" value={bracket.matchesCompleted} />
-      <DetailLine label="Upcoming Match" value={bracket.nextMatch} />
+      <DetailLine label="Babak Saat Ini" value={bracket.currentRound} />
+      <DetailLine label="Tim Tersisa" value={bracket.totalTeams} />
+      <DetailLine label="Match Selesai" value={bracket.matchesCompleted} />
+      <DetailLine label="Match Berikutnya" value={bracket.nextMatch} />
     </div>
   )
 }
 
 function DrawerSchedule({ matches }: { matches: CompetitionScheduleRow[] }) {
   if (matches.length === 0) {
-    return <CompactEmptyState title={NO_MATCHES} description="Competition match schedule is waiting for setup." />
+    return <CompactEmptyState title={NO_MATCHES} description="Jadwal match lomba masih menunggu setup." />
   }
 
   return (
@@ -1577,7 +1577,7 @@ function DrawerSchedule({ matches }: { matches: CompetitionScheduleRow[] }) {
         <div key={match.id} className="rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
           <div className="flex items-start justify-between gap-3">
             <p className="text-sm font-semibold text-[#111827]">{match.match}</p>
-            <StatusBadge label={match.status} tone={competitionStatusTone(match.status)} />
+            <StatusBadge label={formatCompetitionStatusLabel(match.status)} tone={competitionStatusTone(match.status)} />
           </div>
           <p className="mt-2 text-sm font-medium text-[#64748B]">{match.time} - {match.venue}</p>
         </div>
@@ -1589,16 +1589,16 @@ function DrawerSchedule({ matches }: { matches: CompetitionScheduleRow[] }) {
 function DrawerResults() {
   return (
     <DrawerTable
-      columns={["Match", "Score", "Winner", "Date", "PIC"]}
+      columns={["Match", "Skor", "Pemenang", "Tanggal", "PIC"]}
       emptyTitle={MATCH_UNAVAILABLE}
-      emptyDescription="Official result records have not been published yet."
+      emptyDescription="Catatan hasil resmi belum dipublikasikan."
     />
   )
 }
 
 function DrawerHistory({ activity }: { activity: CompetitionActivityRow[] }) {
   if (activity.length === 0) {
-    return <CompactEmptyState title={WAITING} description="Score, bracket, participant, and schedule history will appear after updates." />
+    return <CompactEmptyState title={WAITING} description="Riwayat skor, bracket, peserta, dan jadwal muncul setelah ada update." />
   }
 
   return <RecentActivity activity={activity} />
@@ -1679,11 +1679,11 @@ function getEventDayLabel(date: Date, startDate: string, endDate: string) {
   const startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())
   const endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate())
 
-  if (today < startUtc) return "Pre-Event"
-  if (today > endUtc) return "Event Completed"
+  if (today < startUtc) return "Pra-Event"
+  if (today > endUtc) return "Event Selesai"
 
   const day = Math.floor((today - startUtc) / 86_400_000) + 1
-  return `Event Day ${day}`
+  return `Hari Kegiatan ${day}`
 }
 
 function getCurrentRound(bracket?: BracketOverviewRow, matches: CompetitionScheduleRow[] = []) {
@@ -1712,18 +1712,18 @@ function extractRoundFromMatch(value: string) {
 
 function getVenueSummary(matches: CompetitionScheduleRow[]): { detail: string; tone: StatusTone; value: string } {
   if (matches.length === 0) {
-    return { detail: "No scheduled venue usage", tone: "neutral", value: "Available" }
+    return { detail: "Belum ada pemakaian tempat terjadwal", tone: "neutral", value: "Tersedia" }
   }
 
   if (matches.some((match) => match.status === "Live")) {
-    return { detail: "Live match in progress", tone: "success", value: "In Use" }
+    return { detail: "Match live sedang berjalan", tone: "success", value: "Terpakai" }
   }
 
   if (matches.some((match) => match.status === "Delayed")) {
-    return { detail: "Delayed schedule exists", tone: "warning", value: "Reserved" }
+    return { detail: "Ada jadwal tertunda", tone: "warning", value: "Dipesan" }
   }
 
-  return { detail: `${new Set(matches.map((match) => match.venue)).size} venue blocks`, tone: "info", value: "Reserved" }
+  return { detail: `${new Set(matches.map((match) => match.venue)).size} blok tempat`, tone: "info", value: "Dipesan" }
 }
 
 function getVenueRows(matches: CompetitionScheduleRow[]) {
@@ -1749,10 +1749,36 @@ function getVenueRows(matches: CompetitionScheduleRow[]) {
 }
 
 function getVenueStatus(matches: CompetitionScheduleRow[]): { label: string; tone: StatusTone } {
-  if (matches.some((match) => match.status === "Live")) return { label: "In Use", tone: "success" }
-  if (matches.some((match) => match.status === "Delayed")) return { label: "Reserved", tone: "warning" }
-  if (matches.some((match) => match.status === "Cancelled")) return { label: "Available", tone: "neutral" }
-  return { label: "Reserved", tone: "info" }
+  if (matches.some((match) => match.status === "Live")) return { label: "Terpakai", tone: "success" }
+  if (matches.some((match) => match.status === "Delayed")) return { label: "Dipesan", tone: "warning" }
+  if (matches.some((match) => match.status === "Cancelled")) return { label: "Tersedia", tone: "neutral" }
+  return { label: "Dipesan", tone: "info" }
+}
+
+function formatCompetitionStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    Upcoming: "Akan Datang",
+    Live: "Live",
+    Completed: "Selesai",
+    Delayed: "Tertunda",
+    Cancelled: "Dibatalkan",
+  }
+
+  return labels[status] ?? status
+}
+
+function formatParticipantStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    Active: "Aktif",
+    Completed: "Selesai",
+    Disqualified: "Diskualifikasi",
+    Pending: "Menunggu",
+    Rejected: "Ditolak",
+    Verified: "Terverifikasi",
+    Withdrawn: "Mundur",
+  }
+
+  return labels[status] ?? status
 }
 
 function getToneTextClass(tone: StatusTone) {

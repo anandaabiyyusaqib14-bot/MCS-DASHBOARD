@@ -5,8 +5,8 @@ import { listAnnouncements, listIssues, listMedia } from "@/server/mcs/service"
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Pusat Approval - MCS 1",
-  description: "Pusat approval pengumuman, media, dan issue close untuk MCS 1.",
+  title: "Pusat Persetujuan - MCS 1",
+  description: "Pusat persetujuan pengumuman, media, dan kendala selesai untuk MCS 1.",
 }
 
 export const dynamic = "force-dynamic"

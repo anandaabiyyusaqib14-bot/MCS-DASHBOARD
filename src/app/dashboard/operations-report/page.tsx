@@ -5,8 +5,8 @@ import { getEventDaySummary, listHandoffs, listIssues, listVenueStatuses } from 
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Laporan Operasional - MCS 1",
-  description: "Rekap kendala, handoff, venue, dan post-event summary MCS 1.",
+  title: "Laporan Kepanitiaan - MCS 1",
+  description: "Rekap kendala, koordinasi, tempat, dan bahan laporan akhir MCS 1.",
 }
 
 export const dynamic = "force-dynamic"

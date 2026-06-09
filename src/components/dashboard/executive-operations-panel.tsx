@@ -69,11 +69,11 @@ export function ExecutiveOperationsPanel({
                 <CalendarDays className="size-4" aria-hidden="true" />
               </span>
               <div>
-                <h3 className="text-base font-semibold text-[#111827]">Today&apos;s Operations</h3>
+                <h3 className="text-base font-semibold text-[#111827]">Kegiatan Hari Ini</h3>
                 <p className="mt-1 text-sm font-medium leading-5 text-[#64748B]">
                   {viewingCurrentDate
-                    ? `${sourceDateLabel} operating timeline`
-                    : `No current-day schedule is published. Showing ${sourceDateLabel} rundown.`}
+                    ? `Timeline kegiatan ${sourceDateLabel}`
+                    : `Jadwal hari ini belum dipublikasikan. Menampilkan rundown ${sourceDateLabel}.`}
                 </p>
               </div>
             </div>
@@ -106,21 +106,21 @@ export function ExecutiveOperationsPanel({
               onClick={() => setViewMode("rundown")}
             >
               <ListFilter className="size-4" aria-hidden="true" />
-              Full Rundown
+              Rundown Lengkap
             </button>
           </div>
         </div>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           <FilterSelect
-            label="Division"
+            label="Divisi"
             options={divisionOptions}
             value={divisionFilter}
             onChange={setDivisionFilter}
           />
-          <FilterSelect label="Venue" options={venueOptions} value={venueFilter} onChange={setVenueFilter} />
+          <FilterSelect label="Tempat" options={venueOptions} value={venueFilter} onChange={setVenueFilter} />
           <FilterSelect
-            label="Competition"
+            label="Lomba"
             options={competitions.map((competition) => ({ label: competition.shortName, value: competition.id }))}
             value={competitionFilter}
             onChange={setCompetitionFilter}
@@ -130,9 +130,9 @@ export function ExecutiveOperationsPanel({
 
       <div className="p-5 sm:p-6">
         {schedules.length === 0 ? (
-          <EmptyState title="No Upcoming Activities" description="Official schedule data has not been published yet." />
+          <EmptyState title="Belum Ada Kegiatan Berikutnya" description="Data jadwal resmi belum dipublikasikan." />
         ) : filteredSchedules.length === 0 ? (
-          <EmptyState title={NO_DATA} description="No official activity matches the selected filters." />
+          <EmptyState title={NO_DATA} description="Tidak ada kegiatan resmi yang cocok dengan filter." />
         ) : viewMode === "timeline" ? (
           <TimelineView eventIsLive={eventIsLive} now={renderedDate} schedules={filteredSchedules} />
         ) : (
@@ -162,7 +162,7 @@ function FilterSelect({
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
-        <option value={ALL}>All</option>
+        <option value={ALL}>Semua</option>
         {options.map((option) => {
           const normalized = typeof option === "string" ? { label: option, value: option } : option
 
@@ -230,7 +230,7 @@ function RundownTable({
       <table className="w-full min-w-[780px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Time", "Activity", "Venue", "PIC", "Status"].map((heading) => (
+            {["Jam", "Kegiatan", "Tempat", "PIC", "Status"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -303,9 +303,9 @@ function getScheduleDisplayStatus(schedule: ScheduleRecord, eventIsLive: boolean
 function getExplicitScheduleStatus(status: ScheduleStatus): { label: string; tone: Tone } | null {
   if (status === "scheduled") return null
   if (status === "live") return { label: "Live", tone: "success" }
-  if (status === "completed") return { label: "Completed", tone: "success" }
-  if (status === "delayed") return { label: "Delayed", tone: "warning" }
-  if (status === "cancelled") return { label: "Cancelled", tone: "danger" }
+  if (status === "completed") return { label: "Selesai", tone: "success" }
+  if (status === "delayed") return { label: "Mundur", tone: "warning" }
+  if (status === "cancelled") return { label: "Batal", tone: "danger" }
 
   return null
 }

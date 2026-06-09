@@ -231,8 +231,8 @@ export function RoleDashboardScreen({
           description={config.primaryPanelDescription}
         >
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <FactTile label="Current activity" value={currentActivity.title} />
-            <FactTile label="Venue" value={currentActivity.venue} />
+            <FactTile label="Kegiatan Saat Ini" value={currentActivity.title} />
+            <FactTile label="Tempat" value={currentActivity.venue} />
             <FactTile label="PIC" value={currentActivity.pic} />
             <FactTile label="Status" value={currentActivity.status} />
           </div>
@@ -247,9 +247,9 @@ export function RoleDashboardScreen({
         <InfoPanel
           icon={CalendarDays}
           title={config.timelineTitle}
-          description="Official MCS 1 operating schedule for the current view."
+          description="Jadwal resmi MCS 1 untuk tampilan ini."
         >
-          <ScheduleTable schedules={summary.todaySchedule.slice(0, 6)} emptyTitle="No Schedule Available" />
+          <ScheduleTable schedules={summary.todaySchedule.slice(0, 6)} emptyTitle="Belum Ada Jadwal" />
         </InfoPanel>
 
         <div className="grid gap-6">
@@ -257,7 +257,7 @@ export function RoleDashboardScreen({
             <TaskList summary={summary} />
           </InfoPanel>
 
-          <InfoPanel icon={Megaphone} title="Important Announcements" description="Internal notices from the command center.">
+          <InfoPanel icon={Megaphone} title="Pengumuman Penting" description="Catatan internal dari pusat kepanitiaan.">
             <AnnouncementList summary={summary} />
           </InfoPanel>
         </div>
@@ -267,13 +267,13 @@ export function RoleDashboardScreen({
         <StatusGrid items={config.statuses(summary)} />
       </InfoPanel>
 
-      <InfoPanel icon={Activity} title="Recent Activity" description="System activity appears here when records are available.">
+      <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Aktivitas sistem muncul setelah ada catatan resmi.">
         <RecentActivityList summary={summary} />
       </InfoPanel>
 
       {nextActivity ? (
         <p className="text-sm font-medium text-[#64748B]">
-          Next visible activity: <span className="font-semibold text-[#111827]">{nextActivity.title}</span> at{" "}
+          Kegiatan berikutnya: <span className="font-semibold text-[#111827]">{nextActivity.title}</span> pukul{" "}
           <span className="font-semibold text-[#111827]">{formatScheduleTime(nextActivity.time)}</span>.
         </p>
       ) : null}
@@ -293,68 +293,68 @@ function BendaharaDashboardScreen({ summary, user }: { summary: DashboardSummary
     <div className="grid gap-5">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/budgeting", icon: Wallet, label: "Add Expense" },
-          { href: "/dashboard/budgeting", icon: Handshake, label: "Record Income" },
-          { href: "/dashboard/budgeting", icon: FileCheck, label: "Verify Payment" },
-          { href: "/dashboard/financial-reports", icon: FileText, label: "Generate Report" },
-          { href: "/dashboard/financial-reports", icon: Download, label: "Export Data" },
+          { href: "/dashboard/budgeting", icon: Wallet, label: "Tambah Pengeluaran" },
+          { href: "/dashboard/budgeting", icon: Handshake, label: "Catat Pemasukan" },
+          { href: "/dashboard/budgeting", icon: FileCheck, label: "Verifikasi Pembayaran" },
+          { href: "/dashboard/financial-reports", icon: FileText, label: "Buat Laporan" },
+          { href: "/dashboard/financial-reports", icon: Download, label: "Ekspor Data" },
         ]}
         icon={Wallet}
-        subtitle="Financial operations center for event budget, payment tracking, sponsorship income, and reports."
+        subtitle="Pusat keuangan untuk anggaran, pembayaran, pemasukan sponsor, dan laporan MCS 1."
         title={`Bendahara, ${user.displayName}`}
       />
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <InfoPanel icon={Wallet} title="Financial Summary" description="Current financial condition for MCS 1.">
+        <InfoPanel icon={Wallet} title="Ringkasan Keuangan" description="Kondisi keuangan MCS 1 saat ini.">
           <FinancialSummaryGrid />
         </InfoPanel>
 
-        <InfoPanel icon={FileCheck} title="Financial Overview" description="Compact transaction readiness snapshot.">
+        <InfoPanel icon={FileCheck} title="Ikhtisar Keuangan" description="Ringkasan kesiapan transaksi.">
           <StatMiniList
             items={[
-              { label: "Total Transactions", value: NO_DATA },
-              { label: "Pending Verification", value: NO_DATA },
-              { label: "Completed Payments", value: NO_DATA },
-              { label: "Sponsor Contributions", value: `${sponsorProspects.length} On Going` },
+              { label: "Total Transaksi", value: NO_DATA },
+              { label: "Menunggu Verifikasi", value: NO_DATA },
+              { label: "Pembayaran Selesai", value: NO_DATA },
+              { label: "Kontribusi Sponsor", value: `${sponsorProspects.length} berjalan` },
             ]}
           />
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={ClipboardList} title="Pending Payments" description="Payment item, division, amount, due date, and status.">
+      <InfoPanel icon={ClipboardList} title="Pembayaran Tertunda" description="Item pembayaran, divisi, nominal, batas waktu, dan status.">
         <div className="grid gap-3">
           <PaymentStatusLegend />
           <FinanceEmptyTable
-            columns={["Payment Item", "Division", "Amount", "Due Date", "Status"]}
-            emptyTitle="No Pending Payments"
-            emptyDescription="Payment obligations will appear after official finance records are entered."
+            columns={["Item Pembayaran", "Divisi", "Nominal", "Batas Waktu", "Status"]}
+            emptyTitle="Belum Ada Pembayaran Tertunda"
+            emptyDescription="Kewajiban pembayaran akan muncul setelah catatan keuangan resmi diisi."
           />
         </div>
       </InfoPanel>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={Handshake} title="Sponsorship Income" description="Sponsor contribution records and received dates.">
+        <InfoPanel icon={Handshake} title="Pemasukan Sponsor" description="Catatan kontribusi sponsor dan tanggal diterima.">
           <SponsorshipIncomeTable />
         </InfoPanel>
 
-        <InfoPanel icon={ClipboardList} title="Quick Actions" description="Maximum five finance shortcuts.">
+        <InfoPanel icon={ClipboardList} title="Aksi Cepat" description="Aksi utama keuangan untuk bendahara.">
           <ActionGrid
             actions={[
-              { href: "/dashboard/budgeting", icon: Wallet, label: "Add Expense" },
-              { href: "/dashboard/budgeting", icon: Handshake, label: "Record Income" },
-              { href: "/dashboard/budgeting", icon: FileCheck, label: "Verify Payment" },
-              { href: "/dashboard/financial-reports", icon: FileText, label: "Generate Report" },
-              { href: "/dashboard/financial-reports", icon: Download, label: "Export Data" },
+              { href: "/dashboard/budgeting", icon: Wallet, label: "Tambah Pengeluaran" },
+              { href: "/dashboard/budgeting", icon: Handshake, label: "Catat Pemasukan" },
+              { href: "/dashboard/budgeting", icon: FileCheck, label: "Verifikasi Pembayaran" },
+              { href: "/dashboard/financial-reports", icon: FileText, label: "Buat Laporan" },
+              { href: "/dashboard/financial-reports", icon: Download, label: "Ekspor Data" },
             ]}
           />
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={Wallet} title="Recent Expenses" description="Expense item, division, amount, date, and approval status.">
+      <InfoPanel icon={Wallet} title="Pengeluaran Terbaru" description="Item pengeluaran, divisi, nominal, tanggal, dan status persetujuan.">
         <FinanceEmptyTable
-          columns={["Expense Item", "Division", "Amount", "Date", "Approval Status"]}
-          emptyTitle="No Financial Records"
-          emptyDescription="Committee expense records have not been published yet."
+          columns={["Item Pengeluaran", "Divisi", "Nominal", "Tanggal", "Status Persetujuan"]}
+          emptyTitle="Belum Ada Catatan Keuangan"
+          emptyDescription="Catatan pengeluaran panitia belum dipublikasikan."
         />
       </InfoPanel>
 
@@ -363,12 +363,12 @@ function BendaharaDashboardScreen({ summary, user }: { summary: DashboardSummary
           <BudgetAllocationTable />
         </InfoPanel>
 
-        <InfoPanel icon={Activity} title="Financial Activity" description="Expense, income, payment, budget, and report updates.">
+        <InfoPanel icon={Activity} title="Aktivitas Keuangan" description="Update pengeluaran, pemasukan, pembayaran, anggaran, dan laporan.">
           <FinancialActivityList items={financeActivity} />
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={CalendarDays} title="Upcoming Deadlines" description="Finance tasks, due dates, priority, and responsible division.">
+      <InfoPanel icon={CalendarDays} title="Batas Waktu Terdekat" description="Tugas keuangan, tenggat, prioritas, dan divisi penanggung jawab.">
         <FinancialDeadlineTable tasks={financeTasks} />
       </InfoPanel>
     </div>
@@ -396,17 +396,17 @@ export function HumasSponsorshipScreen({
     <div className="grid gap-5">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/announcements", icon: Megaphone, label: "Create Announcement" },
-          { href: "/dashboard/announcements", icon: Bell, label: "Create Broadcast" },
-          { href: "/dashboard/humas-sponsorship", icon: Upload, label: "Upload Proposal" },
-          { href: "/dashboard/humas-sponsorship", icon: Handshake, label: "Add Sponsor" },
-          { href: "/dashboard/news", icon: Globe, label: "Create Media Partner" },
+          { href: "/dashboard/announcements", icon: Megaphone, label: "Buat Pengumuman" },
+          { href: "/dashboard/announcements", icon: Bell, label: "Buat Broadcast" },
+          { href: "/dashboard/humas-sponsorship", icon: Upload, label: "Unggah Proposal" },
+          { href: "/dashboard/humas-sponsorship", icon: Handshake, label: "Tambah Sponsor" },
+          { href: "/dashboard/news", icon: Globe, label: "Tambah Mitra Media" },
         ]}
         icon={Handshake}
         subtitle={
           variant === "role-dashboard"
-            ? "Communication center, publication queue, and partnership workspace for MCS 1."
-            : "Manage publication workflow, sponsor outreach, proposals, and media relations."
+            ? "Pusat komunikasi, antrean publikasi, dan ruang kerja kemitraan MCS 1."
+            : "Kelola alur publikasi, follow-up sponsor, proposal, dan relasi media."
         }
         title={variant === "role-dashboard" ? `Humas & Sponsorship, ${user.displayName}` : "Humas & Sponsorship"}
       />
@@ -414,32 +414,32 @@ export function HumasSponsorshipScreen({
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <InfoPanel
           icon={Megaphone}
-          title="Publication Queue"
-          description="Draft, approval, scheduled, and published content for MCS communication."
+          title="Antrean Publikasi"
+          description="Draft, persetujuan, jadwal, dan konten terbit untuk komunikasi MCS."
         >
           <div className="mb-4">
             <StatMiniList
               items={[
-                { label: "Announcements Published", value: publishedAnnouncements || NOT_PUBLISHED },
-                { label: "Scheduled Posts", value: scheduledPublications.length || "No Publications Scheduled" },
-                { label: "Draft Publications", value: draftAnnouncements },
-                { label: "Pending Approvals", value: pendingApprovals },
-                { label: "Media Requests", value: NO_DATA },
+                { label: "Pengumuman Terbit", value: publishedAnnouncements || NOT_PUBLISHED },
+                { label: "Posting Terjadwal", value: scheduledPublications.length || "Belum Ada Publikasi Terjadwal" },
+                { label: "Draft Publikasi", value: draftAnnouncements },
+                { label: "Menunggu Persetujuan", value: pendingApprovals },
+                { label: "Permintaan Media", value: NO_DATA },
               ]}
             />
           </div>
           <PublicationQueue summary={summary} />
         </InfoPanel>
 
-        <InfoPanel icon={Handshake} title="Sponsor Overview" description="Small partnership snapshot.">
+        <InfoPanel icon={Handshake} title="Ikhtisar Sponsor" description="Ringkasan singkat kemitraan.">
           <StatMiniList
             items={[
-              { label: "Total Sponsors", value: sponsorProspects.length },
-              { label: "Confirmed Sponsors", value: sponsorProspects.filter((sponsor) => sponsor.proposalStatus === "Confirmed").length },
-              { label: "Pending Sponsors", value: ongoingSponsors.length },
-              { label: "Media Partners", value: NO_DATA },
-              { label: "Published Content", value: publishedAnnouncements || NOT_PUBLISHED },
-              { label: "Pending Approval", value: pendingApprovals },
+              { label: "Total Sponsor", value: sponsorProspects.length },
+              { label: "Sponsor Terkonfirmasi", value: sponsorProspects.filter((sponsor) => sponsor.proposalStatus === "Confirmed").length },
+              { label: "Sponsor Berjalan", value: ongoingSponsors.length },
+              { label: "Mitra Media", value: NO_DATA },
+              { label: "Konten Terbit", value: publishedAnnouncements || NOT_PUBLISHED },
+              { label: "Menunggu Persetujuan", value: pendingApprovals },
             ]}
           />
         </InfoPanel>
@@ -447,50 +447,50 @@ export function HumasSponsorshipScreen({
 
       <InfoPanel
         icon={Handshake}
-        title="Sponsorship Pipeline"
-        description="Prospect to confirmed partnership flow. Empty until official sponsor records are entered."
+        title="Alur Sponsor"
+        description="Alur prospek sampai sponsor terkonfirmasi. Kosong sampai catatan sponsor resmi diisi."
       >
         <SponsorPipelineBoard />
       </InfoPanel>
 
-      <InfoPanel icon={Users} title="Sponsor List" description="Brand, PIC, contact, proposal status, follow-up, and partnership type.">
+      <InfoPanel icon={Users} title="Daftar Sponsor" description="Brand, PIC, kontak, status proposal, follow-up, dan jenis kerja sama.">
         <SponsorListTable />
       </InfoPanel>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={ClipboardList} title="Follow-Up Tasks" description="Sponsor-related tasks and next actions.">
-          <EmptyState title="No Follow-Up Tasks" description="Sponsor follow-up records have not been published yet." />
+        <InfoPanel icon={ClipboardList} title="Tugas Follow-Up" description="Tugas sponsor dan tindak lanjut berikutnya.">
+          <EmptyState title="Belum Ada Tugas Follow-Up" description="Catatan follow-up sponsor belum dipublikasikan." />
         </InfoPanel>
 
-        <InfoPanel icon={ClipboardList} title="Quick Actions" description="Maximum five communication shortcuts.">
+        <InfoPanel icon={ClipboardList} title="Aksi Cepat" description="Aksi utama komunikasi Humas.">
           <ActionGrid
             actions={[
-              { href: "/dashboard/announcements", icon: Megaphone, label: "Create Announcement" },
-              { href: "/dashboard/announcements", icon: Bell, label: "Create Broadcast" },
-              { href: "/dashboard/humas-sponsorship", icon: Upload, label: "Upload Proposal" },
-              { href: "/dashboard/humas-sponsorship", icon: Handshake, label: "Add Sponsor" },
-              { href: "/dashboard/news", icon: Globe, label: "Create Media Partner" },
+              { href: "/dashboard/announcements", icon: Megaphone, label: "Buat Pengumuman" },
+              { href: "/dashboard/announcements", icon: Bell, label: "Buat Broadcast" },
+              { href: "/dashboard/humas-sponsorship", icon: Upload, label: "Unggah Proposal" },
+              { href: "/dashboard/humas-sponsorship", icon: Handshake, label: "Tambah Sponsor" },
+              { href: "/dashboard/news", icon: Globe, label: "Tambah Mitra Media" },
             ]}
           />
         </InfoPanel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-2">
-        <InfoPanel icon={CalendarDays} title="Social Media Schedule" description="Instagram, TikTok, website, and broadcast calendar.">
+        <InfoPanel icon={CalendarDays} title="Jadwal Media Sosial" description="Kalender Instagram, TikTok, website, dan broadcast.">
           <SocialScheduleTable publications={scheduledPublications} />
         </InfoPanel>
 
-        <InfoPanel icon={Users} title="Media Partners" description="Partner name, platform, status, PIC, and publication agreement.">
-          <EmptyState title={NO_DATA} description="Official media partner records have not been published yet." />
+        <InfoPanel icon={Users} title="Mitra Media" description="Nama mitra, platform, status, PIC, dan kesepakatan publikasi.">
+          <EmptyState title={NO_DATA} description="Catatan mitra media resmi belum dipublikasikan." />
         </InfoPanel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={FileText} title="Proposal Tracker" description="Proposal status, last update, and deadline.">
+        <InfoPanel icon={FileText} title="Pantauan Proposal" description="Status proposal, update terakhir, dan batas waktu.">
           <SponsorProposalTracker />
         </InfoPanel>
 
-        <InfoPanel icon={Activity} title="Recent Activities" description="Proposal, announcement, sponsor, broadcast, and media partner updates.">
+        <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Update proposal, pengumuman, sponsor, broadcast, dan mitra media.">
           <HumasRecentActivities summary={summary} />
         </InfoPanel>
       </section>
@@ -523,15 +523,15 @@ function BusinessDashboardSystemScreen({
 
       <FilterBar
         fields={["Product", "Category", "Date", "Stock Status", "Recorded By"]}
-        searchPlaceholder="Search products, transactions, expenses, reports"
+        searchPlaceholder="Cari produk, transaksi, pengeluaran, laporan"
       />
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="grid gap-5">
           <InfoPanel
             icon={Wallet}
-            title="Today's Sales Overview"
-            description="Compact sales, inventory, and target indicators for today's entrepreneurship operations."
+            title="Ringkasan Penjualan Hari Ini"
+            description="Ringkasan penjualan, stok, dan target Kewirausahaan hari ini."
           >
             <EntrepreneurshipSalesOverview />
           </InfoPanel>
@@ -546,7 +546,7 @@ function BusinessDashboardSystemScreen({
 
           <InfoPanel
             icon={Archive}
-            title="Product Management"
+            title="Manajemen Produk"
             description="Product catalog, category, price, initial stock, remaining stock, and sales status."
           >
             <EntrepreneurshipProductTable />
@@ -565,21 +565,21 @@ function BusinessDashboardSystemScreen({
           </InfoPanel>
 
           <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.7fr)]">
-            <InfoPanel icon={Wallet} title="Cash Summary" description="Initial capital, revenue, expenses, and estimated profit.">
+            <InfoPanel icon={Wallet} title="Ringkasan Kas" description="Modal awal, pemasukan, pengeluaran, dan estimasi laba.">
               <EntrepreneurshipCashSummary />
             </InfoPanel>
 
-            <InfoPanel icon={CalendarDays} title="Daily Reports" description="Day 1 to Day 4 sales, inventory, revenue, expense, and profit reports.">
+            <InfoPanel icon={CalendarDays} title="Laporan Harian" description="Laporan penjualan, stok, pemasukan, pengeluaran, dan laba dari hari 1 sampai hari 4.">
               <EntrepreneurshipDailyReports />
             </InfoPanel>
           </section>
 
           <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.7fr)]">
-            <InfoPanel icon={Activity} title="Recent Activities" description="Product, stock, sale, expense, target, and report activity feed.">
+            <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Aktivitas produk, stok, penjualan, pengeluaran, target, dan laporan.">
               <EntrepreneurshipRecentActivities summary={summary} />
             </InfoPanel>
 
-            <InfoPanel icon={Wallet} title="Quick Actions" description="Entrepreneurship operation shortcuts, limited to five actions.">
+            <InfoPanel icon={Wallet} title="Aksi Cepat" description="Aksi utama Kewirausahaan.">
               <ActionGrid actions={getBusinessQuickActions(focus)} />
             </InfoPanel>
           </section>
@@ -678,87 +678,87 @@ function PjLombaDashboardScreen({ summary, user }: { summary: DashboardSummary; 
     <div className="grid gap-5">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/match-results", icon: ClipboardList, label: "Input Result" },
-          { href: "/dashboard/match-results", icon: Radio, label: "Update Score" },
-          { href: "/dashboard/participants", icon: UserCheck, label: "Verify Participant" },
-          { href: "/dashboard/bracket", icon: GitBranch, label: "Manage Bracket" },
-          { href: "/dashboard/schedules", icon: CalendarDays, label: "Open Schedule" },
+          { href: "/dashboard/match-results", icon: ClipboardList, label: "Input Hasil" },
+          { href: "/dashboard/match-results", icon: Radio, label: "Update Skor" },
+          { href: "/dashboard/participants", icon: UserCheck, label: "Verifikasi Peserta" },
+          { href: "/dashboard/bracket", icon: GitBranch, label: "Kelola Bracket" },
+          { href: "/dashboard/schedules", icon: CalendarDays, label: "Buka Jadwal" },
         ]}
         icon={Trophy}
-        subtitle="Competition operations center for match execution, participant verification, brackets, and score updates."
+        subtitle="Pusat PJ Lomba untuk pelaksanaan match, verifikasi peserta, bracket, dan update skor."
         title={`PJ Lomba, ${user.displayName}`}
       />
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <InfoPanel icon={Radio} title="Live Match Status" description="Most urgent competition state for quick scanning.">
+        <InfoPanel icon={Radio} title="Status Pertandingan Live" description="Status lomba paling penting untuk dipantau cepat.">
           <LiveMatchStatusPanel liveMatch={liveMatch} />
         </InfoPanel>
 
-        <InfoPanel icon={Trophy} title="Competition Info" description="Current assigned competition context.">
+        <InfoPanel icon={Trophy} title="Info Lomba" description="Konteks lomba yang sedang ditugaskan.">
           <div className="grid gap-3">
-            <FactTile label="Competition Name" value={primaryCompetition?.shortName ?? "No Active Competition"} />
-            <FactTile label="Category" value={primaryCompetition?.category ?? NO_DATA} />
-            <FactTile label="Venue" value={primaryCompetition?.venue ?? NO_DATA} />
+            <FactTile label="Nama Lomba" value={primaryCompetition?.shortName ?? "Belum Ada Lomba Aktif"} />
+            <FactTile label="Kategori" value={primaryCompetition?.category ?? NO_DATA} />
+            <FactTile label="Tempat" value={primaryCompetition?.venue ?? NO_DATA} />
             <FactTile label="PIC" value={primaryCompetition?.pj.join(" & ") || WAITING} />
-            <FactTile label="Competition Date" value={event.dateRange} />
+            <FactTile label="Tanggal Lomba" value={event.dateRange} />
           </div>
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={CalendarDays} title="Today's Match Schedule" description="Official MCS 1 match schedule for PJ Lomba monitoring.">
+      <InfoPanel icon={CalendarDays} title="Jadwal Match Hari Ini" description="Jadwal match resmi MCS 1 untuk pantauan PJ Lomba.">
         <MatchScheduleTable schedules={todayMatches} />
       </InfoPanel>
 
-      <InfoPanel icon={ClipboardList} title="Quick Actions" description="Fast access for competition execution.">
+      <InfoPanel icon={ClipboardList} title="Aksi Cepat" description="Akses cepat untuk pelaksanaan lomba.">
         <ActionGrid
           actions={[
-            { href: "/dashboard/match-results", icon: ClipboardList, label: "Input Result" },
-            { href: "/dashboard/match-results", icon: Radio, label: "Update Score" },
-            { href: "/dashboard/participants", icon: UserCheck, label: "Verify Participant" },
-            { href: "/dashboard/bracket", icon: GitBranch, label: "Manage Bracket" },
-            { href: "/dashboard/schedules", icon: CalendarDays, label: "Open Schedule" },
+            { href: "/dashboard/match-results", icon: ClipboardList, label: "Input Hasil" },
+            { href: "/dashboard/match-results", icon: Radio, label: "Update Skor" },
+            { href: "/dashboard/participants", icon: UserCheck, label: "Verifikasi Peserta" },
+            { href: "/dashboard/bracket", icon: GitBranch, label: "Kelola Bracket" },
+            { href: "/dashboard/schedules", icon: CalendarDays, label: "Buka Jadwal" },
           ]}
         />
       </InfoPanel>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={GitBranch} title="Bracket Overview" description="Bracket progress appears after official bracket generation.">
+        <InfoPanel icon={GitBranch} title="Ikhtisar Bracket" description="Progress bracket muncul setelah bracket resmi dibuat.">
           <StatMiniList
             items={[
-              { label: "Current Round", value: "Bracket Not Generated Yet" },
-              { label: "Remaining Teams", value: NO_DATA },
-              { label: "Completed Matches", value: NO_DATA },
-              { label: "Upcoming Matches", value: todayMatches.length || "No Match Scheduled" },
+              { label: "Round Saat Ini", value: "Bracket belum dibuat" },
+              { label: "Tim Tersisa", value: NO_DATA },
+              { label: "Match Selesai", value: NO_DATA },
+              { label: "Match Berikutnya", value: todayMatches.length || "Belum Ada Match Terjadwal" },
             ]}
           />
           <div className="mt-3">
-            <ActionGrid actions={[{ href: "/dashboard/bracket", icon: GitBranch, label: "Open Full Bracket" }]} />
+            <ActionGrid actions={[{ href: "/dashboard/bracket", icon: GitBranch, label: "Buka Bracket Lengkap" }]} />
           </div>
         </InfoPanel>
 
-        <InfoPanel icon={Users} title="Participant Status" description="Compact participant verification state.">
+        <InfoPanel icon={Users} title="Status Peserta" description="Ringkasan verifikasi peserta.">
           <StatMiniList
             items={[
-              { label: "Verified", value: NO_DATA },
-              { label: "Pending", value: NO_DATA },
-              { label: "Absent", value: NO_DATA },
-              { label: "Disqualified", value: NO_DATA },
+              { label: "Terverifikasi", value: NO_DATA },
+              { label: "Menunggu", value: NO_DATA },
+              { label: "Tidak Hadir", value: NO_DATA },
+              { label: "Diskualifikasi", value: NO_DATA },
             ]}
           />
         </InfoPanel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(340px,0.7fr)]">
-        <InfoPanel icon={ClipboardList} title="Result Input Shortcut" description="Fast access panel for score entry.">
+        <InfoPanel icon={ClipboardList} title="Shortcut Input Hasil" description="Panel akses cepat untuk input skor.">
           <ResultInputShortcut />
         </InfoPanel>
 
-        <InfoPanel icon={Megaphone} title="Competition Announcements" description="Venue changes, schedule revisions, and rule updates.">
+        <InfoPanel icon={Megaphone} title="Pengumuman Lomba" description="Perubahan tempat, revisi jadwal, dan update aturan.">
           <CompetitionAnnouncementList announcements={competitionAnnouncements} />
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={Activity} title="Recent Competition Activity" description="Score, match, bracket, participant, and schedule activity.">
+      <InfoPanel icon={Activity} title="Aktivitas Lomba Terbaru" description="Aktivitas skor, match, bracket, peserta, dan jadwal.">
         <CompetitionActivityList items={competitionActivity} />
       </InfoPanel>
     </div>
@@ -770,35 +770,35 @@ export function DocumentationDashboardScreen({ summary, user }: { summary: Dashb
     <div className="grid gap-6">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/media/upload", icon: Upload, label: "Upload Photos" },
-          { href: "/dashboard/media/upload", icon: Camera, label: "Upload Videos" },
-          { href: "/dashboard/media/highlights", icon: ImageUp, label: "Create Highlight" },
-          { href: "/dashboard/media/gallery", icon: Globe, label: "Open Gallery" },
+          { href: "/dashboard/media/upload", icon: Upload, label: "Unggah Foto" },
+          { href: "/dashboard/media/upload", icon: Camera, label: "Unggah Video" },
+          { href: "/dashboard/media/highlights", icon: ImageUp, label: "Buat Highlight" },
+          { href: "/dashboard/media/gallery", icon: Globe, label: "Buka Galeri" },
         ]}
         icon={Camera}
-        subtitle="Documentation workspace for uploads, gallery status, and highlight requests."
+        subtitle="Ruang kerja Dokumentasi untuk unggahan, status galeri, dan permintaan highlight."
         title={`Dokumentasi, ${user.displayName}`}
       />
 
       <StatStrip
         items={[
-          { label: "Today's Coverage", value: NO_DATA },
-          { label: "Pending Uploads", value: NO_DATA },
-          { label: "Recent Uploads", value: NO_DATA },
-          { label: "Gallery Status", value: NOT_PUBLISHED },
+          { label: "Liputan Hari Ini", value: NO_DATA },
+          { label: "Unggahan Tertunda", value: NO_DATA },
+          { label: "Unggahan Terbaru", value: NO_DATA },
+          { label: "Status Galeri", value: NOT_PUBLISHED },
         ]}
       />
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <InfoPanel icon={Upload} title="Upload Media" description="Photos, videos, posters, and documents.">
-          <UploadDropzone title="No media upload selected" />
+        <InfoPanel icon={Upload} title="Unggah Media" description="Foto, video, poster, dan dokumen.">
+          <UploadDropzone title="Belum ada media dipilih" />
         </InfoPanel>
-        <InfoPanel icon={FileCheck} title="Highlight Requests" description="Requests appear after official submissions exist.">
-          <EmptyState title={NO_DATA} description="Highlight requests have not been published yet." />
+        <InfoPanel icon={FileCheck} title="Permintaan Highlight" description="Permintaan muncul setelah ada pengajuan resmi.">
+          <EmptyState title={NO_DATA} description="Permintaan highlight belum dipublikasikan." />
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={Activity} title="Recent Activity" description="Documentation activity appears here when available.">
+      <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Aktivitas Dokumentasi muncul setelah ada input resmi.">
         <RecentActivityList summary={summary} />
       </InfoPanel>
     </div>
@@ -832,11 +832,11 @@ function DivisionOperationsDashboardScreen({
 
       <StatStrip
         items={[
-          { label: "Division Members", value: division?.members ?? NO_DATA, tone: "info" },
-          { label: "Present Today", value: division?.present ?? NO_DATA, tone: "success" },
-          { label: "Active Tasks", value: division?.activeTasks ?? (divisionTasks.length || NO_DATA), tone: "warning" },
+          { label: "Anggota Divisi", value: division?.members ?? NO_DATA, tone: "info" },
+          { label: "Hadir Hari Ini", value: division?.present ?? NO_DATA, tone: "success" },
+          { label: "Tugas Aktif", value: division?.activeTasks ?? (divisionTasks.length || NO_DATA), tone: "warning" },
           {
-            label: "Operational Status",
+            label: "Status Divisi",
             value: division?.status ?? WAITING,
             tone: division ? getDivisionTone(division.status) : "neutral",
           },
@@ -844,12 +844,12 @@ function DivisionOperationsDashboardScreen({
       />
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <InfoPanel icon={spec.icon} title="Division Workspace" description="Current responsibility and readiness snapshot.">
+        <InfoPanel icon={spec.icon} title="Ruang Kerja Divisi" description="Ringkasan tanggung jawab dan kesiapan divisi.">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <FactTile label="Division" value={roleLabels[role]} />
-            <FactTile label="Coordinator" value={division?.coordinator ?? WAITING} />
-            <FactTile label="Focus" value={division?.focus ?? WAITING} />
-            <FactTile label="Completion" value={division ? `${division.completion}%` : NO_DATA} />
+            <FactTile label="Divisi" value={roleLabels[role]} />
+            <FactTile label="Koordinator" value={division?.coordinator ?? WAITING} />
+            <FactTile label="Fokus" value={division?.focus ?? WAITING} />
+            <FactTile label="Progress" value={division ? `${division.completion}%` : NO_DATA} />
           </div>
         </InfoPanel>
 
@@ -857,27 +857,27 @@ function DivisionOperationsDashboardScreen({
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <InfoPanel icon={CalendarDays} title={spec.scheduleTitle} description="Official MCS 1 schedule visible to this division.">
-          <ScheduleTable schedules={schedules} emptyTitle="No Schedule Available" />
+        <InfoPanel icon={CalendarDays} title={spec.scheduleTitle} description="Jadwal resmi MCS 1 yang relevan untuk divisi ini.">
+          <ScheduleTable schedules={schedules} emptyTitle="Belum Ada Jadwal" />
         </InfoPanel>
 
         <div className="grid gap-5">
-          <InfoPanel icon={ClipboardList} title="Quick Actions" description="Role-specific shortcuts for this division.">
+          <InfoPanel icon={ClipboardList} title="Aksi Cepat" description="Aksi utama untuk divisi ini.">
             <ActionGrid actions={spec.actions} />
           </InfoPanel>
 
-          <InfoPanel icon={ShieldCheck} title="Operational Status" description={spec.statusDescription}>
+          <InfoPanel icon={ShieldCheck} title="Status Divisi" description={spec.statusDescription}>
             <StatusGrid items={spec.statusItems(division)} />
           </InfoPanel>
         </div>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={ClipboardList} title="Assigned Tasks" description="Tasks scoped to this division or assigned account.">
+        <InfoPanel icon={ClipboardList} title="Tugas Divisi" description="Tugas untuk divisi ini atau akun terkait.">
           <DivisionTaskList tasks={divisionTasks} />
         </InfoPanel>
 
-        <InfoPanel icon={FileCheck} title="Checklist" description="Operational checklist fields expected by this workspace.">
+        <InfoPanel icon={FileCheck} title="Checklist" description="Checklist kesiapan yang perlu diisi divisi.">
           <DocumentStatusList items={spec.checklistItems} />
         </InfoPanel>
       </section>
@@ -886,7 +886,7 @@ function DivisionOperationsDashboardScreen({
         <EmptyDataTable columns={spec.tableColumns} emptyTitle={spec.emptyTitle} emptyDescription={spec.emptyDescription} />
       </InfoPanel>
 
-      <InfoPanel icon={Activity} title="Recent Activity" description="Recent division activity appears after official updates exist.">
+      <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Aktivitas divisi muncul setelah ada update resmi.">
         <RecentActivityList summary={summary} />
       </InfoPanel>
     </div>
@@ -904,7 +904,7 @@ function OperationsDashboardSystemScreen({
   summary: DashboardSummary
   user: UserDTO
 }) {
-  const divisionLabel = divisionId ? roleLabels[divisionId] : "Field Operations"
+  const divisionLabel = divisionId ? roleLabels[divisionId] : "Divisi Lapangan"
   const officialScheduleRows = getOfficialOperationsScheduleRows()
   const scopedRows = getOperationsRowsForDivision(officialScheduleRows, divisionId)
   const todayKey = getDateKeyInTimezone(new Date(), summary.event.timezone)
@@ -917,83 +917,83 @@ function OperationsDashboardSystemScreen({
       <OperationsHeader
         actions={actions}
         icon={divisionId ? getOperationsDivisionIcon(divisionId) : Activity}
-        subtitle={`${event.name} field operations workspace for ${divisionLabel}. Tasks, issues, checklists, venues, and reports stay empty until official records are published.`}
-        title={moduleTitle ?? `${divisionLabel} Operations Dashboard, ${user.displayName}`}
+        subtitle={`Ruang kerja lapangan ${event.name} untuk ${divisionLabel}. Tugas, kendala, checklist, tempat, dan laporan tetap kosong sampai data resmi dipublikasikan.`}
+        title={moduleTitle ?? `${divisionLabel}, ${user.displayName}`}
       />
 
       <StatStrip
         items={[
-          { label: "Today's Operations", value: todayRows.length || "No Activities Scheduled", tone: todayRows.length ? "info" : "neutral" },
-          { label: "Open Tasks", value: "No Tasks Assigned", tone: "neutral" },
-          { label: "Venue Issues", value: "No Venue Issues", tone: "success" },
-          { label: "Pending Checklists", value: "No Pending Checklists", tone: "neutral" },
+          { label: "Kegiatan Hari Ini", value: todayRows.length || "Belum Ada Jadwal", tone: todayRows.length ? "info" : "neutral" },
+          { label: "Tugas Terbuka", value: "Belum Ada Tugas", tone: "neutral" },
+          { label: "Kendala Tempat", value: "Belum Ada Kendala", tone: "success" },
+          { label: "Checklist Tertunda", value: "Belum Ada Checklist", tone: "neutral" },
         ]}
       />
 
       <FilterBar
-        fields={["Division", "Venue", "Priority", "Status", "Date", "PIC"]}
-        searchPlaceholder="Search tasks, activities, venues, issues, reports, checklists"
+        fields={["Divisi", "Tempat", "Prioritas", "Status", "Tanggal", "PIC"]}
+        searchPlaceholder="Cari tugas, kegiatan, tempat, kendala, laporan, checklist"
       />
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <InfoPanel icon={CalendarDays} title="Today's Operations" description="Official activities assigned to the selected operations scope.">
-          <OperationsActivityTable rows={todayRows} emptyTitle="No Activities Scheduled" />
+        <InfoPanel icon={CalendarDays} title="Kegiatan Hari Ini" description="Kegiatan resmi untuk cakupan divisi yang dipilih.">
+          <OperationsActivityTable rows={todayRows} emptyTitle="Belum Ada Jadwal" />
         </InfoPanel>
 
         <div className="grid gap-5">
-          <InfoPanel icon={Monitor} title="Venue Operations" description="Official venue readiness and current activity.">
+          <InfoPanel icon={Monitor} title="Status Tempat" description="Kesiapan tempat dan kegiatan berjalan.">
             <OperationsVenueStatus rows={todayRows} upcomingRows={upcomingRows} />
           </InfoPanel>
 
-          <InfoPanel icon={ShieldCheck} title="Issue Reporting" description="Operational issue records appear after official submissions.">
+          <InfoPanel icon={ShieldCheck} title="Catatan Kendala" description="Catatan kendala muncul setelah ada laporan resmi.">
             <EmptyDataTable
-              columns={["Issue ID", "Title", "Category", "Priority", "Venue", "Status"]}
-              emptyTitle="No Open Reports"
-              emptyDescription="No equipment, venue, security, cleanliness, logistics, or schedule issue has been reported."
+              columns={["ID Kendala", "Judul", "Kategori", "Prioritas", "Tempat", "Status"]}
+              emptyTitle="Belum Ada Laporan Terbuka"
+              emptyDescription="Belum ada kendala perlengkapan, tempat, keamanan, kebersihan, logistik, atau jadwal yang dilaporkan."
             />
           </InfoPanel>
 
-          <InfoPanel icon={Bell} title="Notifications" description="Operations notifications appear when official triggers exist.">
-            <CompactEmptyState title="No Notifications" description="New task, issue, activity, venue, checklist, and critical-alert notifications will appear here." />
+          <InfoPanel icon={Bell} title="Notifikasi" description="Notifikasi muncul saat ada pemicu resmi.">
+            <CompactEmptyState title="Belum Ada Notifikasi" description="Notifikasi tugas, kendala, kegiatan, tempat, checklist, dan prioritas penting akan muncul di sini." />
           </InfoPanel>
         </div>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <InfoPanel icon={ClipboardList} title="Task Management" description="Create, assign, update, complete, archive, and attach evidence for official tasks.">
+        <InfoPanel icon={ClipboardList} title="Manajemen Tugas" description="Buat, tugaskan, update, selesaikan, arsipkan, dan lampirkan bukti tugas resmi.">
           <EmptyDataTable
-            columns={["Task ID", "Task Name", "Assigned To", "Division", "Deadline", "Priority", "Status", "Evidence"]}
-            emptyTitle="No Tasks Assigned"
-            emptyDescription="No official task records are available for this operations scope."
+            columns={["ID Tugas", "Nama Tugas", "PIC", "Divisi", "Batas Waktu", "Prioritas", "Status", "Bukti"]}
+            emptyTitle="Belum Ada Tugas"
+            emptyDescription="Belum ada catatan tugas resmi untuk cakupan divisi ini."
           />
         </InfoPanel>
 
-        <InfoPanel icon={FileCheck} title="Checklist Management" description="Operational readiness checklist records.">
+        <InfoPanel icon={FileCheck} title="Checklist Kesiapan" description="Catatan checklist kesiapan divisi.">
           <OperationsChecklist divisionId={divisionId} />
         </InfoPanel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <InfoPanel icon={Activity} title="Division Activities" description="Supported operation areas for the official field divisions.">
+        <InfoPanel icon={Activity} title="Aktivitas Divisi" description="Area kerja yang didukung divisi lapangan.">
           <OperationsDivisionActivities divisionId={divisionId} />
         </InfoPanel>
 
-        <InfoPanel icon={FileText} title="Operational Reports" description="Task, venue, issue, checklist, division, and final operational reports.">
+        <InfoPanel icon={FileText} title="Laporan Kepanitiaan" description="Laporan tugas, tempat, kendala, checklist, divisi, dan laporan akhir.">
           <EmptyDataTable
-            columns={["Report Type", "Division", "Generated By", "Generated At", "Format", "Status"]}
-            emptyTitle="No Reports Generated"
-            emptyDescription="PDF, Excel, and CSV operational reports will appear after official generation."
+            columns={["Jenis Laporan", "Divisi", "Dibuat Oleh", "Dibuat Pada", "Format", "Status"]}
+            emptyTitle="Belum Ada Laporan"
+            emptyDescription="Laporan PDF, Excel, dan CSV akan muncul setelah dibuat resmi."
           />
         </InfoPanel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-2">
-        <InfoPanel icon={CalendarDays} title="Upcoming Operations" description="Future official schedule blocks relevant to this operations scope.">
-          <OperationsActivityTable rows={upcomingRows} emptyTitle="No Activities Scheduled" />
+        <InfoPanel icon={CalendarDays} title="Kegiatan Berikutnya" description="Jadwal resmi berikutnya yang relevan untuk cakupan divisi ini.">
+          <OperationsActivityTable rows={upcomingRows} emptyTitle="Belum Ada Jadwal" />
         </InfoPanel>
 
-        <InfoPanel icon={Activity} title="Recent Activities" description="Operational history appears after official updates exist.">
-          <CompactEmptyState title={WAITING} description="Task completed, venue updated, issue reported, checklist submitted, and status changed events will appear here." />
+        <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Riwayat kepanitiaan muncul setelah ada update resmi.">
+          <CompactEmptyState title={WAITING} description="Tugas selesai, tempat diperbarui, kendala dilaporkan, checklist dikirim, dan perubahan status akan muncul di sini." />
         </InfoPanel>
       </section>
     </div>
@@ -1005,16 +1005,16 @@ function AdministrationDashboardScreen({ summary, user }: { summary: DashboardSu
   const canManageDocuments = user.role === "sekretaris" || user.role === "super_admin"
   const roleActionSet = canManageFinance
     ? [
-        { href: "/dashboard/budgeting", icon: Wallet, label: "Add Transaction" },
-        { href: "/dashboard/budgeting", icon: Handshake, label: "Manage Sponsor Funds" },
-        { href: "/dashboard/financial-reports", icon: FileCheck, label: "Generate Financial Report" },
-        { href: "/dashboard/financial-reports", icon: Download, label: "Export Financial Data" },
+        { href: "/dashboard/budgeting", icon: Wallet, label: "Tambah Transaksi" },
+        { href: "/dashboard/budgeting", icon: Handshake, label: "Kelola Dana Sponsor" },
+        { href: "/dashboard/financial-reports", icon: FileCheck, label: "Buat Laporan Keuangan" },
+        { href: "/dashboard/financial-reports", icon: Download, label: "Ekspor Data Keuangan" },
       ]
     : [
-        { href: "/dashboard/documents", icon: FileText, label: "Create Document" },
-        { href: "/dashboard/announcements", icon: Megaphone, label: "Publish Announcement" },
+        { href: "/dashboard/documents", icon: FileText, label: "Buat Dokumen" },
+        { href: "/dashboard/announcements", icon: Megaphone, label: "Publikasikan Pengumuman" },
         { href: "/dashboard/schedules", icon: CalendarDays, label: "Update Rundown" },
-        { href: "/dashboard/reports", icon: FileCheck, label: "Generate Report" },
+        { href: "/dashboard/reports", icon: FileCheck, label: "Buat Laporan" },
       ]
 
   return (
@@ -1022,96 +1022,96 @@ function AdministrationDashboardScreen({ summary, user }: { summary: DashboardSu
       <OperationsHeader
         actions={roleActionSet}
         icon={FileCheck}
-        subtitle="Internal administration workspace for documents, correspondence, reports, archives, approvals, and finance records."
-        title={`Administration Dashboard, ${user.displayName}`}
+        subtitle="Ruang kerja administrasi untuk dokumen, surat, laporan, arsip, persetujuan, dan catatan keuangan."
+        title={`Administrasi, ${user.displayName}`}
       />
 
       <StatStrip
         items={[
-          { label: "Documents", value: NO_DATA },
-          { label: "Announcements", value: summary.announcements.length || NOT_PUBLISHED, tone: "info" },
-          { label: "Reports", value: "No Reports Generated" },
-          { label: "Financial Records", value: canManageFinance ? "No Financial Records" : "Bendahara Only", tone: canManageFinance ? "neutral" : "warning" },
+          { label: "Dokumen", value: NO_DATA },
+          { label: "Pengumuman", value: summary.announcements.length || NOT_PUBLISHED, tone: "info" },
+          { label: "Laporan", value: "Belum Ada Laporan" },
+          { label: "Catatan Keuangan", value: canManageFinance ? "Belum Ada Catatan Keuangan" : "Khusus Bendahara", tone: canManageFinance ? "neutral" : "warning" },
         ]}
       />
 
       <FilterBar
-        fields={["Date", "Status", "Category", "Author", "Division", "Document Type"]}
-        searchPlaceholder="Search documents, announcements, reports, archives, sponsors"
+        fields={["Tanggal", "Status", "Kategori", "Penulis", "Divisi", "Jenis Dokumen"]}
+        searchPlaceholder="Cari dokumen, pengumuman, laporan, arsip, sponsor"
       />
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <InfoPanel icon={ShieldCheck} title="Role Access Control" description="Administration permissions rendered by current role.">
+        <InfoPanel icon={ShieldCheck} title="Akses Peran" description="Permission administrasi sesuai role saat ini.">
           <StatusGrid
             items={[
-              { label: "Create Documents", status: canManageDocuments ? "Allowed" : "Restricted", tone: canManageDocuments ? "success" : "neutral" },
-              { label: "Publish Announcements", status: canManageDocuments ? "Allowed" : "Restricted", tone: canManageDocuments ? "success" : "neutral" },
-              { label: "Manage Budget", status: canManageFinance ? "Allowed" : "Restricted", tone: canManageFinance ? "success" : "neutral" },
-              { label: "Sponsor Funds", status: canManageFinance ? "Allowed" : "Restricted", tone: canManageFinance ? "success" : "neutral" },
-              { label: "Generate Reports", status: "Allowed", tone: "success" },
-              { label: "Export Data", status: "Allowed", tone: "success" },
+              { label: "Buat Dokumen", status: canManageDocuments ? "Diizinkan" : "Terbatas", tone: canManageDocuments ? "success" : "neutral" },
+              { label: "Publikasikan Pengumuman", status: canManageDocuments ? "Diizinkan" : "Terbatas", tone: canManageDocuments ? "success" : "neutral" },
+              { label: "Kelola Anggaran", status: canManageFinance ? "Diizinkan" : "Terbatas", tone: canManageFinance ? "success" : "neutral" },
+              { label: "Dana Sponsor", status: canManageFinance ? "Diizinkan" : "Terbatas", tone: canManageFinance ? "success" : "neutral" },
+              { label: "Buat Laporan", status: "Diizinkan", tone: "success" },
+              { label: "Ekspor Data", status: "Diizinkan", tone: "success" },
             ]}
           />
         </InfoPanel>
 
-        <InfoPanel icon={Bell} title="Notifications" description="Administration notifications and approval signals.">
+        <InfoPanel icon={Bell} title="Notifikasi" description="Notifikasi administrasi dan sinyal persetujuan.">
           <StatusGrid
             items={[
-              { label: "Document Approved", status: WAITING },
-              { label: "Report Generated", status: WAITING },
-              { label: "Budget Updated", status: canManageFinance ? WAITING : "Bendahara Only", tone: canManageFinance ? "neutral" : "warning" },
-              { label: "Announcement Published", status: summary.announcements.length ? "Available" : NOT_PUBLISHED, tone: summary.announcements.length ? "success" : "neutral" },
+              { label: "Dokumen Disetujui", status: WAITING },
+              { label: "Laporan Dibuat", status: WAITING },
+              { label: "Anggaran Diperbarui", status: canManageFinance ? WAITING : "Khusus Bendahara", tone: canManageFinance ? "neutral" : "warning" },
+              { label: "Pengumuman Terbit", status: summary.announcements.length ? "Tersedia" : NOT_PUBLISHED, tone: summary.announcements.length ? "success" : "neutral" },
             ]}
           />
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={FileText} title="Document Management" description="Proposal, official letter, meeting notes, reports, Juknis, and certificate templates.">
+      <InfoPanel icon={FileText} title="Manajemen Dokumen" description="Proposal, surat resmi, notulen, laporan, Juknis, dan template sertifikat.">
         <EmptyDataTable
-          columns={["Document ID", "Document Name", "Category", "Created By", "Created Date", "Updated Date", "Status", "Version", "File Attachment"]}
-          emptyTitle="No Documents Available"
-          emptyDescription="Official administration documents have not been uploaded yet."
+          columns={["ID Dokumen", "Nama Dokumen", "Kategori", "Dibuat Oleh", "Tanggal Dibuat", "Tanggal Update", "Status", "Versi", "Lampiran File"]}
+          emptyTitle="Belum Ada Dokumen"
+          emptyDescription="Dokumen administrasi resmi belum diunggah."
         />
       </InfoPanel>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={Megaphone} title="Announcement Management" description="Draft, scheduled, published, and archived announcements.">
+        <InfoPanel icon={Megaphone} title="Manajemen Pengumuman" description="Pengumuman draft, terjadwal, terbit, dan arsip.">
           <AnnouncementTable summary={summary} />
         </InfoPanel>
 
-        <InfoPanel icon={CalendarDays} title="Rundown Administration" description="Master event rundown with approval, publish, export, and change tracking.">
-          <ScheduleTable schedules={summary.todaySchedule.slice(0, 5)} emptyTitle="No Rundown Available" />
+        <InfoPanel icon={CalendarDays} title="Administrasi Rundown" description="Rundown utama event dengan persetujuan, publikasi, ekspor, dan catatan perubahan.">
+          <ScheduleTable schedules={summary.todaySchedule.slice(0, 5)} emptyTitle="Belum Ada Rundown" />
         </InfoPanel>
       </section>
 
-      <InfoPanel icon={FileCheck} title="Report Management" description="Attendance, committee, competition, sponsor, media, finance, and final event reports.">
+      <InfoPanel icon={FileCheck} title="Manajemen Laporan" description="Laporan kehadiran, panitia, lomba, sponsor, media, keuangan, dan laporan akhir event.">
         <EmptyDataTable
-          columns={["Report ID", "Report Type", "Generated By", "Generated Date", "Export Format", "Status"]}
-          emptyTitle="No Reports Generated"
-          emptyDescription="Administrative reports will appear after an official report is generated."
+          columns={["ID Laporan", "Jenis Laporan", "Dibuat Oleh", "Tanggal Dibuat", "Format Ekspor", "Status"]}
+          emptyTitle="Belum Ada Laporan"
+          emptyDescription="Laporan administrasi akan muncul setelah laporan resmi dibuat."
         />
       </InfoPanel>
 
       {canManageFinance ? (
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <InfoPanel icon={Wallet} title="Financial Management" description="Income, expenses, sponsor funds, operational costs, and receipts.">
+          <InfoPanel icon={Wallet} title="Manajemen Keuangan" description="Pemasukan, pengeluaran, dana sponsor, biaya kegiatan, dan kuitansi.">
             <div className="grid gap-4">
               <FinancialSummaryGrid />
               <EmptyDataTable
-                columns={["Transaction ID", "Category", "Amount", "Date", "Description", "Status", "Attachment", "Created By"]}
-                emptyTitle="No Financial Records"
-                emptyDescription="Official transactions and receipts have not been entered yet."
+                columns={["ID Transaksi", "Kategori", "Nominal", "Tanggal", "Deskripsi", "Status", "Lampiran", "Dibuat Oleh"]}
+                emptyTitle="Belum Ada Catatan Keuangan"
+                emptyDescription="Transaksi dan kuitansi resmi belum diisi."
               />
             </div>
           </InfoPanel>
 
-          <InfoPanel icon={Handshake} title="Sponsor Finance" description="Sponsor contribution values, agreements, and confirmation status.">
+          <InfoPanel icon={Handshake} title="Keuangan Sponsor" description="Nilai kontribusi sponsor, kesepakatan, dan status konfirmasi.">
             <SponsorshipIncomeTable />
           </InfoPanel>
         </section>
       ) : (
-        <InfoPanel icon={Wallet} title="Financial Management" description="Access restricted to Bendahara.">
-          <EmptyState title="Bendahara Only" description="Financial records are visible only to Bendahara and Super Admin." />
+        <InfoPanel icon={Wallet} title="Manajemen Keuangan" description="Akses terbatas untuk Bendahara.">
+          <EmptyState title="Khusus Bendahara" description="Catatan keuangan hanya terlihat oleh Bendahara dan Super Admin." />
         </InfoPanel>
       )}
 
@@ -1170,13 +1170,13 @@ export function DashboardModuleScreen({
     case "panitia-management":
       return <PanitiaManagementScreen summary={summary} />
     case "event-rundown":
-      return <OperationsDashboardSystemScreen divisionId="acara" moduleTitle="Event Rundown Operations" summary={summary} user={user ?? summaryUserFallback()} />
+      return <OperationsDashboardSystemScreen divisionId="acara" moduleTitle="Rundown Kegiatan" summary={summary} user={user ?? summaryUserFallback()} />
     case "equipment-inventory":
-      return <OperationsDashboardSystemScreen divisionId="perlengkapan" moduleTitle="Equipment & Venue Setup Operations" summary={summary} user={user ?? summaryUserFallback()} />
+      return <OperationsDashboardSystemScreen divisionId="perlengkapan" moduleTitle="Perlengkapan & Setup Tempat" summary={summary} user={user ?? summaryUserFallback()} />
     case "security-operations":
-      return <OperationsDashboardSystemScreen divisionId="keamanan" moduleTitle="Security Operations" summary={summary} user={user ?? summaryUserFallback()} />
+      return <OperationsDashboardSystemScreen divisionId="keamanan" moduleTitle="Keamanan" summary={summary} user={user ?? summaryUserFallback()} />
     case "cleanliness-operations":
-      return <OperationsDashboardSystemScreen divisionId="kebersihan" moduleTitle="Cleanliness Operations" summary={summary} user={user ?? summaryUserFallback()} />
+      return <OperationsDashboardSystemScreen divisionId="kebersihan" moduleTitle="Kebersihan" summary={summary} user={user ?? summaryUserFallback()} />
     case "tasks":
     case "division-activities":
       return <OperationsDashboardSystemScreen moduleTitle={getModuleTitle(moduleKey)} summary={summary} user={user ?? summaryUserFallback()} />
@@ -1237,41 +1237,41 @@ function ScheduleManagementScreen({ summary }: { summary: DashboardSummary }) {
     <div className="grid gap-6">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/schedules", icon: CalendarDays, label: "Add Schedule" },
-          { href: "/dashboard/schedules", icon: Globe, label: "Publish Rundown" },
-          { href: "/dashboard/reports", icon: FileText, label: "Export Schedule" },
+          { href: "/dashboard/schedules", icon: CalendarDays, label: "Tambah Jadwal" },
+          { href: "/dashboard/schedules", icon: Globe, label: "Publikasikan Rundown" },
+          { href: "/dashboard/reports", icon: FileText, label: "Ekspor Jadwal" },
         ]}
         icon={CalendarDays}
-        subtitle="Manage rundown, competition schedules, venue usage, and activity timeline."
-        title="Schedule Management"
+        subtitle="Kelola rundown, jadwal lomba, penggunaan tempat, dan linimasa kegiatan."
+        title="Manajemen Jadwal"
       />
 
       <StatStrip
         items={[
-          { label: "Today's Activities", value: summary.todaySchedule.length || NO_DATA, tone: "info" },
-          { label: "Live Activities", value: summary.todaySchedule.filter((item) => item.status === "live").length, tone: "success" },
-          { label: "Upcoming Matches", value: schedules.filter((item) => item.type === "match").length, tone: "gold" },
-          { label: "Active Venues", value: venues.length, tone: "navy" },
+          { label: "Kegiatan Hari Ini", value: summary.todaySchedule.length || NO_DATA, tone: "info" },
+          { label: "Kegiatan Live", value: summary.todaySchedule.filter((item) => item.status === "live").length, tone: "success" },
+          { label: "Match Berikutnya", value: schedules.filter((item) => item.type === "match").length, tone: "gold" },
+          { label: "Tempat Aktif", value: venues.length, tone: "navy" },
         ]}
       />
 
       <FilterBar
         fields={[
-          "Date",
-          "Category",
-          "Venue",
+          "Tanggal",
+          "Kategori",
+          "Tempat",
           "Status",
           "PIC",
         ]}
-        searchPlaceholder="Search activity"
+        searchPlaceholder="Cari kegiatan"
       />
 
-      <InfoPanel icon={CalendarDays} title="Timeline View" description="Official MCS 1 schedule from canonical event data.">
+      <InfoPanel icon={CalendarDays} title="Tampilan Timeline" description="Jadwal resmi MCS 1 dari data event utama.">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
             <thead>
               <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-                {["Date", "Time", "Activity", "Category", "Venue", "PIC", "Status"].map((heading) => (
+                {["Tanggal", "Jam", "Kegiatan", "Kategori", "Tempat", "PIC", "Status"].map((heading) => (
                   <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                     {heading}
                   </th>
@@ -1314,7 +1314,7 @@ function ScheduleManagementScreen({ summary }: { summary: DashboardSummary }) {
           </div>
         </InfoPanel>
 
-        <InfoPanel icon={Activity} title="Recent Changes" description="Schedule changes appear after official updates exist.">
+        <InfoPanel icon={Activity} title="Perubahan Terbaru" description="Perubahan jadwal muncul setelah ada update resmi.">
           <RecentActivityList summary={summary} />
         </InfoPanel>
       </section>
@@ -1327,38 +1327,38 @@ function ParticipantManagementScreen() {
     <div className="grid gap-6">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/participants", icon: Users, label: "Add Participant" },
-          { href: "/dashboard/participants", icon: Upload, label: "Import Data" },
-          { href: "/dashboard/reports", icon: FileText, label: "Export Participants" },
+          { href: "/dashboard/participants", icon: Users, label: "Tambah Peserta" },
+          { href: "/dashboard/participants", icon: Upload, label: "Impor Data" },
+          { href: "/dashboard/reports", icon: FileText, label: "Ekspor Peserta" },
         ]}
         icon={Users}
-        subtitle="Manage participants, verification, teams, and attendance."
-        title="Participant Management"
+        subtitle="Kelola peserta, verifikasi, tim, dan kehadiran."
+        title="Data Peserta"
       />
 
       <StatStrip
         items={[
-          { label: "Total Participants", value: NO_DATA },
-          { label: "Verified Participants", value: NO_DATA },
-          { label: "Pending Verification", value: NO_DATA },
-          { label: "Disqualified", value: NO_DATA },
+          { label: "Total Peserta", value: NO_DATA },
+          { label: "Peserta Terverifikasi", value: NO_DATA },
+          { label: "Menunggu Verifikasi", value: NO_DATA },
+          { label: "Diskualifikasi", value: NO_DATA },
         ]}
       />
 
       <FilterBar
-        fields={["Competition", "Department", "Class", "Verification Status", "Attendance Status"]}
-        searchPlaceholder="Search participant"
+        fields={["Lomba", "Jurusan", "Kelas", "Status Verifikasi", "Status Kehadiran"]}
+        searchPlaceholder="Cari peserta"
       />
 
-      <InfoPanel icon={Users} title="Participant Table" description="Official participant records are not published yet.">
-        <EmptyState title={NO_DATA} description="No official participant, team, or attendance records are available." />
+      <InfoPanel icon={Users} title="Tabel Peserta" description="Catatan peserta resmi belum dipublikasikan.">
+        <EmptyState title={NO_DATA} description="Belum ada catatan resmi peserta, tim, atau kehadiran." />
       </InfoPanel>
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={Trophy} title="Official Competitions" description="Available competition scope for participant registration.">
+        <InfoPanel icon={Trophy} title="Lomba Resmi" description="Cakupan lomba yang tersedia untuk pendaftaran peserta.">
           <SimpleList items={competitions.map((competition) => `${competition.shortName} - ${competition.category}`)} />
         </InfoPanel>
-        <InfoPanel icon={Users} title="Official Departments" description="Allowed SMKN 20 Jakarta departments.">
+        <InfoPanel icon={Users} title="Jurusan Resmi" description="Jurusan SMKN 20 Jakarta yang diperbolehkan.">
           <SimpleList items={majors.map((major) => major.name)} />
         </InfoPanel>
       </section>
@@ -1373,33 +1373,33 @@ function PanitiaManagementScreen({ summary }: { summary: DashboardSummary }) {
     <div className="grid gap-6">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/panitia-management", icon: Users, label: "Add Panitia" },
-          { href: "/dashboard/panitia-management", icon: Upload, label: "Import Data" },
-          { href: "/dashboard/reports", icon: FileText, label: "Export Data" },
+          { href: "/dashboard/panitia-management", icon: Users, label: "Tambah Panitia" },
+          { href: "/dashboard/panitia-management", icon: Upload, label: "Impor Data" },
+          { href: "/dashboard/reports", icon: FileText, label: "Ekspor Data" },
         ]}
         icon={ShieldCheck}
-        subtitle="Manage committee members, divisions, roles, attendance, and tasks."
-        title="Panitia Management"
+        subtitle="Kelola anggota panitia, divisi, peran, kehadiran, dan tugas."
+        title="Data Panitia"
       />
 
       <StatStrip
         items={[
-          { label: "Official Committee Entries", value: groups.length, tone: "info" },
-          { label: "Present Today", value: NO_DATA },
-          { label: "On Duty", value: NO_DATA },
-          { label: "Pending Tasks", value: summary.upcomingTasks.length || NO_DATA, tone: "warning" },
+          { label: "Data Panitia Resmi", value: groups.length, tone: "info" },
+          { label: "Hadir Hari Ini", value: NO_DATA },
+          { label: "Bertugas", value: NO_DATA },
+          { label: "Tugas Tertunda", value: summary.upcomingTasks.length || NO_DATA, tone: "warning" },
         ]}
       />
 
-      <InfoPanel icon={ShieldCheck} title="Division Overview" description="Official committee structure from MCS data.">
+      <InfoPanel icon={ShieldCheck} title="Ikhtisar Divisi" description="Struktur panitia resmi dari data MCS.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           {committee.map((group) => (
-            <FactTile key={group.role} label={group.role} value={`${group.names.length} listed`} />
+            <FactTile key={group.role} label={group.role} value={`${group.names.length} terdaftar`} />
           ))}
         </div>
       </InfoPanel>
 
-      <InfoPanel icon={Users} title="Panitia Table" description="Only official committee names from canonical MCS data are shown.">
+      <InfoPanel icon={Users} title="Tabel Panitia" description="Hanya nama panitia resmi dari data MCS yang ditampilkan.">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm">
             <thead>
@@ -1603,27 +1603,27 @@ function AnalyticsScreen({ moduleKey, summary }: { moduleKey: DashboardModuleKey
   return (
     <div className="grid gap-6">
       <OperationsHeader
-        actions={[{ href: "/dashboard/reports", icon: FileText, label: "Export Report" }]}
+        actions={[{ href: "/dashboard/reports", icon: FileText, label: "Ekspor Laporan" }]}
         icon={moduleKey === "reports" ? FileCheck : BarChart3}
-        subtitle="Simple operational reporting without invented analytics."
-        title={moduleKey === "reports" ? "Reports" : "Analytics"}
+        subtitle="Laporan kepanitiaan sederhana tanpa analitik yang dikarang."
+        title={moduleKey === "reports" ? "Laporan" : "Analitik"}
       />
 
       <StatStrip
         items={[
-          { label: "Competition Summary", value: competitions.length, tone: "navy" },
-          { label: "Participant Summary", value: NO_DATA },
-          { label: "Attendance Summary", value: NO_DATA },
-          { label: "Media Upload Summary", value: NO_DATA },
-          { label: "Announcement Summary", value: summary.announcements.length || NOT_PUBLISHED },
-          { label: "Website Activity", value: NO_DATA },
+          { label: "Ringkasan Lomba", value: competitions.length, tone: "navy" },
+          { label: "Ringkasan Peserta", value: NO_DATA },
+          { label: "Ringkasan Kehadiran", value: NO_DATA },
+          { label: "Ringkasan Media", value: NO_DATA },
+          { label: "Ringkasan Pengumuman", value: summary.announcements.length || NOT_PUBLISHED },
+          { label: "Aktivitas Website", value: NO_DATA },
         ]}
       />
 
-      <InfoPanel icon={BarChart3} title="Operational Reports" description="Charts are intentionally omitted until real reporting data exists.">
+      <InfoPanel icon={BarChart3} title="Laporan Kepanitiaan" description="Chart sengaja tidak ditampilkan sampai data laporan nyata tersedia.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {["Competition Summary", "Participant Summary", "Attendance Summary", "Media Upload Summary", "Announcement Summary", "Website Activity"].map((item) => (
-            <FactTile key={item} label={item} value={item === "Competition Summary" ? `${competitions.length} official competitions` : NO_DATA} />
+          {["Ringkasan Lomba", "Ringkasan Peserta", "Ringkasan Kehadiran", "Ringkasan Media", "Ringkasan Pengumuman", "Aktivitas Website"].map((item) => (
+            <FactTile key={item} label={item} value={item === "Ringkasan Lomba" ? `${competitions.length} lomba resmi` : NO_DATA} />
           ))}
         </div>
       </InfoPanel>
@@ -1635,41 +1635,41 @@ function SettingsScreen() {
   return (
     <div className="grid gap-6">
       <OperationsHeader
-        actions={[{ href: "/dashboard/settings", icon: Settings, label: "Save Settings" }]}
+        actions={[{ href: "/dashboard/settings", icon: Settings, label: "Simpan Pengaturan" }]}
         icon={Settings}
-        subtitle="System configuration for the internal dashboard."
-        title="Settings"
+        subtitle="Konfigurasi sistem untuk dashboard internal."
+        title="Pengaturan"
       />
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={Globe} title="General Settings" description="Canonical event information.">
+        <InfoPanel icon={Globe} title="Pengaturan Umum" description="Informasi event utama.">
           <SettingsRows
             rows={[
-              ["Event name", event.name],
+              ["Nama event", event.name],
               ["Theme", event.theme],
-              ["Date", event.dateRange],
-              ["School information", event.school],
+              ["Tanggal", event.dateRange],
+              ["Informasi sekolah", event.school],
             ]}
           />
         </InfoPanel>
-        <InfoPanel icon={Trophy} title="Brand Settings" description="Official MCS 1 brand inputs.">
+        <InfoPanel icon={Trophy} title="Pengaturan Brand" description="Input brand resmi MCS 1.">
           <SettingsRows
             rows={[
-              ["Logo", "Official SMKN 20, OSIS, and MPK logos"],
-              ["Color", "Navy, red, gold, white"],
-              ["Social media", "Use canonical MCS contact data"],
-              ["Contact information", "Use canonical MCS contact data"],
+              ["Logo", "Logo resmi SMKN 20, OSIS, dan MPK"],
+              ["Warna", "Navy, merah, emas, putih"],
+              ["Media sosial", "Gunakan data kontak MCS utama"],
+              ["Informasi kontak", "Gunakan data kontak MCS utama"],
             ]}
           />
         </InfoPanel>
-        <InfoPanel icon={ShieldCheck} title="Role Management" description="Users, roles, and permissions.">
-          <DocumentStatusList items={["Users", "Roles", "Permissions"]} />
+        <InfoPanel icon={ShieldCheck} title="Manajemen Role" description="Pengguna, role, dan permission.">
+          <DocumentStatusList items={["Pengguna", "Role", "Permission"]} />
         </InfoPanel>
-        <InfoPanel icon={Bell} title="Notification Settings" description="Email, dashboard notification, and broadcast settings.">
-          <DocumentStatusList items={["Email", "Dashboard notification", "Broadcast settings"]} />
+        <InfoPanel icon={Bell} title="Pengaturan Notifikasi" description="Email, notifikasi dashboard, dan pengaturan broadcast.">
+          <DocumentStatusList items={["Email", "Notifikasi dashboard", "Pengaturan broadcast"]} />
         </InfoPanel>
-        <InfoPanel icon={UserCheck} title="Account Settings" description="Profile, password, and logout.">
-          <DocumentStatusList items={["Profile", "Password", "Logout"]} />
+        <InfoPanel icon={UserCheck} title="Pengaturan Akun" description="Profil, password, dan logout.">
+          <DocumentStatusList items={["Profil", "Password", "Logout"]} />
         </InfoPanel>
       </section>
     </div>
@@ -1680,13 +1680,13 @@ function LiveMatchOperationsScreen() {
   return (
     <div className="grid gap-6">
       <OperationsHeader
-        actions={[{ href: "/dashboard/match-results", icon: Trophy, label: "Input Result" }]}
+        actions={[{ href: "/dashboard/match-results", icon: Trophy, label: "Input Hasil" }]}
         icon={Radio}
-        subtitle="Fast operational view for active matches and score status."
-        title="Live Match Operations"
+        subtitle="Pantauan cepat untuk match aktif dan status skor."
+        title="Pantauan Pertandingan"
       />
-      <InfoPanel icon={Radio} title="Live Match Section" description="Only active competitions appear here.">
-        <EmptyState title={MATCH_UNAVAILABLE} description="Official live match records have not been published yet." />
+      <InfoPanel icon={Radio} title="Bagian Pertandingan Live" description="Hanya lomba aktif yang muncul di sini.">
+        <EmptyState title={MATCH_UNAVAILABLE} description="Catatan pertandingan live resmi belum dipublikasikan." />
       </InfoPanel>
     </div>
   )
@@ -1697,15 +1697,15 @@ function BracketManagementScreen() {
     <div className="grid gap-6">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/bracket", icon: GitBranch, label: "Generate Bracket" },
-          { href: "/dashboard/bracket", icon: FileText, label: "Export Bracket" },
+          { href: "/dashboard/bracket", icon: GitBranch, label: "Buat Bracket" },
+          { href: "/dashboard/bracket", icon: FileText, label: "Ekspor Bracket" },
         ]}
         icon={GitBranch}
-        subtitle="Manage tournament brackets with a clean operational layout."
-        title="Bracket Management"
+        subtitle="Kelola bracket turnamen dengan layout yang rapi."
+        title="Manajemen Bracket"
       />
-      <InfoPanel icon={GitBranch} title="Bracket Header" description="Round overview, match cards, winner progression, and bracket actions.">
-        <EmptyState title="Bracket Not Generated Yet" description="Official bracket data has not been published yet." />
+      <InfoPanel icon={GitBranch} title="Header Bracket" description="Ikhtisar round, kartu match, progres pemenang, dan aksi bracket.">
+        <EmptyState title="Bracket Belum Dibuat" description="Data bracket resmi belum dipublikasikan." />
       </InfoPanel>
     </div>
   )
@@ -1715,22 +1715,22 @@ function MatchResultInputScreen() {
   return (
     <div className="grid gap-6">
       <OperationsHeader
-        actions={[{ href: "/dashboard/match-results", icon: Trophy, label: "Submit Result" }]}
+        actions={[{ href: "/dashboard/match-results", icon: Trophy, label: "Kirim Hasil" }]}
         icon={Trophy}
-        subtitle="Fast result entry for PJ Lomba."
-        title="Match Result Input"
+        subtitle="Input hasil cepat untuk PJ Lomba."
+        title="Input Hasil Match"
       />
-      <InfoPanel icon={ClipboardList} title="Result Input Form" description="Competition, match, participants, scores, winner, status, notes, and submission.">
+      <InfoPanel icon={ClipboardList} title="Form Input Hasil" description="Lomba, match, peserta, skor, pemenang, status, catatan, dan pengiriman.">
         <DocumentStatusList
           items={[
-            "Select Competition",
-            "Select Match",
+            "Pilih Lomba",
+            "Pilih Match",
             "Team A / Participant A",
             "Team B / Participant B",
-            "Score Input",
-            "Winner Selection",
-            "Match Status",
-            "Notes",
+            "Input Skor",
+            "Pilih Pemenang",
+            "Status Match",
+            "Catatan",
           ]}
         />
       </InfoPanel>
@@ -2039,7 +2039,7 @@ function AnnouncementList({ summary }: { summary: DashboardSummary }) {
 
 function TaskList({ summary }: { summary: DashboardSummary }) {
   if (summary.upcomingTasks.length === 0) {
-    return <EmptyState title={WAITING} description="Official task records have not been assigned yet." />
+    return <EmptyState title={WAITING} description="Tugas resmi belum ditugaskan." />
   }
 
   return (
@@ -2050,7 +2050,7 @@ function TaskList({ summary }: { summary: DashboardSummary }) {
             <h4 className="truncate text-sm font-semibold text-[#111827]">{task.title}</h4>
             <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{task.division} - {task.assigneeName}</p>
           </div>
-          <StatusBadge label={task.status} tone={task.status === "Blocked" ? "danger" : task.status === "Completed" ? "success" : "warning"} />
+          <StatusBadge label={formatStatus(task.status)} tone={task.status === "Blocked" ? "danger" : task.status === "Completed" ? "success" : "warning"} />
         </article>
       ))}
     </div>
@@ -2059,7 +2059,7 @@ function TaskList({ summary }: { summary: DashboardSummary }) {
 
 function RecentActivityList({ summary }: { summary: DashboardSummary }) {
   if (summary.auditPreview.length === 0) {
-    return <EmptyState title={WAITING} description="Recent activity will appear after official updates exist." />
+    return <EmptyState title={WAITING} description="Aktivitas terbaru muncul setelah ada update resmi." />
   }
 
   return (
@@ -2079,10 +2079,10 @@ function RecentActivityList({ summary }: { summary: DashboardSummary }) {
 
 function FinancialSummaryGrid() {
   const items = [
-    ["Total Budget", formatRupiahRange(budgetSummary.totalMinAmount, budgetSummary.totalMaxAmount)],
-    ["Total Income", "No Sponsorship Income Recorded"],
-    ["Total Expenses", "No Financial Records"],
-    ["Remaining Budget", "No Financial Records"],
+    ["Total Anggaran", formatRupiahRange(budgetSummary.totalMinAmount, budgetSummary.totalMaxAmount)],
+    ["Total Pemasukan", "Belum Ada Pemasukan Sponsor"],
+    ["Total Pengeluaran", "Belum Ada Catatan Keuangan"],
+    ["Sisa Anggaran", "Belum Ada Catatan Keuangan"],
   ]
 
   return (
@@ -2101,9 +2101,9 @@ function SponsorshipIncomeTable() {
   if (sponsorProspects.length === 0) {
     return (
       <FinanceEmptyTable
-        columns={["Sponsor Name", "Amount", "Status", "Received Date"]}
-        emptyTitle="No Sponsorship Income Recorded"
-        emptyDescription="Sponsor income records are not available yet."
+        columns={["Nama Sponsor", "Nominal", "Status", "Tanggal Diterima"]}
+        emptyTitle="Belum Ada Pemasukan Sponsor"
+        emptyDescription="Catatan pemasukan sponsor belum tersedia."
       />
     )
   }
@@ -2113,7 +2113,7 @@ function SponsorshipIncomeTable() {
       <table className="w-full min-w-[680px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Sponsor Name", "Amount", "Status", "Received Date"].map((heading) => (
+            {["Nama Sponsor", "Nominal", "Status", "Tanggal Diterima"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -2125,7 +2125,7 @@ function SponsorshipIncomeTable() {
             <tr key={sponsor.id}>
               <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{sponsor.name}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">
-                {sponsor.receivedAmount ? formatRupiah(sponsor.receivedAmount) : "No Sponsorship Income Recorded"}
+                {sponsor.receivedAmount ? formatRupiah(sponsor.receivedAmount) : "Belum Ada Pemasukan Sponsor"}
               </td>
               <td className="border-b border-[#F1F5F9] px-4 py-4">
                 <StatusBadge label={sponsor.proposalStatus} tone={getSponsorTone(sponsor.proposalStatus)} />
@@ -2141,10 +2141,10 @@ function SponsorshipIncomeTable() {
 
 function PaymentStatusLegend() {
   const statuses: Array<{ label: string; tone: StatusTone }> = [
-    { label: "Pending", tone: "warning" },
-    { label: "Paid", tone: "success" },
-    { label: "Overdue", tone: "danger" },
-    { label: "Cancelled", tone: "neutral" },
+    { label: "Tertunda", tone: "warning" },
+    { label: "Lunas", tone: "success" },
+    { label: "Terlambat", tone: "danger" },
+    { label: "Dibatalkan", tone: "neutral" },
   ]
 
   return (
@@ -2209,7 +2209,7 @@ function BudgetAllocationTable() {
       <table className="w-full min-w-[680px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Division", "Allocated Budget", "Used", "Remaining", "Status"].map((heading) => (
+            {["Divisi", "Anggaran", "Terpakai", "Sisa", "Status"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -2224,9 +2224,9 @@ function BudgetAllocationTable() {
                 {allocation.minAmount > 0 ? formatRupiahRange(allocation.minAmount, allocation.maxAmount) : NO_DATA}
               </td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{NO_DATA}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{allocation.minAmount > 0 ? "No Financial Records" : NO_DATA}</td>
+              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{allocation.minAmount > 0 ? "Belum Ada Catatan Keuangan" : NO_DATA}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                <StatusBadge label={allocation.minAmount > 0 ? "Planned" : "No Financial Records"} tone={allocation.minAmount > 0 ? "info" : "neutral"} />
+                <StatusBadge label={allocation.minAmount > 0 ? "Direncanakan" : "Belum Ada Catatan Keuangan"} tone={allocation.minAmount > 0 ? "info" : "neutral"} />
               </td>
             </tr>
           ))}
@@ -2238,7 +2238,7 @@ function BudgetAllocationTable() {
 
 function FinancialActivityList({ items }: { items: DashboardSummary["auditPreview"] }) {
   if (items.length === 0) {
-    return <CompactEmptyState title="No Financial Records" description="Expense, income, payment, budget, and report activity will appear here." />
+    return <CompactEmptyState title="Belum Ada Catatan Keuangan" description="Aktivitas pengeluaran, pemasukan, pembayaran, anggaran, dan laporan akan muncul di sini." />
   }
 
   return <ActivityRows items={items} />
@@ -2248,9 +2248,9 @@ function FinancialDeadlineTable({ tasks }: { tasks: DashboardSummary["upcomingTa
   if (tasks.length === 0) {
     return (
       <FinanceEmptyTable
-        columns={["Task", "Due Date", "Priority", "Responsible Division"]}
-        emptyTitle="No Financial Records"
-        emptyDescription="Finance deadlines and verification tasks have not been assigned yet."
+        columns={["Tugas", "Batas Waktu", "Prioritas", "Divisi PIC"]}
+        emptyTitle="Belum Ada Catatan Keuangan"
+        emptyDescription="Deadline keuangan dan tugas verifikasi belum ditugaskan."
       />
     )
   }
@@ -2260,7 +2260,7 @@ function FinancialDeadlineTable({ tasks }: { tasks: DashboardSummary["upcomingTa
       <table className="w-full min-w-[680px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Task", "Due Date", "Priority", "Responsible Division"].map((heading) => (
+            {["Tugas", "Batas Waktu", "Prioritas", "Divisi PIC"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -2273,7 +2273,7 @@ function FinancialDeadlineTable({ tasks }: { tasks: DashboardSummary["upcomingTa
               <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{task.title}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{task.deadline}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4">
-                <StatusBadge label={task.priority} tone={task.priority === "High" ? "danger" : task.priority === "Medium" ? "warning" : "neutral"} />
+                <StatusBadge label={formatStatus(task.priority)} tone={task.priority === "High" ? "danger" : task.priority === "Medium" ? "warning" : "neutral"} />
               </td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0 text-[#64748B]">{task.division}</td>
             </tr>
@@ -2295,11 +2295,11 @@ function CompactEmptyState({ description, title }: { description: string; title:
 
 function EntrepreneurshipSalesOverview() {
   const items = [
-    { label: "Today's Revenue", value: "No Revenue Recorded", tone: "neutral" as StatusTone },
-    { label: "Total Transactions", value: "No Transactions Recorded", tone: "neutral" as StatusTone },
-    { label: "Products Sold", value: "No Sales Recorded", tone: "neutral" as StatusTone },
-    { label: "Remaining Inventory", value: "No Products Added", tone: "neutral" as StatusTone },
-    { label: "Sales Target Progress", value: "Waiting For Sales Activity", tone: "gold" as StatusTone },
+    { label: "Pemasukan Hari Ini", value: "Belum Ada Pemasukan", tone: "neutral" as StatusTone },
+    { label: "Total Transaksi", value: "Belum Ada Transaksi", tone: "neutral" as StatusTone },
+    { label: "Produk Terjual", value: "Belum Ada Penjualan", tone: "neutral" as StatusTone },
+    { label: "Sisa Inventaris", value: "Belum Ada Produk", tone: "neutral" as StatusTone },
+    { label: "Progress Target", value: "Menunggu Aktivitas Penjualan", tone: "gold" as StatusTone },
   ]
 
   return (
@@ -2323,16 +2323,16 @@ function EntrepreneurshipTransactionsTable() {
       <ActionGrid
         compact
         actions={[
-          { href: "/dashboard/business", icon: Search, label: "Search Transactions" },
-          { href: "/dashboard/business", icon: ClipboardList, label: "Filter Product" },
-          { href: "/dashboard/business", icon: CalendarDays, label: "Filter Date" },
-          { href: "/dashboard/reports", icon: Download, label: "Export Transactions" },
+          { href: "/dashboard/business", icon: Search, label: "Cari Transaksi" },
+          { href: "/dashboard/business", icon: ClipboardList, label: "Filter Produk" },
+          { href: "/dashboard/business", icon: CalendarDays, label: "Filter Tanggal" },
+          { href: "/dashboard/reports", icon: Download, label: "Ekspor Transaksi" },
         ]}
       />
       <FinanceEmptyTable
-        columns={["Time", "Product", "Quantity", "Unit Price", "Total", "Recorded By"]}
-        emptyTitle="No Transactions Recorded"
-        emptyDescription="Official sales transactions have not been recorded yet."
+        columns={["Waktu", "Produk", "Jumlah", "Harga Satuan", "Total", "Dicatat Oleh"]}
+        emptyTitle="Belum Ada Transaksi"
+        emptyDescription="Transaksi penjualan resmi belum dicatat."
       />
     </div>
   )
@@ -2342,14 +2342,14 @@ function EntrepreneurshipProductTable() {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap gap-2">
-        {["Available", "Low Stock", "Out Of Stock", "Archived"].map((status) => (
+        {["Tersedia", "Stok Rendah", "Stok Habis", "Diarsipkan"].map((status) => (
           <StatusBadge key={status} label={status} tone={getProductStatusTone(status)} />
         ))}
       </div>
       <FinanceEmptyTable
-        columns={["Product Name", "Category", "Price", "Initial Stock", "Remaining Stock", "Status"]}
-        emptyTitle="No Products Added"
-        emptyDescription="Food, drink, snack, merchandise, and other product records have not been published yet."
+        columns={["Nama Produk", "Kategori", "Harga", "Stok Awal", "Sisa Stok", "Status"]}
+        emptyTitle="Belum Ada Produk"
+        emptyDescription="Data makanan, minuman, snack, merchandise, atau produk lain belum dipublikasikan."
       />
     </div>
   )
@@ -2359,14 +2359,14 @@ function EntrepreneurshipInventoryTable() {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap gap-2">
-        {["Safe", "Low Stock", "Critical", "Out Of Stock"].map((status) => (
+        {["Aman", "Stok Rendah", "Kritis", "Stok Habis"].map((status) => (
           <StatusBadge key={status} label={status} tone={getInventoryStatusTone(status)} />
         ))}
       </div>
       <FinanceEmptyTable
-        columns={["Product", "Initial Stock", "Sold", "Remaining", "Status"]}
-        emptyTitle="No Products Added"
-        emptyDescription="Inventory movement will appear after official product and sale records exist."
+        columns={["Produk", "Stok Awal", "Terjual", "Sisa", "Status"]}
+        emptyTitle="Belum Ada Produk"
+        emptyDescription="Pergerakan inventaris muncul setelah data produk dan penjualan resmi tersedia."
       />
     </div>
   )
@@ -2378,7 +2378,7 @@ function EntrepreneurshipBestSellers() {
       {["#1", "#2", "#3", "#4", "#5"].map((rank) => (
         <div key={rank} className="flex items-center justify-between gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] px-3 py-2.5">
           <span className="text-sm font-semibold text-[#111827]">{rank}</span>
-          <span className="text-sm font-medium text-[#64748B]">Waiting For Sales Activity</span>
+          <span className="text-sm font-medium text-[#64748B]">Menunggu Aktivitas Penjualan</span>
         </div>
       ))}
     </div>
@@ -2387,10 +2387,10 @@ function EntrepreneurshipBestSellers() {
 
 function EntrepreneurshipCashSummary() {
   const items = [
-    ["Initial Capital", "No Revenue Recorded"],
-    ["Revenue", "No Revenue Recorded"],
-    ["Expenses", "No Expenses Recorded"],
-    ["Estimated Profit", "No Revenue Recorded"],
+    ["Modal Awal", "Belum Ada Pemasukan"],
+    ["Pemasukan", "Belum Ada Pemasukan"],
+    ["Pengeluaran", "Belum Ada Pengeluaran"],
+    ["Estimasi Laba", "Belum Ada Pemasukan"],
   ]
 
   return (
@@ -2407,10 +2407,10 @@ function EntrepreneurshipCashSummary() {
 
 function EntrepreneurshipDailyReports() {
   const reports = [
-    ["Day 1", "22 Jun 2026"],
-    ["Day 2", "23 Jun 2026"],
-    ["Day 3", "24 Jun 2026"],
-    ["Day 4", "25 Jun 2026"],
+    ["Hari 1", "22 Jun 2026"],
+    ["Hari 2", "23 Jun 2026"],
+    ["Hari 3", "24 Jun 2026"],
+    ["Hari 4", "25 Jun 2026"],
   ]
 
   return (
@@ -2421,7 +2421,7 @@ function EntrepreneurshipDailyReports() {
             <p className="text-sm font-semibold text-[#111827]">{day}</p>
             <p className="mt-1 text-xs font-medium text-[#64748B]">{date}</p>
           </div>
-          <StatusBadge label="No Reports Generated" tone="neutral" />
+          <StatusBadge label="Belum Ada Laporan" tone="neutral" />
         </div>
       ))}
     </div>
@@ -2436,7 +2436,7 @@ function EntrepreneurshipRecentActivities({ summary }: { summary: DashboardSumma
   )
 
   if (items.length === 0) {
-    return <EmptyState title="Waiting For Sales Activity" description="Product, stock, sale, expense, target, and report activity will appear here." />
+    return <EmptyState title="Menunggu Aktivitas Penjualan" description="Produk, stok, penjualan, pengeluaran, target, dan laporan akan muncul setelah ada input resmi." />
   }
 
   return <ActivityRows items={items} />
@@ -2445,28 +2445,28 @@ function EntrepreneurshipRecentActivities({ summary }: { summary: DashboardSumma
 function EntrepreneurshipSidePanel() {
   return (
     <aside className="grid content-start gap-5">
-      <InfoPanel icon={Activity} title="Low Stock Alerts" description="Products needing restock attention.">
-        <CompactEmptyState title="No Products Added" description="Low-stock alerts will appear after official product inventory exists." />
+      <InfoPanel icon={Activity} title="Peringatan Stok Rendah" description="Produk yang perlu ditambah stoknya.">
+        <CompactEmptyState title="Belum Ada Produk" description="Peringatan stok muncul setelah inventaris produk resmi diisi." />
       </InfoPanel>
 
-      <InfoPanel icon={BarChart3} title="Top Selling Products" description="Compact product ranking.">
-        <CompactEmptyState title="Waiting For Sales Activity" description="Top selling products will appear after sales are recorded." />
+      <InfoPanel icon={BarChart3} title="Produk Terlaris" description="Ringkasan produk dengan penjualan tertinggi.">
+        <CompactEmptyState title="Menunggu Aktivitas Penjualan" description="Produk terlaris muncul setelah penjualan dicatat." />
       </InfoPanel>
 
-      <InfoPanel icon={Wallet} title="Sales Target Progress" description="Current revenue against target.">
-        <CompactEmptyState title="Waiting For Sales Activity" description="Sales targets have not been published yet." />
+      <InfoPanel icon={Wallet} title="Progress Target Penjualan" description="Perbandingan pemasukan dengan target.">
+        <CompactEmptyState title="Menunggu Aktivitas Penjualan" description="Target penjualan belum dipublikasikan." />
       </InfoPanel>
 
-      <InfoPanel icon={ClipboardList} title="Recent Transactions" description="Latest sale entries.">
-        <CompactEmptyState title="No Transactions Recorded" description="Recent transactions will appear after official sales input." />
+      <InfoPanel icon={ClipboardList} title="Transaksi Terbaru" description="Catatan penjualan terakhir.">
+        <CompactEmptyState title="Belum Ada Transaksi" description="Transaksi terbaru muncul setelah input penjualan resmi." />
       </InfoPanel>
 
-      <InfoPanel icon={Wallet} title="Today's Revenue Summary" description="Revenue, expenses, and estimated profit.">
+      <InfoPanel icon={Wallet} title="Ringkasan Keuangan Hari Ini" description="Pemasukan, pengeluaran, dan estimasi laba.">
         <StatMiniList
           items={[
-            { label: "Revenue", value: "No Revenue Recorded" },
-            { label: "Expenses", value: "No Expenses Recorded" },
-            { label: "Estimated Profit", value: "No Revenue Recorded" },
+            { label: "Pemasukan", value: "Belum Ada Pemasukan" },
+            { label: "Pengeluaran", value: "Belum Ada Pengeluaran" },
+            { label: "Estimasi Laba", value: "Belum Ada Pemasukan" },
           ]}
         />
       </InfoPanel>
@@ -2476,7 +2476,7 @@ function EntrepreneurshipSidePanel() {
 
 function SponsorPipelineBoard() {
   if (sponsorProspects.length === 0) {
-    return <PipelineBoard emptyTitle="No Active Sponsors" statuses={sponsorshipPipelineStatuses} />
+    return <PipelineBoard emptyTitle="Belum Ada Sponsor Aktif" statuses={sponsorshipPipelineStatuses} />
   }
 
   return (
@@ -2501,7 +2501,7 @@ function SponsorPipelineBoard() {
               </div>
             ) : (
               <div className="mt-4">
-                <CompactEmptyState title="No Active Sponsors" description="No sponsor record in this stage." />
+                <CompactEmptyState title="Belum Ada Sponsor Aktif" description="Belum ada sponsor pada tahap ini." />
               </div>
             )}
           </div>
@@ -2513,7 +2513,7 @@ function SponsorPipelineBoard() {
 
 function SponsorListTable() {
   if (sponsorProspects.length === 0) {
-    return <EmptyState title="No Active Sponsors" description="Official sponsor records have not been published yet." />
+    return <EmptyState title="Belum Ada Sponsor Aktif" description="Data sponsor resmi belum dipublikasikan." />
   }
 
   return (
@@ -2663,7 +2663,7 @@ function HumasRecentActivities({ summary }: { summary: DashboardSummary }) {
   )
 
   if (activity.length === 0) {
-    return <EmptyState title={WAITING} description="Proposal, sponsor, broadcast, and media partner activity will appear here." />
+    return <EmptyState title={WAITING} description="Aktivitas proposal, sponsor, broadcast, dan mitra media akan muncul di sini." />
   }
 
   return <ActivityRows items={activity} />
@@ -2671,7 +2671,7 @@ function HumasRecentActivities({ summary }: { summary: DashboardSummary }) {
 
 function LiveMatchStatusPanel({ liveMatch }: { liveMatch?: DashboardSummary["liveMatches"][number] }) {
   if (!liveMatch) {
-    return <EmptyState title="No Active Competition" description="No live match is currently published for PJ Lomba." />
+    return <EmptyState title="Belum Ada Lomba Aktif" description="Belum ada pertandingan live yang dipublikasikan untuk PJ Lomba." />
   }
 
   return (
@@ -2888,7 +2888,7 @@ function isDivisionOperationsRole(role: UserRole): role is DivisionOperationsRol
 
 function DivisionTaskList({ tasks }: { tasks: DashboardSummary["upcomingTasks"] }) {
   if (tasks.length === 0) {
-    return <CompactEmptyState title={WAITING} description="Division task records have not been assigned yet." />
+    return <CompactEmptyState title={WAITING} description="Tugas divisi belum ditugaskan." />
   }
 
   return (
@@ -2899,7 +2899,7 @@ function DivisionTaskList({ tasks }: { tasks: DashboardSummary["upcomingTasks"] 
             <h4 className="truncate text-sm font-semibold text-[#111827]">{task.title}</h4>
             <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{task.deadline} - {task.assigneeName}</p>
           </div>
-          <StatusBadge label={task.status} tone={task.status === "Blocked" ? "danger" : task.status === "Completed" ? "success" : "warning"} />
+          <StatusBadge label={formatStatus(task.status)} tone={task.status === "Blocked" ? "danger" : task.status === "Completed" ? "success" : "warning"} />
         </article>
       ))}
     </div>
@@ -2914,7 +2914,7 @@ function OperationsActivityTable({
   rows: OperationsScheduleRow[]
 }) {
   if (rows.length === 0) {
-    return <EmptyState title={emptyTitle} description="No official operation activities are scheduled for this view." />
+    return <EmptyState title={emptyTitle} description="Belum ada kegiatan resmi yang dijadwalkan untuk tampilan ini." />
   }
 
   return (
@@ -2922,7 +2922,7 @@ function OperationsActivityTable({
       <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Activity Name", "Division", "Venue", "PIC", "Start Time", "End Time", "Status", "Priority"].map((heading) => (
+            {["Nama Kegiatan", "Divisi", "Tempat", "PIC", "Mulai", "Selesai", "Status", "Prioritas"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -2942,10 +2942,13 @@ function OperationsActivityTable({
               <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827]">{formatScheduleTime(row.time)}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{NO_DATA}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4">
-                <StatusBadge label={row.status} tone={row.status === "Completed" ? "success" : row.status === "Delayed" ? "warning" : "gold"} />
+                <StatusBadge
+                  label={formatStatus(row.status)}
+                  tone={row.status === "Completed" ? "success" : row.status === "Delayed" ? "warning" : "gold"}
+                />
               </td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                <StatusBadge label={row.priority} tone={row.priority === "Critical" ? "danger" : row.priority === "High" ? "warning" : "neutral"} />
+                <StatusBadge label={formatStatus(row.priority)} tone={row.priority === "Critical" ? "danger" : row.priority === "High" ? "warning" : "neutral"} />
               </td>
             </tr>
           ))}
@@ -2973,10 +2976,10 @@ function OperationsVenueStatus({
           <div key={venue} className="rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
             <div className="flex items-center justify-between gap-3">
               <p className="truncate text-sm font-semibold text-[#111827]">{venue}</p>
-              <StatusBadge label={current ? "Reserved" : "Available"} tone={current ? "info" : "neutral"} />
+              <StatusBadge label={current ? "Terpakai" : "Tersedia"} tone={current ? "info" : "neutral"} />
             </div>
             <p className="mt-2 line-clamp-2 text-xs font-medium text-[#64748B]">
-              {current ? `${formatScheduleTime(current.time)} - ${current.title}` : "No current activity"}
+              {current ? `${formatScheduleTime(current.time)} - ${current.title}` : "Belum ada kegiatan berjalan"}
             </p>
           </div>
         )
@@ -2993,7 +2996,7 @@ function OperationsChecklist({ divisionId }: { divisionId?: FieldOperationsRole 
       {checklist.map((item) => (
         <div key={item} className="flex items-center justify-between gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
           <span className="text-sm font-semibold text-[#111827]">{item}</span>
-          <StatusBadge label="Pending" tone="neutral" />
+          <StatusBadge label="Menunggu" tone="neutral" />
         </div>
       ))}
     </div>
@@ -3159,7 +3162,7 @@ function getOperationsDivisionIcon(divisionId: FieldOperationsRole) {
 function getScheduleDivisionLabel(row: OperationsScheduleRow) {
   const matched = fieldOperationsRoles.find((division) => getOperationsRowsForDivision([row], division).length > 0)
 
-  return matched ? operationsDivisionDetails[matched].label : "Operations"
+  return matched ? operationsDivisionDetails[matched].label : "Kepanitiaan"
 }
 
 function getOperationsPriority(title: string, type: string): OperationsScheduleRow["priority"] {
@@ -3187,127 +3190,127 @@ function getDivisionDashboardSpec(role: DivisionOperationsRole): DivisionDashboa
     acara: {
       actions: [
         { href: "/dashboard/event-rundown", icon: CalendarDays, label: "Update Rundown" },
-        { href: "/dashboard/schedules", icon: Activity, label: "Manage Activity" },
-        { href: "/dashboard/tasks", icon: ClipboardList, label: "Create Task" },
+        { href: "/dashboard/schedules", icon: Activity, label: "Kelola Kegiatan" },
+        { href: "/dashboard/tasks", icon: ClipboardList, label: "Buat Tugas" },
       ],
-      checklistItems: ["Activity Name", "Venue", "PIC", "Date", "Time", "Status", "Description"],
-      dataPanelDescription: "PIC assignment records appear after the official rundown is updated.",
-      dataPanelTitle: "PIC Assignments",
+      checklistItems: ["Nama Kegiatan", "Tempat", "PIC", "Tanggal", "Waktu", "Status", "Catatan"],
+      dataPanelDescription: "Data PIC muncul setelah rundown resmi diperbarui.",
+      dataPanelTitle: "Penugasan PIC",
       divisionId: "acara",
-      emptyDescription: "PIC assignment records have not been published yet.",
+      emptyDescription: "Data penugasan PIC belum dipublikasikan.",
       emptyTitle: NO_DATA,
       icon: CalendarDays,
       scheduleTitle: "Master Rundown",
-      statusDescription: "Execution readiness for rundown, venue, PIC, and checklist flow.",
+      statusDescription: "Kesiapan rundown, tempat, PIC, dan checklist kegiatan.",
       statusItems: (division) => [
         { label: "Master Rundown", status: WAITING },
-        { label: "Today's Activities", status: division ? `${division.activeTasks} active tasks` : NO_DATA, tone: division ? "info" : "neutral" },
-        { label: "Venue Status", status: WAITING },
-        { label: "Operational Checklist", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
+        { label: "Kegiatan Hari Ini", status: division ? `${division.activeTasks} tugas aktif` : NO_DATA, tone: division ? "info" : "neutral" },
+        { label: "Status Tempat", status: WAITING },
+        { label: "Checklist Kegiatan", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
       ],
-      subtitle: "Event execution dashboard for master rundown, venue status, PIC assignments, activities, and checklists.",
-      tableColumns: ["Activity", "Venue", "PIC", "Date", "Time", "Status"],
-      title: "Acara Dashboard",
+      subtitle: "Ruang kerja Acara untuk rundown, status tempat, penugasan PIC, kegiatan, dan checklist.",
+      tableColumns: ["Kegiatan", "Tempat", "PIC", "Tanggal", "Waktu", "Status"],
+      title: "Divisi Acara",
     },
     kebersihan: {
       actions: [
         { href: "/dashboard/cleanliness", icon: Activity, label: "Update Area" },
-        { href: "/dashboard/reports", icon: FileCheck, label: "Submit Report" },
-        { href: "/dashboard/tasks", icon: ClipboardList, label: "Mark Completed" },
+        { href: "/dashboard/reports", icon: FileCheck, label: "Kirim Laporan" },
+        { href: "/dashboard/tasks", icon: ClipboardList, label: "Tandai Selesai" },
       ],
-      checklistItems: ["Area Assignments", "Cleaning Schedule", "Operation Semut", "Venue Condition", "Incident Reports", "Completion Status"],
-      dataPanelDescription: "Area condition and cleaning incident records appear after official submissions exist.",
-      dataPanelTitle: "Area Assignments",
+      checklistItems: ["Pembagian Area", "Jadwal Bersih", "Operasi Semut", "Kondisi Tempat", "Laporan Kendala", "Status Selesai"],
+      dataPanelDescription: "Kondisi area dan laporan kebersihan muncul setelah ada pengajuan resmi.",
+      dataPanelTitle: "Pembagian Area",
       divisionId: "kebersihan",
-      emptyDescription: "No area assignment, venue condition, or incident report has been published yet.",
+      emptyDescription: "Pembagian area, kondisi tempat, atau laporan kendala belum dipublikasikan.",
       emptyTitle: NO_DATA,
       icon: Activity,
-      scheduleTitle: "Cleaning Schedule",
-      statusDescription: "Cleanliness readiness for venues, waste points, and post-session sweep work.",
+      scheduleTitle: "Jadwal Kebersihan",
+      statusDescription: "Kesiapan kebersihan tempat, titik sampah, dan pembersihan setelah sesi.",
       statusItems: (division) => [
-        { label: "Area Assignments", status: WAITING },
-        { label: "Operation Semut", status: WAITING },
-        { label: "Venue Condition", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
-        { label: "Incident Reports", status: "No Reports Generated" },
+        { label: "Pembagian Area", status: WAITING },
+        { label: "Operasi Semut", status: WAITING },
+        { label: "Kondisi Tempat", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
+        { label: "Laporan Kendala", status: "Belum Ada Laporan" },
       ],
-      subtitle: "Venue cleanliness dashboard for area assignments, Operation Semut, venue condition, reports, and checklist completion.",
-      tableColumns: ["Area", "Schedule", "Assigned Team", "Condition", "Status", "Report"],
-      title: "Kebersihan Dashboard",
+      subtitle: "Ruang kerja Kebersihan untuk pembagian area, Operasi Semut, kondisi tempat, laporan, dan checklist.",
+      tableColumns: ["Area", "Jadwal", "Tim Bertugas", "Kondisi", "Status", "Laporan"],
+      title: "Divisi Kebersihan",
     },
     perlengkapan: {
       actions: [
-        { href: "/dashboard/inventory", icon: ClipboardList, label: "Add Inventory" },
-        { href: "/dashboard/tasks", icon: UserCheck, label: "Assign Equipment" },
+        { href: "/dashboard/inventory", icon: ClipboardList, label: "Tambah Inventaris" },
+        { href: "/dashboard/tasks", icon: UserCheck, label: "Tugaskan Barang" },
         { href: "/dashboard/inventory", icon: FileCheck, label: "Update Status" },
       ],
-      checklistItems: ["Inventory Status", "Borrowed Equipment", "Venue Setup", "Equipment Requests", "Stock Levels", "Return Status"],
-      dataPanelDescription: "Inventory and equipment request records appear after official equipment input.",
-      dataPanelTitle: "Inventory Status",
+      checklistItems: ["Status Inventaris", "Barang Dipinjam", "Setup Tempat", "Permintaan Barang", "Level Stok", "Status Pengembalian"],
+      dataPanelDescription: "Data inventaris dan permintaan barang muncul setelah input resmi Perlengkapan.",
+      dataPanelTitle: "Status Inventaris",
       divisionId: "perlengkapan",
-      emptyDescription: "No inventory, borrowed equipment, equipment request, or stock record is available.",
+      emptyDescription: "Inventaris, barang dipinjam, permintaan barang, atau stok belum tersedia.",
       emptyTitle: NO_DATA,
       icon: ClipboardList,
-      scheduleTitle: "Venue Setup Schedule",
-      statusDescription: "Equipment readiness for court setup, sound, tools, and stock levels.",
+      scheduleTitle: "Jadwal Setup Tempat",
+      statusDescription: "Kesiapan perlengkapan untuk setup lapangan, sound, alat, dan stok.",
       statusItems: (division) => [
-        { label: "Inventory Status", status: NO_DATA },
-        { label: "Borrowed Equipment", status: NO_DATA },
-        { label: "Venue Setup", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
-        { label: "Stock Levels", status: NO_DATA },
+        { label: "Status Inventaris", status: NO_DATA },
+        { label: "Barang Dipinjam", status: NO_DATA },
+        { label: "Setup Tempat", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
+        { label: "Level Stok", status: NO_DATA },
       ],
-      subtitle: "Inventory dashboard for equipment status, borrowed items, venue setup, requests, and stock levels.",
-      tableColumns: ["Equipment", "Quantity", "Borrower", "Venue", "Status", "Updated By"],
-      title: "Perlengkapan Dashboard",
+      subtitle: "Ruang kerja Perlengkapan untuk status barang, pinjaman, setup tempat, permintaan, dan stok.",
+      tableColumns: ["Barang", "Jumlah", "Peminjam", "Tempat", "Status", "Diupdate Oleh"],
+      title: "Divisi Perlengkapan",
     },
     keamanan: {
       actions: [
-        { href: "/dashboard/security", icon: ShieldCheck, label: "Create Report" },
+        { href: "/dashboard/security", icon: ShieldCheck, label: "Buat Laporan" },
         { href: "/dashboard/security", icon: Activity, label: "Update Status" },
-        { href: "/dashboard/schedules", icon: CalendarDays, label: "Manage Shift" },
+        { href: "/dashboard/schedules", icon: CalendarDays, label: "Kelola Shift" },
       ],
-      checklistItems: ["Guard Posts", "Area Monitoring", "Security Reports", "Incident Reports", "Shift Schedule", "Crowd Flow"],
-      dataPanelDescription: "Security reports and guard post records appear after official submissions exist.",
-      dataPanelTitle: "Guard Posts",
+      checklistItems: ["Pos Jaga", "Pemantauan Area", "Laporan Keamanan", "Laporan Kendala", "Jadwal Shift", "Arus Penonton"],
+      dataPanelDescription: "Laporan keamanan dan pos jaga muncul setelah ada pengajuan resmi.",
+      dataPanelTitle: "Pos Jaga",
       divisionId: "keamanan",
-      emptyDescription: "No guard post, shift, area monitoring, or security incident record has been published yet.",
+      emptyDescription: "Pos jaga, shift, pemantauan area, atau laporan keamanan belum dipublikasikan.",
       emptyTitle: NO_DATA,
       icon: ShieldCheck,
-      scheduleTitle: "Shift Schedule",
-      statusDescription: "Security readiness for gates, field boundaries, crowd flow, and incident response.",
+      scheduleTitle: "Jadwal Shift",
+      statusDescription: "Kesiapan keamanan untuk gerbang, batas lapangan, arus penonton, dan respons kendala.",
       statusItems: (division) => [
-        { label: "Guard Posts", status: WAITING },
-        { label: "Area Monitoring", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
-        { label: "Security Reports", status: "No Reports Generated" },
-        { label: "Incident Reports", status: "No Reports Generated" },
+        { label: "Pos Jaga", status: WAITING },
+        { label: "Pemantauan Area", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
+        { label: "Laporan Keamanan", status: "Belum Ada Laporan" },
+        { label: "Laporan Kendala", status: "Belum Ada Laporan" },
       ],
-      subtitle: "Security operations dashboard for guard posts, area monitoring, incidents, reports, and shifts.",
-      tableColumns: ["Guard Post", "Area", "Shift", "PIC", "Status", "Report"],
-      title: "Keamanan Dashboard",
+      subtitle: "Ruang kerja Keamanan untuk pos jaga, pemantauan area, kendala, laporan, dan shift.",
+      tableColumns: ["Pos Jaga", "Area", "Shift", "PIC", "Status", "Laporan"],
+      title: "Divisi Keamanan",
     },
     kewirausahaan: {
       actions: [
-        { href: "/dashboard/business", icon: Archive, label: "Add Product" },
-        { href: "/dashboard/business", icon: Wallet, label: "Record Sale" },
+        { href: "/dashboard/business", icon: Archive, label: "Tambah Produk" },
+        { href: "/dashboard/business", icon: Wallet, label: "Catat Penjualan" },
         { href: "/dashboard/business", icon: ClipboardList, label: "Update Stock" },
       ],
-      checklistItems: ["Product Catalog", "Sales Transactions", "Inventory Monitoring", "Expense Tracking", "Daily Reports", "Stock Audit"],
-      dataPanelDescription: "Product, sales, inventory, expense, and report records appear after official entrepreneurship input.",
-      dataPanelTitle: "Product Catalog",
+      checklistItems: ["Katalog Produk", "Transaksi Penjualan", "Pantauan Inventaris", "Catatan Pengeluaran", "Laporan Harian", "Audit Stok"],
+      dataPanelDescription: "Produk, penjualan, inventaris, pengeluaran, dan laporan muncul setelah input resmi Kewirausahaan.",
+      dataPanelTitle: "Katalog Produk",
       divisionId: "kewirausahaan",
-      emptyDescription: "No product, transaction, inventory, expense, or report record is available.",
+      emptyDescription: "Produk, transaksi, inventaris, pengeluaran, atau laporan belum tersedia.",
       emptyTitle: NO_DATA,
       icon: Wallet,
-      scheduleTitle: "Entrepreneurship Operations Schedule",
-      statusDescription: "Sales readiness for products, stock, transactions, expenses, revenue, and reports.",
+      scheduleTitle: "Jadwal Kewirausahaan",
+      statusDescription: "Kesiapan penjualan untuk produk, stok, transaksi, pengeluaran, pemasukan, dan laporan.",
       statusItems: (division) => [
-        { label: "Product Catalog", status: "No Products Added" },
-        { label: "Sales Transactions", status: "No Transactions Recorded" },
-        { label: "Inventory Monitoring", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
-        { label: "Daily Reports", status: "No Reports Generated" },
+        { label: "Katalog Produk", status: "Belum Ada Produk" },
+        { label: "Transaksi Penjualan", status: "Belum Ada Transaksi" },
+        { label: "Pantauan Inventaris", status: division?.status ?? WAITING, tone: division ? getDivisionTone(division.status) : "neutral" },
+        { label: "Laporan Harian", status: "Belum Ada Laporan" },
       ],
-      subtitle: "Entrepreneurship dashboard for product sales, inventory monitoring, expenses, revenue, profit, and daily reports.",
-      tableColumns: ["Product", "Category", "Price", "Stock", "Status", "Updated By"],
-      title: "Kewirausahaan Dashboard",
+      subtitle: "Ruang kerja Kewirausahaan untuk produk, penjualan, inventaris, pengeluaran, pemasukan, laba, dan laporan harian.",
+      tableColumns: ["Produk", "Kategori", "Harga", "Stok", "Status", "Diupdate Oleh"],
+      title: "Divisi Kewirausahaan",
     },
   }
 
@@ -3332,38 +3335,38 @@ function getDivisionScheduleView(role: DivisionOperationsRole, summary: Dashboar
 
 function getRoleDashboardConfig(role: Exclude<UserRole, DivisionOperationsRole>) {
   const sharedActions: ActionLink[] = [
-    { href: "/dashboard/schedules", icon: CalendarDays, label: "View Schedule" },
-    { href: "/dashboard/announcements", icon: Megaphone, label: "Announcements" },
+    { href: "/dashboard/schedules", icon: CalendarDays, label: "Lihat Jadwal" },
+    { href: "/dashboard/announcements", icon: Megaphone, label: "Pengumuman" },
   ]
 
   const configs: Record<Exclude<UserRole, DivisionOperationsRole>, RoleDashboardConfig> = {
     bendahara: {
       actions: [
-        { href: "/dashboard/budgeting", icon: Wallet, label: "Budgeting" },
-        { href: "/dashboard/financial-reports", icon: FileCheck, label: "Financial Reports" },
+        { href: "/dashboard/budgeting", icon: Wallet, label: "Anggaran" },
+        { href: "/dashboard/financial-reports", icon: FileCheck, label: "Laporan Keuangan" },
         ...sharedActions,
       ],
       icon: Wallet,
-      primaryPanelDescription: "Financial workflow readiness and official reporting queue.",
-      primaryPanelTitle: "Finance Operations",
+      primaryPanelDescription: "Kesiapan alur keuangan dan antrean laporan resmi.",
+      primaryPanelTitle: "Keuangan",
       stats: () => [
-        { label: "Budget Records", value: NO_DATA },
-        { label: "Financial Reports", value: NO_DATA },
-        { label: "Pending Review", value: NO_DATA },
-        { label: "Announcements", value: NOT_PUBLISHED },
+        { label: "Catatan Anggaran", value: NO_DATA },
+        { label: "Laporan Keuangan", value: NO_DATA },
+        { label: "Menunggu Review", value: NO_DATA },
+        { label: "Pengumuman", value: NOT_PUBLISHED },
       ],
-      statusDescription: "Finance status appears after official finance records are available.",
+      statusDescription: "Status keuangan muncul setelah catatan resmi tersedia.",
       statuses: () => [
-        { label: "Budgeting", status: NO_DATA },
-        { label: "Financial Reports", status: NO_DATA },
-        { label: "Payment Logs", status: NO_DATA },
+        { label: "Anggaran", status: NO_DATA },
+        { label: "Laporan Keuangan", status: NO_DATA },
+        { label: "Log Pembayaran", status: NO_DATA },
       ],
-      statusTitle: "Finance Status",
-      subtitle: "Finance dashboard for budgeting, reporting, and official financial records.",
-      timelineTitle: "Finance-Relevant Schedule",
-      title: "Bendahara Dashboard",
-      todoDescription: "Finance tasks appear after official assignment.",
-      todoTitle: "Finance Tasks",
+      statusTitle: "Status Keuangan",
+      subtitle: "Dashboard bendahara untuk anggaran, laporan, dan catatan keuangan resmi.",
+      timelineTitle: "Jadwal Terkait Keuangan",
+      title: "Bendahara",
+      todoDescription: "Tugas keuangan muncul setelah penugasan resmi.",
+      todoTitle: "Tugas Keuangan",
     },
     dokumentasi: {
       actions: sharedActions,
@@ -3395,95 +3398,95 @@ function getRoleDashboardConfig(role: Exclude<UserRole, DivisionOperationsRole>)
       todoDescription: "",
       todoTitle: "",
     },
-    ketua_pelaksana: leadershipConfig("Ketua Pelaksana Dashboard"),
+    ketua_pelaksana: leadershipConfig("Ketua Pelaksana"),
     operator: {
       actions: [
-        { href: "/dashboard/technical-support", icon: Monitor, label: "Technical Support" },
-        { href: "/dashboard/tournament", icon: Trophy, label: "Competition Operations" },
+        { href: "/dashboard/technical-support", icon: Monitor, label: "Dukungan Teknis" },
+        { href: "/dashboard/tournament", icon: Trophy, label: "Manajemen Lomba" },
         ...sharedActions,
       ],
       icon: Monitor,
-      primaryPanelDescription: "Technical support and score desk visibility for event operations.",
-      primaryPanelTitle: "Operator Control",
+      primaryPanelDescription: "Dukungan teknis dan visibilitas meja skor selama kegiatan.",
+      primaryPanelTitle: "Kontrol Operator",
       stats: (summary) => [
-        { label: "Live Matches", value: summary.metrics.liveMatches || MATCH_UNAVAILABLE, tone: "success" },
-        { label: "Schedules", value: summary.todaySchedule.length || NO_DATA, tone: "info" },
-        { label: "Technical Issues", value: NO_DATA },
-        { label: "Pending Tasks", value: summary.metrics.pendingTasks || NO_DATA, tone: "warning" },
+        { label: "Pertandingan Live", value: summary.metrics.liveMatches || MATCH_UNAVAILABLE, tone: "success" },
+        { label: "Jadwal", value: summary.todaySchedule.length || NO_DATA, tone: "info" },
+        { label: "Kendala Teknis", value: NO_DATA },
+        { label: "Tugas Tertunda", value: summary.metrics.pendingTasks || NO_DATA, tone: "warning" },
       ],
-      statusDescription: "Technical readiness signals appear after official records exist.",
+      statusDescription: "Sinyal kesiapan teknis muncul setelah catatan resmi tersedia.",
       statuses: () => [
-        { label: "Score Desk", status: NO_DATA },
-        { label: "Display Systems", status: NO_DATA },
+        { label: "Meja Skor", status: NO_DATA },
+        { label: "Sistem Display", status: NO_DATA },
         { label: "Network", status: NO_DATA },
       ],
-      statusTitle: "Technical Status",
-      subtitle: "Operational dashboard for technical support, score updates, and schedule visibility.",
-      timelineTitle: "Operator Schedule",
-      title: "Operator Dashboard",
-      todoDescription: "Operator tasks appear after official assignment.",
-      todoTitle: "Operator Tasks",
+      statusTitle: "Status Teknis",
+      subtitle: "Dashboard operator untuk dukungan teknis, update skor, dan jadwal.",
+      timelineTitle: "Jadwal Operator",
+      title: "Operator",
+      todoDescription: "Tugas operator muncul setelah penugasan resmi.",
+      todoTitle: "Tugas Operator",
     },
     pj_lomba: {
       actions: [
-        { href: "/dashboard/tournament", icon: Trophy, label: "My Competitions" },
-        { href: "/dashboard/match-results", icon: ClipboardList, label: "Input Result" },
+        { href: "/dashboard/tournament", icon: Trophy, label: "Lomba Saya" },
+        { href: "/dashboard/match-results", icon: ClipboardList, label: "Input Hasil" },
         { href: "/dashboard/bracket", icon: GitBranch, label: "Bracket" },
         ...sharedActions,
       ],
       icon: Trophy,
-      primaryPanelDescription: "Assigned competitions, brackets, participants, schedules, and results.",
-      primaryPanelTitle: "Competition Operations",
+      primaryPanelDescription: "Lomba, bracket, peserta, jadwal, dan hasil yang ditugaskan.",
+      primaryPanelTitle: "Manajemen Lomba",
       stats: (summary) => [
-        { label: "Assigned Competitions", value: summary.activeCompetitions.length || NO_DATA, tone: "navy" },
-        { label: "Schedules", value: summary.todaySchedule.length || NO_DATA, tone: "info" },
-        { label: "Live Matches", value: summary.metrics.liveMatches || MATCH_UNAVAILABLE, tone: "success" },
-        { label: "Participants", value: NO_DATA },
+        { label: "Lomba Ditugaskan", value: summary.activeCompetitions.length || NO_DATA, tone: "navy" },
+        { label: "Jadwal", value: summary.todaySchedule.length || NO_DATA, tone: "info" },
+        { label: "Pertandingan Live", value: summary.metrics.liveMatches || MATCH_UNAVAILABLE, tone: "success" },
+        { label: "Peserta", value: NO_DATA },
       ],
-      statusDescription: "Competition status reflects official active data only.",
+      statusDescription: "Status lomba mengikuti data resmi yang aktif.",
       statuses: (summary) => [
-        { label: "Brackets", status: "Bracket Not Generated Yet" },
-        { label: "Results", status: MATCH_UNAVAILABLE },
-        { label: "Participants", status: NO_DATA },
-        { label: "Active Competitions", status: summary.activeCompetitions.length ? "Available" : "No Active Competition", tone: summary.activeCompetitions.length ? "success" : "neutral" },
+        { label: "Bracket", status: "Bracket belum dibuat" },
+        { label: "Hasil", status: MATCH_UNAVAILABLE },
+        { label: "Peserta", status: NO_DATA },
+        { label: "Lomba Aktif", status: summary.activeCompetitions.length ? "Tersedia" : "Belum Ada Lomba Aktif", tone: summary.activeCompetitions.length ? "success" : "neutral" },
       ],
-      statusTitle: "Competition Status",
-      subtitle: "PJ Lomba dashboard for competition operations and fast result workflows.",
-      timelineTitle: "Competition Schedule",
-      title: "PJ Lomba Dashboard",
-      todoDescription: "Competition tasks and result input follow-ups.",
-      todoTitle: "Competition Tasks",
+      statusTitle: "Status Lomba",
+      subtitle: "Dashboard PJ Lomba untuk pengelolaan lomba dan input hasil.",
+      timelineTitle: "Jadwal Lomba",
+      title: "PJ Lomba",
+      todoDescription: "Tugas lomba dan tindak lanjut input hasil.",
+      todoTitle: "Tugas Lomba",
     },
     sekretaris: {
       actions: [
-        { href: "/dashboard/documents", icon: FileText, label: "Documents" },
-        { href: "/dashboard/reports", icon: FileCheck, label: "Reports" },
+        { href: "/dashboard/documents", icon: FileText, label: "Dokumen" },
+        { href: "/dashboard/reports", icon: FileCheck, label: "Laporan" },
         ...sharedActions,
       ],
       icon: FileText,
-      primaryPanelDescription: "Document, schedule, and reporting coordination for MCS 1.",
-      primaryPanelTitle: "Secretariat Operations",
+      primaryPanelDescription: "Koordinasi dokumen, jadwal, dan laporan MCS 1.",
+      primaryPanelTitle: "Sekretariat",
       stats: (summary) => [
-        { label: "Documents", value: competitionJuknis.length, tone: "info" },
-        { label: "Reports", value: NO_DATA },
-        { label: "Schedules", value: summary.todaySchedule.length || NO_DATA, tone: "gold" },
-        { label: "Announcements", value: summary.announcements.length || NOT_PUBLISHED },
+        { label: "Dokumen", value: competitionJuknis.length, tone: "info" },
+        { label: "Laporan", value: NO_DATA },
+        { label: "Jadwal", value: summary.todaySchedule.length || NO_DATA, tone: "gold" },
+        { label: "Pengumuman", value: summary.announcements.length || NOT_PUBLISHED },
       ],
-      statusDescription: "Secretariat readiness based on official documents and schedule records.",
+      statusDescription: "Kesiapan sekretariat berdasarkan dokumen dan jadwal resmi.",
       statuses: () => [
-        { label: "Documents", status: "Available", tone: "success" },
-        { label: "Reports", status: NO_DATA },
-        { label: "Schedule Updates", status: WAITING },
+        { label: "Dokumen", status: "Tersedia", tone: "success" },
+        { label: "Laporan", status: NO_DATA },
+        { label: "Update Jadwal", status: WAITING },
       ],
-      statusTitle: "Secretariat Status",
-      subtitle: "Dashboard for documents, reports, schedules, and announcement coordination.",
-      timelineTitle: "Secretariat Schedule",
-      title: "Sekretaris Dashboard",
-      todoDescription: "Secretariat tasks appear after official assignment.",
-      todoTitle: "Secretariat Tasks",
+      statusTitle: "Status Sekretariat",
+      subtitle: "Dashboard untuk dokumen, laporan, jadwal, dan koordinasi pengumuman.",
+      timelineTitle: "Jadwal Sekretariat",
+      title: "Sekretaris",
+      todoDescription: "Tugas sekretariat muncul setelah penugasan resmi.",
+      todoTitle: "Tugas Sekretariat",
     },
-    super_admin: leadershipConfig("Super Admin Dashboard"),
-    wakil_ketua: leadershipConfig("Wakil Ketua Dashboard"),
+    super_admin: leadershipConfig("Super Admin"),
+    wakil_ketua: leadershipConfig("Wakil Ketua"),
   }
 
   return configs[role]
@@ -3492,35 +3495,35 @@ function getRoleDashboardConfig(role: Exclude<UserRole, DivisionOperationsRole>)
 function leadershipConfig(title: string): RoleDashboardConfig {
   return {
     actions: [
-      { href: "/dashboard/tournament", icon: Trophy, label: "Competition Monitoring" },
-      { href: "/dashboard/schedules", icon: CalendarDays, label: "Schedule Monitoring" },
-      { href: "/dashboard/division-status", icon: Activity, label: "Division Status" },
-      { href: "/dashboard/reports", icon: FileCheck, label: "Reports" },
+      { href: "/dashboard/tournament", icon: Trophy, label: "Pantau Lomba" },
+      { href: "/dashboard/schedules", icon: CalendarDays, label: "Pantau Jadwal" },
+      { href: "/dashboard/division-status", icon: Activity, label: "Status Divisi" },
+      { href: "/dashboard/reports", icon: FileCheck, label: "Laporan" },
     ],
     icon: ShieldCheck,
-    primaryPanelDescription: "Monitoring, approvals, division status, and urgent issues.",
-    primaryPanelTitle: "Leadership Monitoring",
+    primaryPanelDescription: "Pantauan persetujuan, status divisi, dan kendala penting.",
+    primaryPanelTitle: "Pantauan Pimpinan",
     stats: (summary: DashboardSummary) => [
-      { label: "Active Competitions", value: summary.metrics.activeCompetitions || "No Active Competition", tone: "navy" },
-      { label: "Pending Approvals", value: summary.metrics.pendingAnnouncements || NO_DATA, tone: "warning" },
-      { label: "Pending Tasks", value: summary.metrics.pendingTasks || NO_DATA, tone: "warning" },
-      { label: "Today's Activities", value: summary.todaySchedule.length || "No Schedule Available", tone: "info" },
+      { label: "Lomba Aktif", value: summary.metrics.activeCompetitions || "Belum Ada Lomba Aktif", tone: "navy" },
+      { label: "Persetujuan Tertunda", value: summary.metrics.pendingAnnouncements || NO_DATA, tone: "warning" },
+      { label: "Tugas Tertunda", value: summary.metrics.pendingTasks || NO_DATA, tone: "warning" },
+      { label: "Kegiatan Hari Ini", value: summary.todaySchedule.length || "Belum Ada Jadwal", tone: "info" },
     ],
-    statusDescription: "Leadership status view for major operational areas.",
+    statusDescription: "Status pimpinan untuk area utama kepanitiaan.",
     statuses: (summary: DashboardSummary) => [
-      { label: "Main Event", status: getEventStatus(summary), tone: "info" },
-      { label: "Competitions", status: summary.activeCompetitions.length ? "Healthy" : "Watch", tone: summary.activeCompetitions.length ? "success" : "warning" },
-      { label: "Documentation", status: WAITING },
+      { label: "Kegiatan Utama", status: getEventStatus(summary), tone: "info" },
+      { label: "Lomba", status: summary.activeCompetitions.length ? "Sehat" : "Perlu Dipantau", tone: summary.activeCompetitions.length ? "success" : "warning" },
+      { label: "Dokumentasi", status: WAITING },
       { label: "Humas", status: WAITING },
-      { label: "Security", status: WAITING },
-      { label: "Venue Readiness", status: WAITING },
+      { label: "Keamanan", status: WAITING },
+      { label: "Kesiapan Tempat", status: WAITING },
     ],
-    statusTitle: "Operational Status",
-    subtitle: "Role-based command view for approvals, monitoring, and urgent event follow-up.",
-    timelineTitle: "Today's Operations",
+    statusTitle: "Status Kepanitiaan",
+    subtitle: "Tampilan pimpinan untuk persetujuan, pantauan, dan tindak lanjut penting.",
+    timelineTitle: "Kegiatan Hari Ini",
     title,
-    todoDescription: "Approvals and follow-up tasks appear here.",
-    todoTitle: "Approvals & Follow-Ups",
+    todoDescription: "Persetujuan dan tugas tindak lanjut muncul di sini.",
+    todoTitle: "Persetujuan & Tindak Lanjut",
   }
 }
 
@@ -3535,95 +3538,95 @@ function getGenericWorkspaceConfig(moduleKey: DashboardModuleKey): {
 } {
   const title = getModuleTitle(moduleKey)
   const defaults = {
-    actions: [{ href: "/dashboard", icon: Globe, label: "Back to Dashboard" }],
-    emptyDescription: "Official records for this workspace have not been published yet.",
+    actions: [{ href: "/dashboard", icon: Globe, label: "Kembali ke Dashboard" }],
+    emptyDescription: "Catatan resmi untuk ruang kerja ini belum dipublikasikan.",
     icon: ClipboardList,
-    panelDescription: "This workspace is ready for official data.",
-    panelTitle: `${title} Workspace`,
-    subtitle: "Operational workspace foundation for MCS 1 internal dashboard.",
+    panelDescription: "Ruang kerja ini siap diisi dengan data resmi.",
+    panelTitle: `Ruang Kerja ${title}`,
+    subtitle: "Ruang kerja kepanitiaan untuk dashboard internal MCS 1.",
     title,
   }
 
   const overrides: Partial<Record<DashboardModuleKey, Partial<typeof defaults>>> = {
     administration: {
       icon: FileCheck,
-      panelTitle: "Administration",
-      subtitle: "Central administration workspace for Sekretaris and Bendahara.",
+      panelTitle: "Administrasi",
+      subtitle: "Ruang kerja administrasi untuk Sekretaris dan Bendahara.",
     },
     budgeting: {
       icon: Wallet,
-      panelTitle: "Budgeting",
-      subtitle: "Finance workspace for official budgeting records.",
+      panelTitle: "Anggaran",
+      subtitle: "Ruang kerja keuangan untuk catatan anggaran resmi.",
     },
     "business-operations": {
       icon: Wallet,
-      panelTitle: "Entrepreneurship Center",
-      subtitle: "Product sales, inventory, revenue, expenses, profit, and daily report workspace.",
+      panelTitle: "Kewirausahaan",
+      subtitle: "Ruang kerja penjualan, stok, pemasukan, pengeluaran, laba, dan laporan harian.",
     },
     "cleanliness-operations": {
       icon: Activity,
-      panelTitle: "Cleanliness Operations",
-      subtitle: "Venue cleanliness, area assignments, incident reports, and checklist workspace.",
+      panelTitle: "Kebersihan",
+      subtitle: "Ruang kerja kebersihan tempat, pembagian area, laporan kendala, dan checklist.",
     },
     "division-activities": {
       icon: Activity,
-      panelTitle: "Division Activities",
-      subtitle: "Division activity records and updates.",
+      panelTitle: "Aktivitas Divisi",
+      subtitle: "Catatan aktivitas dan update divisi.",
     },
     "division-status": {
       icon: Activity,
-      panelTitle: "Division Status",
-      subtitle: "Leadership monitoring of division readiness.",
+      panelTitle: "Status Divisi",
+      subtitle: "Pantauan pimpinan untuk kesiapan divisi.",
     },
     "equipment-inventory": {
       icon: ClipboardList,
-      panelTitle: "Equipment Inventory",
-      subtitle: "Inventory, borrowed equipment, stock, request, and venue setup workspace.",
+      panelTitle: "Inventaris Perlengkapan",
+      subtitle: "Ruang kerja inventaris, peminjaman alat, stok, permintaan, dan setup tempat.",
     },
     "event-rundown": {
       icon: CalendarDays,
-      panelTitle: "Event Rundown",
-      subtitle: "Master rundown, activity, venue, PIC, and change tracking workspace.",
+      panelTitle: "Rundown Kegiatan",
+      subtitle: "Ruang kerja rundown utama, kegiatan, tempat, PIC, dan perubahan jadwal.",
     },
     "financial-reports": {
       icon: FileCheck,
-      panelTitle: "Financial Reports",
-      subtitle: "Finance report workspace.",
+      panelTitle: "Laporan Keuangan",
+      subtitle: "Ruang kerja laporan keuangan.",
     },
     "media-posts": {
       icon: ImageUp,
-      panelTitle: "Media Posts",
-      subtitle: "Publication workspace for media posts.",
+      panelTitle: "Posting Media",
+      subtitle: "Ruang kerja publikasi media.",
     },
     "news-center": {
       icon: Megaphone,
-      panelTitle: "News Center",
-      subtitle: "Publication workspace for official MCS news.",
+      panelTitle: "Pusat Berita",
+      subtitle: "Ruang kerja publikasi berita resmi MCS.",
     },
     "publication-schedule": {
       icon: CalendarDays,
-      panelTitle: "Publication Schedule",
-      subtitle: "Publication planning workspace for Humas.",
+      panelTitle: "Jadwal Publikasi",
+      subtitle: "Ruang kerja perencanaan publikasi untuk Humas.",
     },
     "security-operations": {
       icon: ShieldCheck,
-      panelTitle: "Security Operations",
-      subtitle: "Guard post, area monitoring, incident report, and shift workspace.",
+      panelTitle: "Keamanan",
+      subtitle: "Ruang kerja pos jaga, pantauan area, laporan kendala, dan shift.",
     },
     tasks: {
       icon: ClipboardList,
-      panelTitle: "My Tasks",
-      subtitle: "Task workspace for official assignments.",
+      panelTitle: "Tugas Saya",
+      subtitle: "Ruang kerja tugas resmi.",
     },
     "technical-support": {
       icon: Monitor,
-      panelTitle: "Technical Support",
-      subtitle: "Technical support operations workspace.",
+      panelTitle: "Dukungan Teknis",
+      subtitle: "Ruang kerja dukungan teknis.",
     },
     users: {
       icon: Users,
-      panelTitle: "Users",
-      subtitle: "User management workspace.",
+      panelTitle: "Pengguna",
+      subtitle: "Ruang kerja manajemen pengguna.",
     },
   }
 
@@ -3632,40 +3635,40 @@ function getGenericWorkspaceConfig(moduleKey: DashboardModuleKey): {
 
 function getModuleTitle(moduleKey: DashboardModuleKey) {
   const titles: Record<DashboardModuleKey, string> = {
-    administration: "Administration",
-    "announcement-center": "Announcement Center",
-    analytics: "Analytics",
-    "bracket-management": "Bracket Management",
-    budgeting: "Budgeting",
-    "business-operations": "Entrepreneurship Center",
-    "cleanliness-operations": "Cleanliness Operations",
-    "division-activities": "Division Activities",
-    "division-status": "Division Status",
-    documents: "Documents",
-    "equipment-inventory": "Equipment Inventory",
-    "event-rundown": "Event Rundown",
-    "financial-reports": "Financial Reports",
+    administration: "Administrasi",
+    "announcement-center": "Pusat Pengumuman",
+    analytics: "Analitik",
+    "bracket-management": "Manajemen Bracket",
+    budgeting: "Anggaran",
+    "business-operations": "Kewirausahaan",
+    "cleanliness-operations": "Kebersihan",
+    "division-activities": "Aktivitas Divisi",
+    "division-status": "Status Divisi",
+    documents: "Dokumen",
+    "equipment-inventory": "Inventaris Perlengkapan",
+    "event-rundown": "Rundown Kegiatan",
+    "financial-reports": "Laporan Keuangan",
     "humas-sponsorship": "Humas & Sponsorship",
-    "juknis-management": "Juknis Management",
-    "live-match": "Live Match Operations",
-    "match-results": "Match Result Input",
-    "media-archive": "Media Archive",
-    "media-center": "Media Center",
-    "media-gallery": "Gallery Management",
-    "media-highlights": "Highlight Videos",
-    "media-posts": "Media Posts",
-    "media-upload": "Upload Media",
-    "news-center": "News Center",
-    "panitia-management": "Panitia Management",
-    "participant-management": "Participant Management",
-    "publication-schedule": "Publication Schedule",
-    reports: "Reports",
-    "schedule-management": "Schedule Management",
-    "security-operations": "Security Operations",
-    settings: "Settings",
-    tasks: "My Tasks",
-    "technical-support": "Technical Support",
-    users: "Users",
+    "juknis-management": "Manajemen Juknis",
+    "live-match": "Pantauan Pertandingan",
+    "match-results": "Input Hasil",
+    "media-archive": "Arsip Media",
+    "media-center": "Pusat Media",
+    "media-gallery": "Kelola Galeri",
+    "media-highlights": "Video Highlight",
+    "media-posts": "Posting Media",
+    "media-upload": "Unggah Media",
+    "news-center": "Pusat Berita",
+    "panitia-management": "Data Panitia",
+    "participant-management": "Data Peserta",
+    "publication-schedule": "Jadwal Publikasi",
+    reports: "Laporan",
+    "schedule-management": "Manajemen Jadwal",
+    "security-operations": "Keamanan",
+    settings: "Pengaturan",
+    tasks: "Tugas Saya",
+    "technical-support": "Dukungan Teknis",
+    users: "Pengguna",
   }
 
   return titles[moduleKey]
@@ -3697,7 +3700,7 @@ function getCurrentActivity(summary: DashboardSummary) {
   return {
     pic: WAITING,
     status: WAITING,
-    title: "No Active Competition",
+    title: "Belum Ada Lomba Aktif",
     venue: WAITING,
   }
 }
@@ -3705,8 +3708,8 @@ function getCurrentActivity(summary: DashboardSummary) {
 function getEventStatus(summary: DashboardSummary) {
   const today = new Date().toISOString().slice(0, 10)
 
-  if (today < summary.event.startsAt) return "Pre-Event"
-  if (today > summary.event.endsAt) return "Completed"
+  if (today < summary.event.startsAt) return "Pra-Event"
+  if (today > summary.event.endsAt) return "Selesai"
   return "Live"
 }
 
@@ -3743,6 +3746,28 @@ function formatDate(value: string) {
 }
 
 function formatStatus(value: string) {
+  const labels: Record<string, string> = {
+    Active: "Aktif",
+    Blocked: "Tertunda",
+    Cancelled: "Dibatalkan",
+    Completed: "Selesai",
+    Critical: "Kritis",
+    Delayed: "Tertunda",
+    Done: "Selesai",
+    High: "Tinggi",
+    "In Progress": "Diproses",
+    Low: "Rendah",
+    Medium: "Sedang",
+    Pending: "Menunggu",
+    Planned: "Direncanakan",
+    Rejected: "Ditolak",
+    Scheduled: "Terjadwal",
+    Upcoming: "Akan Datang",
+    Watch: "Perlu Dipantau",
+  }
+
+  if (labels[value]) return labels[value]
+
   return value
     .replaceAll("_", " ")
     .split(" ")
@@ -3785,18 +3810,18 @@ function getBusinessFocusForUser(user: UserDTO): BusinessDashboardFocus {
 }
 
 function getBusinessDashboardTitle(focus: BusinessDashboardFocus, user: UserDTO) {
-  if (focus === "kewirausahaan") return `Entrepreneurship Center, ${user.displayName}`
-  if (focus === "finance") return "Entrepreneurship Revenue Center"
-  return "MCS 1 Entrepreneurship Center"
+  if (focus === "kewirausahaan") return `Kewirausahaan, ${user.displayName}`
+  if (focus === "finance") return "Pusat Pendapatan Kewirausahaan"
+  return "Kewirausahaan MCS 1"
 }
 
 function getBusinessQuickActions(focus: BusinessDashboardFocus): ActionLink[] {
   const actions: ActionLink[] = [
-    { href: "/dashboard/business", icon: Archive, label: "Add Product" },
-    { href: "/dashboard/business", icon: Wallet, label: "Record Sale" },
-    { href: "/dashboard/business", icon: ClipboardList, label: "Update Stock" },
-    { href: "/dashboard/business", icon: FileText, label: "Add Expense" },
-    { href: "/dashboard/reports", icon: Download, label: "Generate Report" },
+    { href: "/dashboard/business", icon: Archive, label: "Tambah Produk" },
+    { href: "/dashboard/business", icon: Wallet, label: "Catat Penjualan" },
+    { href: "/dashboard/business", icon: ClipboardList, label: "Update Stok" },
+    { href: "/dashboard/business", icon: FileText, label: "Tambah Pengeluaran" },
+    { href: "/dashboard/reports", icon: Download, label: "Buat Laporan" },
   ]
 
   if (focus === "finance") {
@@ -3818,23 +3843,23 @@ function getBusinessEventStatus(date: Date) {
 
   if (date < start) {
     return {
-      dayLabel: "Pre-Event Preparation",
-      statusLabel: "Pre-Event",
+      dayLabel: "Persiapan Pra-Event",
+      statusLabel: "Pra-Event",
     }
   }
 
   if (date > end) {
     return {
-      dayLabel: "Post-Event",
-      statusLabel: "Completed",
+      dayLabel: "Pasca-Event",
+      statusLabel: "Selesai",
     }
   }
 
   const dayNumber = Math.floor((date.getTime() - start.getTime()) / 86_400_000) + 1
 
   return {
-    dayLabel: `Event Day ${dayNumber}`,
-    statusLabel: "Event Running",
+    dayLabel: `Hari Kegiatan ${dayNumber}`,
+    statusLabel: "Kegiatan Berjalan",
   }
 }
 
@@ -3847,9 +3872,9 @@ function getBusinessGreeting(date: Date) {
     }).format(date),
   )
 
-  if (hour < 12) return "Good Morning"
-  if (hour < 17) return "Good Afternoon"
-  return "Good Evening"
+  if (hour < 12) return "Selamat Pagi"
+  if (hour < 17) return "Selamat Siang"
+  return "Selamat Sore"
 }
 
 function formatBusinessDate(date: Date) {
@@ -3870,16 +3895,16 @@ function formatBusinessTime(date: Date) {
 }
 
 function getProductStatusTone(status: string): StatusTone {
-  if (status === "Available") return "success"
-  if (status === "Low Stock") return "warning"
-  if (status === "Out Of Stock") return "danger"
+  if (status === "Available" || status === "Tersedia") return "success"
+  if (status === "Low Stock" || status === "Stok Rendah") return "warning"
+  if (status === "Out Of Stock" || status === "Stok Habis") return "danger"
   return "neutral"
 }
 
 function getInventoryStatusTone(status: string): StatusTone {
-  if (status === "Safe") return "success"
-  if (status === "Low Stock") return "warning"
-  if (status === "Critical" || status === "Out Of Stock") return "danger"
+  if (status === "Safe" || status === "Aman") return "success"
+  if (status === "Low Stock" || status === "Stok Rendah") return "warning"
+  if (status === "Critical" || status === "Kritis" || status === "Out Of Stock" || status === "Stok Habis") return "danger"
   return "neutral"
 }
 
@@ -3932,22 +3957,24 @@ function getStatDotClass(tone: StatusTone) {
 }
 
 function getEmptyStateTitle(title: string) {
-  if (title === NO_DATA) return "Records Not Published Yet"
-  if (title === WAITING) return "Waiting For Official Updates"
-  if (title === NOT_PUBLISHED) return "Data Not Published Yet"
+  if (title === NO_DATA) return "Data Belum Dipublikasikan"
+  if (title === WAITING) return "Menunggu Update Resmi"
+  if (title === NOT_PUBLISHED) return "Data Belum Dipublikasikan"
   return title
 }
 
 function getEmptyStateAction(title: string) {
-  if (title.toLowerCase().includes("approval")) return "review the approval queue when a request is submitted."
+  if (title.toLowerCase().includes("approval") || title.toLowerCase().includes("persetujuan")) {
+    return "tinjau antrean persetujuan saat ada pengajuan masuk."
+  }
   if (title.toLowerCase().includes("schedule") || title.toLowerCase().includes("activity")) {
-    return "publish or update the official rundown record."
+    return "publikasikan atau perbarui rundown resmi."
   }
   if (title.toLowerCase().includes("financial") || title.toLowerCase().includes("revenue")) {
-    return "record the official finance update before reporting."
+    return "catat update keuangan resmi sebelum membuat laporan."
   }
-  if (title.toLowerCase().includes("sponsor")) return "add the next sponsor follow-up owner and due date."
-  return "add the official record from the responsible module."
+  if (title.toLowerCase().includes("sponsor")) return "tambahkan PIC follow-up sponsor dan batas waktunya."
+  return "tambahkan data resmi dari modul penanggung jawab."
 }
 
 function getScheduleTone(status: string): StatusTone {

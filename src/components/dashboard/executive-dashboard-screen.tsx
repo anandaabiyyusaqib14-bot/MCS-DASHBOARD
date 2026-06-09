@@ -35,7 +35,7 @@ import { roleLabels, type AnnouncementRecord, type AuditLogRecord, type Committe
 
 type ExecutiveDashboardRole = Extract<UserRole, "ketua_pelaksana" | "wakil_ketua">
 type Tone = "neutral" | "success" | "warning" | "danger" | "info" | "gold" | "navy"
-type EventPhase = "Preparation" | "Live Event" | "Closing Day" | "Completed"
+type EventPhase = "Persiapan" | "Hari Kegiatan" | "Hari Penutupan" | "Selesai"
 type DivisionHealth = "Healthy" | "Watch" | "Needs Attention" | "Critical" | "Belum Ada Data"
 type AlertPriority = "Low" | "Medium" | "High" | "Critical"
 
@@ -65,8 +65,8 @@ type QuickAction = {
 const NO_DATA = "Belum Ada Data"
 const NOT_PUBLISHED = "Belum Dipublikasikan"
 const WAITING = "Menunggu Update"
-const NO_CRITICAL_ALERTS = "Tidak Ada Kendala Kritis"
-const NO_PENDING_APPROVALS = "Tidak Ada Persetujuan Pending"
+const NO_CRITICAL_ALERTS = "Tidak Ada Kendala Prioritas"
+const NO_PENDING_APPROVALS = "Tidak Ada Persetujuan Tertunda"
 const NO_UPCOMING = "Belum Ada Aktivitas Berikutnya"
 const NO_RECENT = "Belum Ada Aktivitas Terbaru"
 
@@ -85,14 +85,14 @@ const executiveDivisions = [
 ]
 
 const reportTypes = [
-  "Competition Report",
-  "Participant Report",
-  "Attendance Report",
-  "Committee Report",
-  "Financial Report",
-  "Sponsor Report",
-  "Media Report",
-  "Final Event Report",
+  "Laporan Lomba",
+  "Laporan Peserta",
+  "Laporan Kehadiran",
+  "Laporan Panitia",
+  "Laporan Keuangan",
+  "Laporan Sponsor",
+  "Laporan Media",
+  "Laporan Akhir Event",
 ]
 
 export function ExecutiveDashboardScreen({ role, summary, user }: ExecutiveDashboardScreenProps) {
@@ -101,7 +101,7 @@ export function ExecutiveDashboardScreen({ role, summary, user }: ExecutiveDashb
   const todayKey = getJakartaDateKey(now)
   const sourceDate = summary.todaySchedule[0]?.date
   const viewingCurrentDate = Boolean(sourceDate && sourceDate === todayKey)
-  const eventIsLive = eventState.phase === "Live Event" || eventState.phase === "Closing Day"
+  const eventIsLive = eventState.phase === "Hari Kegiatan" || eventState.phase === "Hari Penutupan"
   const alerts = getCriticalAlerts(summary, now)
   const pendingApprovals = getPendingApprovals(summary.announcements)
   const upcomingActivities = getUpcomingActivities(summary.todaySchedule, now, viewingCurrentDate)
@@ -131,61 +131,61 @@ export function ExecutiveDashboardScreen({ role, summary, user }: ExecutiveDashb
       />
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <Panel icon={AlertTriangle} title="Critical Alerts" description="Operational issues requiring leadership attention.">
+        <Panel icon={AlertTriangle} title="Butuh Tindak Lanjut" description="Kendala penting yang perlu perhatian pimpinan.">
           <CriticalAlertsList alerts={alerts} />
         </Panel>
 
-        <Panel icon={ShieldCheck} title="Division Monitoring" description="Committee division condition, open tasks, and update status.">
+        <Panel icon={ShieldCheck} title="Pantauan Divisi" description="Kondisi divisi, tugas terbuka, dan status update panitia.">
           <DivisionMonitoring summary={summary} />
         </Panel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-        <Panel icon={CheckCircle2} title="Pending Approvals" description="Requests waiting for executive decision.">
+        <Panel icon={CheckCircle2} title="Persetujuan Tertunda" description="Permintaan yang menunggu keputusan pimpinan.">
           <ApprovalCenter approvals={pendingApprovals} />
         </Panel>
 
-        <Panel icon={CalendarDays} title="Upcoming Activities" description="Activities inside the next 24 hours when records are published.">
+        <Panel icon={CalendarDays} title="Kegiatan Berikutnya" description="Kegiatan 24 jam ke depan setelah jadwal dipublikasikan.">
           <UpcomingActivities activities={upcomingActivities} />
         </Panel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <Panel icon={Activity} title="Recent Activities" description="Operational activity log from the executive workspace.">
+        <Panel icon={Activity} title="Aktivitas Terbaru" description="Log aktivitas kepanitiaan untuk pimpinan.">
           <RecentActivities activity={recentActivity} />
         </Panel>
 
-        <Panel icon={ClipboardList} title="Quick Actions" description="Leadership shortcuts for review, coordination, and reporting.">
+        <Panel icon={ClipboardList} title="Aksi Cepat" description="Aksi pimpinan untuk review, koordinasi, dan laporan.">
           <QuickActions role={role} />
         </Panel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <Panel icon={Trophy} title="Competition Progress" description="Official MCS 1 competition progress without unpublished match data.">
+        <Panel icon={Trophy} title="Progress Lomba" description="Progress lomba resmi MCS 1 tanpa menampilkan data match yang belum dipublikasikan.">
           <CompetitionProgress activeCompetitions={summary.activeCompetitions} />
         </Panel>
 
-        <Panel icon={Wallet} title="Financial Summary" description="Executive-level finance visibility. Transaction editing is not available here.">
+        <Panel icon={Wallet} title="Ringkasan Keuangan" description="Visibilitas keuangan untuk pimpinan. Edit transaksi tidak tersedia di sini.">
           <FinancialSummary />
         </Panel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <Panel icon={Handshake} title="Sponsorship Overview" description="Sponsor pipeline and contribution visibility from official records.">
+        <Panel icon={Handshake} title="Ikhtisar Sponsor" description="Alur sponsor dan kontribusi dari catatan resmi.">
           <SponsorshipOverview />
         </Panel>
 
-        <Panel icon={FileText} title="Report Center" description="Leadership reports and export readiness.">
+        <Panel icon={FileText} title="Pusat Laporan" description="Laporan pimpinan dan kesiapan ekspor.">
           <ReportCenter />
         </Panel>
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <Panel icon={Megaphone} title="Announcement Monitoring" description="Published and approval-stage announcements visible to leadership.">
+        <Panel icon={Megaphone} title="Pantauan Pengumuman" description="Pengumuman terbit dan tahap persetujuan yang terlihat oleh pimpinan.">
           <AnnouncementMonitoring announcements={summary.announcements} />
         </Panel>
 
-        <Panel icon={Search} title="Search, Notifications, and Logs" description="Global search and notifications are available in the dashboard topbar.">
+        <Panel icon={Search} title="Search, Notifikasi, dan Log" description="Pencarian global dan notifikasi tersedia di topbar dashboard.">
           <SystemWorkspaceSummary summary={summary} activity={recentActivity} />
         </Panel>
       </section>
@@ -228,14 +228,14 @@ function ExecutiveHeader({
               className="inline-flex h-9 items-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
             >
               <Globe className="size-4 text-[#64748B]" aria-hidden="true" />
-              Public Website
+              Website Publik
             </Link>
             <Link
               href="/dashboard/announcements"
               className="inline-flex h-9 items-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
             >
               <Bell className="size-4 text-[#64748B]" aria-hidden="true" />
-              Notifications
+              Notifikasi
             </Link>
           </div>
         </div>
@@ -249,8 +249,8 @@ function ExecutiveHeader({
             <FactLine label="Current Time" value={formatClock(now)} />
             <FactLine label="Current Date" value={formatLongDate(now)} />
             <FactLine label="Day Progress" value={eventState.dayLabel} />
-            <FactLine label="Event Status" value={eventState.phase} />
-            <FactLine label="Organizer" value={summary.event.organizer} />
+            <FactLine label="Status Event" value={eventState.phase} />
+            <FactLine label="Penyelenggara" value={summary.event.organizer} />
           </div>
         </div>
       </div>
@@ -276,14 +276,14 @@ function EventStatusOverview({
   const activeVenues = eventIsLive ? new Set(summary.todaySchedule.map((schedule) => schedule.venue)).size : 0
   const currentActivity = getCurrentActivity(summary.todaySchedule, eventIsLive)
   const cards = [
-    { label: "Current Event Phase", tone: getEventPhaseTone(eventState.phase), value: eventState.phase },
-    { label: "Current Event Day", tone: "neutral" as Tone, value: eventState.dayLabel },
-    { label: "Competitions Running", tone: "navy" as Tone, value: summary.metrics.activeCompetitions || "No Active Competition" },
-    { label: "Active Venues", tone: "info" as Tone, value: activeVenues || NO_DATA },
-    { label: "Current Activities", tone: "gold" as Tone, value: viewingCurrentDate ? summary.todaySchedule.length || NO_DATA : NOT_PUBLISHED },
-    { label: "Open Issues", tone: alerts.length ? "warning" as Tone : "success" as Tone, value: alerts.length || NO_CRITICAL_ALERTS },
-    { label: "Pending Approvals", tone: pendingApprovals.length ? "warning" as Tone : "success" as Tone, value: pendingApprovals.length || NO_PENDING_APPROVALS },
-    { label: "Overall Event Status", tone: eventIsLive ? "success" as Tone : "warning" as Tone, value: currentActivity.status },
+    { label: "Fase Event Saat Ini", tone: getEventPhaseTone(eventState.phase), value: eventState.phase },
+    { label: "Hari Event Saat Ini", tone: "neutral" as Tone, value: eventState.dayLabel },
+    { label: "Lomba Berjalan", tone: "navy" as Tone, value: summary.metrics.activeCompetitions || "Belum Ada Lomba Aktif" },
+    { label: "Tempat Aktif", tone: "info" as Tone, value: activeVenues || NO_DATA },
+    { label: "Kegiatan Saat Ini", tone: "gold" as Tone, value: viewingCurrentDate ? summary.todaySchedule.length || NO_DATA : NOT_PUBLISHED },
+    { label: "Kendala Terbuka", tone: alerts.length ? "warning" as Tone : "success" as Tone, value: alerts.length || NO_CRITICAL_ALERTS },
+    { label: "Persetujuan Tertunda", tone: pendingApprovals.length ? "warning" as Tone : "success" as Tone, value: pendingApprovals.length || NO_PENDING_APPROVALS },
+    { label: "Status Event", tone: eventIsLive ? "success" as Tone : "warning" as Tone, value: currentActivity.status },
   ]
 
   return (
@@ -294,7 +294,7 @@ function EventStatusOverview({
         </span>
         <div className="min-w-0">
           <h3 className="text-base font-semibold text-[#111827]">Event Status Overview</h3>
-          <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">Current event phase, issues, approvals, and operating status.</p>
+          <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">Fase event, kendala, persetujuan, dan status kegiatan saat ini.</p>
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -343,7 +343,7 @@ function Panel({
 
 function CriticalAlertsList({ alerts }: { alerts: OperationalAlert[] }) {
   if (alerts.length === 0) {
-    return <EmptyState title={NO_CRITICAL_ALERTS} description="No urgent operational issue is currently recorded." />
+    return <EmptyState title={NO_CRITICAL_ALERTS} description="Belum ada kendala penting yang tercatat saat ini." />
   }
 
   return (
@@ -385,10 +385,10 @@ function DivisionMonitoring({ summary }: { summary: DashboardSummary }) {
               <StatusBadge label={health} tone={getDivisionTone(health)} />
             </div>
             <div className="mt-4 grid gap-2">
-              <MetricLine label="Open Tasks" value={record ? String(record.activeTasks) : NO_DATA} />
-              <MetricLine label="Completed Tasks" value={record ? `${record.completion}% completion` : NO_DATA} />
-              <MetricLine label="Pending Issues" value={getDivisionIssueLabel(record)} />
-              <MetricLine label="Last Activity" value={record?.focus ?? WAITING} />
+              <MetricLine label="Tugas Terbuka" value={record ? String(record.activeTasks) : NO_DATA} />
+              <MetricLine label="Tugas Selesai" value={record ? `${record.completion}% selesai` : NO_DATA} />
+              <MetricLine label="Kendala Tertunda" value={getDivisionIssueLabel(record)} />
+              <MetricLine label="Aktivitas Terakhir" value={record?.focus ?? WAITING} />
             </div>
           </article>
         )
@@ -399,7 +399,7 @@ function DivisionMonitoring({ summary }: { summary: DashboardSummary }) {
 
 function ApprovalCenter({ approvals }: { approvals: AnnouncementRecord[] }) {
   if (approvals.length === 0) {
-    return <EmptyDataTable columns={["Request", "Division", "Submitted By", "Date", "Priority", "Actions"]} title={NO_PENDING_APPROVALS} />
+    return <EmptyDataTable columns={["Permintaan", "Divisi", "Diajukan Oleh", "Tanggal", "Prioritas", "Aksi"]} title={NO_PENDING_APPROVALS} />
   }
 
   return (
@@ -407,7 +407,7 @@ function ApprovalCenter({ approvals }: { approvals: AnnouncementRecord[] }) {
       <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Request", "Division", "Submitted By", "Date", "Priority", "Actions"].map((heading) => (
+            {["Permintaan", "Divisi", "Diajukan Oleh", "Tanggal", "Prioritas", "Aksi"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -418,7 +418,7 @@ function ApprovalCenter({ approvals }: { approvals: AnnouncementRecord[] }) {
           {approvals.map((approval) => (
             <tr key={approval.id}>
               <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827] first:pl-0">{approval.title}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">Announcement Center</td>
+              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">Pusat Pengumuman</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{formatPublisher(approval.createdBy)}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{formatShortDateTime(approval.createdAt)}</td>
               <td className="border-b border-[#F1F5F9] px-4 py-4">
@@ -426,7 +426,7 @@ function ApprovalCenter({ approvals }: { approvals: AnnouncementRecord[] }) {
               </td>
               <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
                 <div className="flex gap-2">
-                  {["Approve", "Review", "Reject"].map((action) => (
+                  {["Setujui", "Review", "Tolak"].map((action) => (
                     <Link key={action} href="/dashboard/announcements" className="inline-flex h-8 items-center rounded-md border border-[#E5E7EB] bg-white px-3 text-xs font-semibold text-[#111827] transition hover:bg-[#F8F9FB]">
                       {action}
                     </Link>
@@ -443,7 +443,7 @@ function ApprovalCenter({ approvals }: { approvals: AnnouncementRecord[] }) {
 
 function UpcomingActivities({ activities }: { activities: ScheduleRecord[] }) {
   if (activities.length === 0) {
-    return <EmptyDataTable columns={["Activity", "Venue", "PIC", "Date", "Time", "Priority", "Status"]} title={NO_UPCOMING} />
+    return <EmptyDataTable columns={["Kegiatan", "Tempat", "PIC", "Tanggal", "Jam", "Prioritas", "Status"]} title={NO_UPCOMING} />
   }
 
   return (
@@ -464,7 +464,7 @@ function UpcomingActivities({ activities }: { activities: ScheduleRecord[] }) {
 
 function RecentActivities({ activity }: { activity: AuditLogRecord[] }) {
   if (activity.length === 0) {
-    return <EmptyState title={NO_RECENT} description="Executive actions, report access, and operational logs will appear here." />
+    return <EmptyState title={NO_RECENT} description="Aksi pimpinan, akses laporan, dan log kepanitiaan akan muncul di sini." />
   }
 
   return (
@@ -484,12 +484,12 @@ function RecentActivities({ activity }: { activity: AuditLogRecord[] }) {
 
 function QuickActions({ role }: { role: ExecutiveDashboardRole }) {
   const actions: QuickAction[] = [
-    { href: "/dashboard/announcements", icon: CheckCircle2, label: "Review Approvals" },
-    { href: "/dashboard/schedule-monitoring", icon: CalendarDays, label: "Open Rundown" },
-    { href: "/dashboard/tournament", icon: Trophy, label: "Competition Management" },
-    { href: "/dashboard/announcements", icon: Megaphone, label: role === "ketua_pelaksana" ? "Create Announcement" : "Announcement Center" },
-    { href: "/dashboard/reports", icon: FileText, label: "Open Reports" },
-    { href: contact.whatsappOfficial.href, icon: PhoneCall, label: "Contact Division Leads", external: true },
+    { href: "/dashboard/announcements", icon: CheckCircle2, label: "Review Persetujuan" },
+    { href: "/dashboard/schedule-monitoring", icon: CalendarDays, label: "Buka Rundown" },
+    { href: "/dashboard/tournament", icon: Trophy, label: "Manajemen Lomba" },
+    { href: "/dashboard/announcements", icon: Megaphone, label: role === "ketua_pelaksana" ? "Buat Pengumuman" : "Pusat Pengumuman" },
+    { href: "/dashboard/reports", icon: FileText, label: "Buka Laporan" },
+    { href: contact.whatsappOfficial.href, icon: PhoneCall, label: "Hubungi Koordinator", external: true },
   ]
 
   return (
@@ -529,7 +529,7 @@ function CompetitionProgress({ activeCompetitions }: { activeCompetitions: Compe
       <table className="w-full min-w-[780px] border-separate border-spacing-0 text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Competition Name", "Current Round", "Participants", "Matches Completed", "Matches Remaining", "Status", "PIC"].map((heading) => (
+            {["Nama Lomba", "Round Saat Ini", "Peserta", "Match Selesai", "Sisa Match", "Status", "PIC"].map((heading) => (
               <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                 {heading}
               </th>
@@ -562,11 +562,11 @@ function CompetitionProgress({ activeCompetitions }: { activeCompetitions: Compe
 
 function FinancialSummary() {
   const items = [
-    { label: "Budget Allocation", value: formatRupiahRange(budgetSummary.totalMinAmount, budgetSummary.totalMaxAmount) },
-    { label: "Total Income", value: "No Financial Records" },
-    { label: "Total Expenses", value: "No Financial Records" },
-    { label: "Remaining Budget", value: "No Financial Records" },
-    { label: "Sponsor Contributions", value: "No Sponsorship Income Recorded" },
+    { label: "Alokasi Anggaran", value: formatRupiahRange(budgetSummary.totalMinAmount, budgetSummary.totalMaxAmount) },
+    { label: "Total Pemasukan", value: "Belum Ada Catatan Keuangan" },
+    { label: "Total Pengeluaran", value: "Belum Ada Catatan Keuangan" },
+    { label: "Sisa Anggaran", value: "Belum Ada Catatan Keuangan" },
+    { label: "Kontribusi Sponsor", value: "Belum Ada Pemasukan Sponsor" },
   ]
 
   return (
@@ -580,7 +580,7 @@ function FinancialSummary() {
 
 function SponsorshipOverview() {
   if (sponsorProspects.length === 0) {
-    return <EmptyState title="No Active Sponsors" description="Official sponsor records have not been published yet." />
+    return <EmptyState title="Belum Ada Sponsor Aktif" description="Catatan sponsor resmi belum dipublikasikan." />
   }
 
   return (
@@ -596,7 +596,7 @@ function SponsorshipOverview() {
         <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
           <thead>
             <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-              {["Sponsor Name", "Category", "Status", "Contribution Value", "PIC"].map((heading) => (
+              {["Nama Sponsor", "Kategori", "Status", "Nilai Kontribusi", "PIC"].map((heading) => (
                 <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
                   {heading}
                 </th>
@@ -629,12 +629,12 @@ function ReportCenter() {
         {reportTypes.map((type) => (
           <div key={type} className="flex items-center justify-between gap-3 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] px-3 py-2.5">
             <span className="min-w-0 truncate text-sm font-medium text-[#111827]">{type}</span>
-            <StatusBadge label="No Reports Available" tone="neutral" />
+            <StatusBadge label="Belum Ada Laporan" tone="neutral" />
           </div>
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
-        {["Generate Report", "Preview Report", "Download Report", "Export PDF", "Export Excel", "Archive Report"].map((action) => (
+        {["Buat Laporan", "Preview Laporan", "Unduh Laporan", "Ekspor PDF", "Ekspor Excel", "Arsipkan Laporan"].map((action) => (
           <Link key={action} href="/dashboard/reports" className="inline-flex h-9 items-center rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]">
             {action}
           </Link>
@@ -646,7 +646,7 @@ function ReportCenter() {
 
 function AnnouncementMonitoring({ announcements }: { announcements: AnnouncementRecord[] }) {
   if (announcements.length === 0) {
-    return <EmptyDataTable columns={["Title", "Category", "Author", "Publish Date", "Status", "Priority"]} title={NOT_PUBLISHED} />
+    return <EmptyDataTable columns={["Judul", "Kategori", "Penulis", "Tanggal Terbit", "Status", "Prioritas"]} title={NOT_PUBLISHED} />
   }
 
   return (
@@ -673,10 +673,10 @@ function AnnouncementMonitoring({ announcements }: { announcements: Announcement
 
 function SystemWorkspaceSummary({ activity, summary }: { activity: AuditLogRecord[]; summary: DashboardSummary }) {
   const items = [
-    { icon: Search, label: "Global Search", value: "Competitions, participants, schedules, divisions, announcements, reports, sponsors, and tasks" },
-    { icon: Bell, label: "Notifications", value: summary.metrics.unreadNotifications ? `${summary.metrics.unreadNotifications} unread` : WAITING },
-    { icon: Activity, label: "Activity Logs", value: activity.length ? `${activity.length} visible records` : NO_RECENT },
-    { icon: ShieldCheck, label: "Security", value: "RBAC, protected routes, permission checks, and audit tracking are active" },
+    { icon: Search, label: "Pencarian Global", value: "Lomba, peserta, jadwal, divisi, pengumuman, laporan, sponsor, dan tugas" },
+    { icon: Bell, label: "Notifikasi", value: summary.metrics.unreadNotifications ? `${summary.metrics.unreadNotifications} belum dibaca` : WAITING },
+    { icon: Activity, label: "Log Aktivitas", value: activity.length ? `${activity.length} catatan terlihat` : NO_RECENT },
+    { icon: ShieldCheck, label: "Keamanan", value: "RBAC, route terlindungi, cek permission, dan audit aktif" },
   ]
 
   return (
@@ -764,7 +764,7 @@ function EmptyState({
         <p className="text-sm font-semibold text-[#111827]">{displayTitle}</p>
         <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
         <p className="mt-3 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#0F172A]">
-          Next Action: {nextAction ?? getEmptyStateAction(displayTitle)}
+          Tindak Lanjut: {nextAction ?? getEmptyStateAction(displayTitle)}
         </p>
       </div>
     </div>
@@ -787,7 +787,7 @@ function EmptyDataTable({ columns, title }: { columns: string[]; title: string }
         <tbody>
           <tr>
             <td colSpan={columns.length} className="py-4">
-              <EmptyState title={title} description="Official records will appear here when they are published." />
+              <EmptyState title={title} description="Catatan resmi akan muncul di sini setelah dipublikasikan." />
             </td>
           </tr>
         </tbody>
@@ -806,32 +806,32 @@ function getCriticalAlerts(summary: DashboardSummary, now: Date): OperationalAle
       priority: schedule.status === "cancelled" ? "Critical" as AlertPriority : "High" as AlertPriority,
       timestamp: formatScheduleTime(schedule.time),
       title: schedule.title,
-      type: schedule.status === "cancelled" ? "Schedule Revision" : "Competition Delay",
+      type: schedule.status === "cancelled" ? "Revisi Jadwal" : "Jadwal Mundur",
     }))
 
   const divisionAlerts = summary.committeeStatus
     .filter((division) => division.status === "Attention" || division.status === "Watch")
     .map((division) => ({
       assignedPic: division.coordinator,
-      currentStatus: division.status === "Attention" ? "Needs Attention" : "Watch",
+      currentStatus: division.status === "Attention" ? "Perlu Tindak Lanjut" : "Perlu Dipantau",
       division: division.name,
       priority: division.status === "Attention" ? "High" as AlertPriority : "Medium" as AlertPriority,
       timestamp: WAITING,
-      title: `${division.name} requires executive review`,
-      type: "Task Escalation",
+      title: `${division.name} perlu review pimpinan`,
+      type: "Eskalasi Tugas",
     }))
 
   const pendingApprovalAlerts =
     summary.metrics.pendingAnnouncements > 0
       ? [
           {
-            assignedPic: "Announcement Center",
-            currentStatus: "Pending Approval",
+            assignedPic: "Pusat Pengumuman",
+            currentStatus: "Menunggu Persetujuan",
             division: "Humas",
             priority: "High" as AlertPriority,
             timestamp: formatClock(now),
-            title: "Announcement approval request pending",
-            type: "Approval Request",
+            title: "Persetujuan pengumuman tertunda",
+            type: "Permintaan Persetujuan",
           },
         ]
       : []
@@ -864,8 +864,8 @@ function getRecentActivity(activity: AuditLogRecord[]) {
 function getCurrentActivity(schedules: ScheduleRecord[], eventIsLive: boolean) {
   if (!eventIsLive) {
     return {
-      status: "Preparation",
-      title: "Event preparation",
+      status: "Persiapan",
+      title: "Persiapan event",
     }
   }
 
@@ -873,40 +873,40 @@ function getCurrentActivity(schedules: ScheduleRecord[], eventIsLive: boolean) {
 
   if (live) {
     return {
-      status: "Live Event",
+      status: "Hari Kegiatan",
       title: live.title,
     }
   }
 
   return {
-    status: "Live Monitoring",
+    status: "Pantauan Live",
     title: schedules[0]?.title ?? WAITING,
   }
 }
 
-function getEventState(startDate: string, endDate: string, now: Date) {
+function getEventState(startDate: string, endDate: string, now: Date): { dayLabel: string; phase: EventPhase } {
   const today = getJakartaDateKey(now)
   const totalDays = getDateDifference(startDate, endDate) + 1
 
   if (today < startDate) {
     return {
-      dayLabel: `Day 0 of ${totalDays}`,
-      phase: "Preparation" as EventPhase,
+      dayLabel: `Hari 0 dari ${totalDays}`,
+      phase: "Persiapan",
     }
   }
 
   if (today > endDate) {
     return {
-      dayLabel: "Completed",
-      phase: "Completed" as EventPhase,
+      dayLabel: "Selesai",
+      phase: "Selesai",
     }
   }
 
   const currentDay = Math.min(Math.max(getDateDifference(startDate, today) + 1, 1), totalDays)
 
   return {
-    dayLabel: `Day ${currentDay} of ${totalDays}`,
-    phase: today === endDate ? "Closing Day" as EventPhase : "Live Event" as EventPhase,
+    dayLabel: `Hari ${currentDay} dari ${totalDays}`,
+    phase: today === endDate ? "Hari Penutupan" : "Hari Kegiatan",
   }
 }
 
@@ -1058,9 +1058,9 @@ function formatRupiahRange(minAmount: number, maxAmount: number) {
 }
 
 function getEventPhaseTone(phase: EventPhase): Tone {
-  if (phase === "Live Event") return "success"
-  if (phase === "Closing Day") return "gold"
-  if (phase === "Completed") return "neutral"
+  if (phase === "Hari Kegiatan") return "success"
+  if (phase === "Hari Penutupan") return "gold"
+  if (phase === "Selesai") return "neutral"
   return "warning"
 }
 
@@ -1109,18 +1109,18 @@ function getDotClassName(tone: Tone) {
 }
 
 function getEmptyStateTitle(title: string) {
-  if (title === NO_DATA) return "Records Not Published Yet"
-  if (title === WAITING) return "Waiting For Official Updates"
+  if (title === NO_DATA) return "Catatan Belum Dipublikasikan"
+  if (title === WAITING) return "Menunggu Update Resmi"
   if (title === NOT_PUBLISHED) return "Belum Dipublikasikan"
   return title
 }
 
 function getEmptyStateAction(title: string) {
-  if (title.toLowerCase().includes("approval")) return "review requests when they enter the approval queue."
-  if (title.toLowerCase().includes("upcoming")) return "publish or confirm the next official rundown activity."
-  if (title.toLowerCase().includes("alert")) return "continue monitoring division and venue status."
-  if (title.toLowerCase().includes("report")) return "generate the report after official records are available."
-  return "publish the official record from the responsible module."
+  if (title.toLowerCase().includes("persetujuan")) return "review permintaan saat masuk ke antrean persetujuan."
+  if (title.toLowerCase().includes("berikutnya")) return "publikasikan atau konfirmasi kegiatan rundown berikutnya."
+  if (title.toLowerCase().includes("kendala")) return "pantau status divisi dan tempat secara berkala."
+  if (title.toLowerCase().includes("laporan")) return "buat laporan setelah catatan resmi tersedia."
+  return "publikasikan catatan resmi dari modul penanggung jawab."
 }
 
 function getToneClassName(tone: Tone) {

@@ -73,7 +73,7 @@ const globalForMcs = globalThis as typeof globalThis & {
 }
 
 const operationalStorePath =
-  process.env.MCS_OPERATIONAL_STORE_PATH ?? join(process.cwd(), ".data", "mcs-operational-store.json")
+  process.env.MCS_OPERATIONAL_STORE_PATH ?? join(/*turbopackIgnore: true*/ process.cwd(), ".data", "mcs-operational-store.json")
 
 export function getMcsRepository() {
   if (!globalForMcs.__mcsStore) {
@@ -504,11 +504,11 @@ function hydrateOperationalStore(store: McsStoreState): McsStoreState {
 
 function readOperationalStore(): OperationalStoreSnapshot | undefined {
   try {
-    if (!existsSync(operationalStorePath)) {
+    if (!existsSync(/*turbopackIgnore: true*/ operationalStorePath)) {
       return undefined
     }
 
-    const parsed = JSON.parse(readFileSync(operationalStorePath, "utf8")) as Partial<OperationalStoreSnapshot>
+    const parsed = JSON.parse(readFileSync(/*turbopackIgnore: true*/ operationalStorePath, "utf8")) as Partial<OperationalStoreSnapshot>
 
     if (parsed.version !== 1) {
       return undefined
@@ -533,8 +533,8 @@ function writeOperationalStore(store: McsStoreState) {
     version: 1,
   }
 
-  mkdirSync(dirname(operationalStorePath), { recursive: true })
-  writeFileSync(operationalStorePath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8")
+  mkdirSync(dirname(/*turbopackIgnore: true*/ operationalStorePath), { recursive: true })
+  writeFileSync(/*turbopackIgnore: true*/ operationalStorePath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8")
 }
 
 function getDivisionCoordinator(divisionId: string) {

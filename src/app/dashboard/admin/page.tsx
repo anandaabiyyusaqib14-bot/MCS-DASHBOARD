@@ -4,8 +4,8 @@ import { SuperAdminOverview } from "@/components/dashboard/super-admin-overview"
 import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
 
 export const metadata: Metadata = {
-  title: "Super Admin Dashboard - MCS 1",
-  description: "Operational command center overview for Melati Championship Series 1.",
+  title: "Super Admin - Sistem Kepanitiaan MCS 1",
+  description: "Ringkasan manajemen kepanitiaan untuk Melati Championship Series 1.",
 }
 
 export const dynamic = "force-dynamic"

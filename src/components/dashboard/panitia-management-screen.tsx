@@ -86,13 +86,13 @@ const divisionIconMap: Record<string, LucideIcon> = {
 
 const sidebarGroups = [
   {
-    label: "Operations",
+    label: "Kepanitiaan",
     items: [
-      { label: "Panitia Management", icon: Users, href: "/dashboard/panitia-management", active: true },
-      { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-      { label: "Tournament", icon: Trophy, href: "/dashboard/tournament" },
-      { label: "Live Match", icon: Radio, href: "/dashboard/live-match", badge: "Live" },
-      { label: "Schedule", icon: CalendarDays, href: "#" },
+      { label: "Data Panitia", icon: Users, href: "/dashboard/panitia-management", active: true },
+      { label: "Ringkasan", icon: LayoutDashboard, href: "/dashboard" },
+      { label: "Manajemen Lomba", icon: Trophy, href: "/dashboard/tournament" },
+      { label: "Pertandingan Live", icon: Radio, href: "/dashboard/live-match", badge: "Live" },
+      { label: "Jadwal", icon: CalendarDays, href: "#" },
     ],
   },
   {
@@ -104,19 +104,19 @@ const sidebarGroups = [
     })),
   },
   {
-    label: "Control",
+    label: "Kontrol",
     items: [
-      { label: "Attendance", icon: ClipboardCheck, href: "#attendance" },
-      { label: "Tasks", icon: ListChecks, href: "#tasks" },
-      { label: "Activity Feed", icon: Activity, href: "#activity" },
-      { label: "Settings", icon: Settings, href: "#" },
+      { label: "Kehadiran", icon: ClipboardCheck, href: "#attendance" },
+      { label: "Tugas", icon: ListChecks, href: "#tasks" },
+      { label: "Aktivitas", icon: Activity, href: "#activity" },
+      { label: "Pengaturan", icon: Settings, href: "#" },
     ],
   },
 ]
 
 const mobileNavItems = [
-  { label: "Dashboard", icon: Home, href: "/dashboard" },
-  { label: "Tournament", icon: Trophy, href: "/dashboard/tournament" },
+  { label: "Ringkasan", icon: Home, href: "/dashboard" },
+  { label: "Lomba", icon: Trophy, href: "/dashboard/tournament" },
   { label: "Live", icon: Radio, href: "/dashboard/live-match" },
   { label: "Panitia", icon: Users, href: "/dashboard/panitia-management", active: true },
 ]
@@ -129,10 +129,10 @@ const attendanceLabels: Record<AttendanceStatus, string> = {
 }
 
 const taskStatusLabels: Record<TaskStatus, string> = {
-  "In Progress": "In Progress",
-  Scheduled: "Scheduled",
-  Completed: "Completed",
-  Blocked: "Blocked",
+  "In Progress": "Diproses",
+  Scheduled: "Terjadwal",
+  Completed: "Selesai",
+  Blocked: "Tertunda",
 }
 
 const attendanceOptions = ["All Attendance", "Present", "Late", "Absent", "Excused"]
@@ -232,7 +232,7 @@ export function PanitiaManagementScreen() {
     setDetailOpen(true)
   }
 
-  function assignTask() {
+function assignTask() {
     const nextTask: PanitiaTask = {
       id: `task-${Date.now()}`,
       title: "Validasi kebutuhan lapangan final",
@@ -246,9 +246,9 @@ export function PanitiaManagementScreen() {
 
     const nextActivity: ActivityItem = {
       id: `activity-${Date.now()}`,
-      time: "Now",
-      title: `${selectedDivision.name} received a new operational task`,
-      detail: "Super Admin assigned final-field readiness validation.",
+      time: "Sekarang",
+      title: `${selectedDivision.name} menerima tugas baru`,
+      detail: "Super Admin menugaskan tindak lanjut kesiapan divisi.",
       division: selectedDivision.name,
       tone: "info",
     }
@@ -326,16 +326,21 @@ function PanitiaSidebar({
   activeDivisionId: string
   onDivisionSelect: (divisionId: string) => void
 }) {
+  const totalPanitia = panitiaDivisions.reduce((total, division) => total + division.members, 0)
+  const readiness = Math.round(
+    panitiaDivisions.reduce((total, division) => total + division.completion, 0) / Math.max(panitiaDivisions.length, 1),
+  )
+
   return (
     <>
       <div className="border-b border-white/10 px-4 py-5">
         <BrandMark />
         <div className="mt-5 border-t border-white/10 pt-4">
           <p className="font-sport text-xs font-black uppercase tracking-[0.18em] text-white/50">
-            Workforce Control
+            Data Panitia
           </p>
           <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-[color:var(--mcs-gold-soft)]">
-            Super Admin View
+            Tampilan Super Admin
           </p>
         </div>
       </div>
@@ -344,7 +349,7 @@ function PanitiaSidebar({
         {sidebarGroups.map((group) => (
           <div key={group.label} className="grid gap-1">
             <p className="px-3 pb-1 font-sport text-[0.62rem] font-black uppercase tracking-[0.2em] text-white/38">
-              {group.label}
+              {group.label === "Divisions" ? "Divisi" : group.label}
             </p>
             {group.items.map((item) => {
               const Icon = item.icon
@@ -398,9 +403,9 @@ function PanitiaSidebar({
         <div className="rounded-lg border border-white/10 bg-white/5 p-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="font-display text-3xl leading-none text-[color:var(--mcs-gold-soft)]">64</p>
+              <p className="font-display text-3xl leading-none text-[color:var(--mcs-gold-soft)]">{totalPanitia}</p>
               <p className="mt-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-white/50">
-                Registered crew
+                Panitia Terdaftar
               </p>
             </div>
             <span className="grid size-9 place-items-center rounded-md bg-[rgba(72,199,142,0.14)] text-[#8ce6b5]">
@@ -409,10 +414,10 @@ function PanitiaSidebar({
           </div>
           <div className="mt-3 border-t border-white/10 pt-3">
             <div className="mb-2 flex items-center justify-between text-xs text-white/50">
-              <span>Operational readiness</span>
-              <span>82%</span>
+              <span>Kesiapan Panitia</span>
+              <span>{readiness}%</span>
             </div>
-            <Progress value={82} className="h-2 bg-white/10" />
+            <Progress value={readiness} className="h-2 bg-white/10" />
           </div>
         </div>
       </div>
@@ -436,31 +441,31 @@ function PanitiaTopBar() {
               }
             >
               <Menu />
-              <span className="sr-only">Open panitia navigation</span>
+              <span className="sr-only">Buka navigasi panitia</span>
             </SheetTrigger>
             <SheetContent side="left" className="w-[292px] border-white/10 bg-[#050c15] p-0">
               <SheetHeader className="sr-only">
-                <SheetTitle>Panitia navigation</SheetTitle>
-                <SheetDescription>MCS panitia management navigation</SheetDescription>
+                <SheetTitle>Navigasi panitia</SheetTitle>
+                <SheetDescription>Navigasi manajemen kepanitiaan MCS 1</SheetDescription>
               </SheetHeader>
               <PanitiaSidebar activeDivisionId="acara" onDivisionSelect={() => undefined} />
             </SheetContent>
           </Sheet>
 
           <div className="hidden lg:block">
-            <p className="font-display text-4xl leading-none text-white">Panitia Management</p>
+            <p className="font-display text-4xl leading-none text-white">Data Panitia</p>
             <p className="max-w-[360px] truncate font-sport text-xs font-bold uppercase tracking-[0.14em] text-white/55">
-              {event.name} - Workforce Operations
+              {event.name} - Sistem Kepanitiaan
             </p>
           </div>
 
           <div className="flex items-center gap-3 lg:hidden">
             <BrandMark compact />
             <div className="min-w-0">
-              <p className="truncate font-sport text-base font-black text-white">Panitia Management</p>
+              <p className="truncate font-sport text-base font-black text-white">Data Panitia</p>
               <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--mcs-red)]">
                 <span className="size-2 rounded-full bg-[color:var(--mcs-red)]" />
-                Live Ops
+                Kegiatan
               </p>
             </div>
           </div>
@@ -470,15 +475,15 @@ function PanitiaTopBar() {
           <div className="flex items-center gap-3 border-r border-white/10 px-5">
             <span className="size-2 rounded-full bg-[#48c78e]" />
             <div>
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-white/50">Ops Status</p>
-              <p className="font-sport text-sm font-black uppercase text-[#8ce6b5]">Stable</p>
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-white/50">Status</p>
+              <p className="font-sport text-sm font-black uppercase text-[#8ce6b5]">Pantau</p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-5">
             <Clock3 className="size-4 text-[color:var(--mcs-gold-soft)]" />
             <div>
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-white/50">Control Time</p>
-              <p className="font-mono text-sm font-black text-white">08:45 WIB</p>
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-white/50">Zona Waktu</p>
+              <p className="font-mono text-sm font-black text-white">WIB</p>
             </div>
           </div>
         </div>
@@ -490,21 +495,21 @@ function PanitiaTopBar() {
             className="hidden h-9 rounded-md border-white/12 bg-white/5 font-sport text-xs font-black uppercase text-white/78 hover:bg-white/10 hover:text-white md:inline-flex"
           >
             <Download data-icon="inline-start" />
-            Export
+            Ekspor
           </Button>
           <Button
             size="lg"
             className="hidden h-9 rounded-md bg-[color:var(--mcs-red)] font-sport text-xs font-black uppercase text-white hover:bg-[color:var(--mcs-red-dark)] sm:inline-flex"
           >
             <UserPlus data-icon="inline-start" />
-            Add Member
+            Tambah Panitia
           </Button>
           <Button variant="ghost" size="icon" className="relative text-white/72 hover:bg-white/10 hover:text-white">
             <Bell />
             <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-[color:var(--mcs-red)] text-[0.62rem] font-black text-white">
               5
             </span>
-            <span className="sr-only">Notifications</span>
+            <span className="sr-only">Notifikasi</span>
           </Button>
           <div className="hidden items-center gap-3 border-l border-white/10 pl-4 sm:flex">
             <Avatar size="sm">
@@ -512,7 +517,7 @@ function PanitiaTopBar() {
             </Avatar>
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-white">Super Admin</p>
-              <p className="truncate text-xs text-white/45">Full Ops Access</p>
+              <p className="truncate text-xs text-white/45">Akses Penuh</p>
             </div>
           </div>
         </div>
@@ -539,23 +544,23 @@ function CommandHeader({ onAssignTask }: { onAssignTask: () => void }) {
           <div className="max-w-4xl">
             <div className="flex flex-wrap items-center gap-3">
               <Badge className="h-8 rounded-[4px] bg-[rgba(195,38,45,0.22)] px-3 font-sport text-xs font-black uppercase text-[#ff9ca0]">
-                Operations HQ
+                Sistem Kepanitiaan
               </Badge>
               <span className="font-mono text-xs uppercase tracking-[0.14em] text-white/46">{event.dateRange}</span>
             </div>
             <h1 className="mt-3 max-w-full font-display text-4xl leading-none text-white sm:text-6xl xl:text-7xl">
-              <span className="block xl:inline">Panitia Control</span>
-              <span className="block xl:ml-3 xl:inline">Center</span>
+              <span className="block xl:inline">Manajemen</span>
+              <span className="block xl:ml-3 xl:inline">Panitia</span>
             </h1>
             <p className="mt-2 max-w-[310px] text-sm font-medium leading-6 text-white/70 sm:max-w-2xl">
-              Workforce readiness, attendance, task ownership, and division coordination for MCS 1.
+              Pantau kesiapan panitia, kehadiran, PIC tugas, dan koordinasi divisi untuk MCS 1.
             </p>
           </div>
 
           <div className="grid min-w-[260px] gap-2 sm:grid-cols-2 lg:grid-cols-1">
             <Button className="h-11 rounded-md bg-[color:var(--mcs-red)] font-sport font-black uppercase text-white hover:bg-[color:var(--mcs-red-dark)]">
               <UserPlus data-icon="inline-start" />
-              Add Member
+              Tambah Panitia
             </Button>
             <Button
               variant="outline"
@@ -563,16 +568,16 @@ function CommandHeader({ onAssignTask }: { onAssignTask: () => void }) {
               onClick={onAssignTask}
             >
               <Plus data-icon="inline-start" />
-              Assign Task
+              Buat Tugas
             </Button>
           </div>
         </div>
 
         <div className="grid gap-2 border-t border-white/10 pt-3 sm:grid-cols-3">
           {[
-            ["Current Focus", "Opening Day Setup"],
-            ["QR Attendance", "Scanner Gate A Active"],
-            ["Briefing Window", "08:45 - 09:10 WIB"],
+            ["Fokus Saat Ini", "Ikuti rundown resmi"],
+            ["Absensi QR", "Siapkan saat gate dibuka"],
+            ["Briefing", "Menunggu jadwal divisi"],
           ].map(([label, value]) => (
             <div key={label} className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-white/10 bg-black/18 px-3 py-2">
               <div className="min-w-0">
@@ -601,12 +606,12 @@ function PanitiaOverview({
   }
 }) {
   const cards = [
-    { label: "Total Panitia", value: overview.totalPanitia, helper: "Registered members", icon: Users, tone: "gold" },
-    { label: "Active Today", value: overview.activeToday, helper: "On operation list", icon: UserCheck, tone: "green" },
-    { label: "Present Today", value: overview.present, helper: "QR verified", icon: ClipboardCheck, tone: "green" },
-    { label: "Absent Today", value: overview.absent, helper: "Need follow up", icon: AlertTriangle, tone: "red" },
-    { label: "Active Divisions", value: overview.activeDivisions, helper: "All divisions", icon: ShieldCheck, tone: "gold" },
-    { label: "Pending Tasks", value: overview.pendingTasks, helper: "Open assignments", icon: ListChecks, tone: "red" },
+    { label: "Total Panitia", value: overview.totalPanitia, helper: "Anggota terdaftar", icon: Users, tone: "gold" },
+    { label: "Aktif Hari Ini", value: overview.activeToday, helper: "Masuk daftar tugas", icon: UserCheck, tone: "green" },
+    { label: "Hadir Hari Ini", value: overview.present, helper: "Terverifikasi QR", icon: ClipboardCheck, tone: "green" },
+    { label: "Tidak Hadir", value: overview.absent, helper: "Perlu tindak lanjut", icon: AlertTriangle, tone: "red" },
+    { label: "Divisi Aktif", value: overview.activeDivisions, helper: "Semua divisi", icon: ShieldCheck, tone: "gold" },
+    { label: "Tugas Tertunda", value: overview.pendingTasks, helper: "Belum selesai", icon: ListChecks, tone: "red" },
   ]
 
   return (
@@ -656,7 +661,7 @@ function DivisionOverview({
 }) {
   return (
     <section className="rounded-lg border border-white/10 bg-[#08121f]">
-      <PanelHeader icon={ShieldCheck} title="Division Overview" action="Open report" />
+      <PanelHeader icon={ShieldCheck} title="Progres Divisi" action="Buka laporan" />
       <div className="hidden md:block">
         <Table>
           <TableHeader>
@@ -723,7 +728,7 @@ function DivisionOverview({
                 <p className="font-sport text-sm font-black uppercase text-white">{division.name}</p>
                 <p className="text-xs text-white/45">{division.coordinator}</p>
               </div>
-              <Badge className={divisionStatusClass(division.status)}>{division.status}</Badge>
+              <Badge className={divisionStatusClass(division.status)}>{formatDivisionStatusLabel(division.status)}</Badge>
             </div>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
               <MobileMetric label="Hadir" value={String(division.present)} />
@@ -772,17 +777,17 @@ function AttendanceMonitoring({
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <AttendanceTile label="Present" value={overview.present} status="Present" />
-          <AttendanceTile label="Late" value={overview.late} status="Late" />
-          <AttendanceTile label="Absent" value={overview.absent} status="Absent" />
-          <AttendanceTile label="Excused" value={overview.excused} status="Excused" />
+          <AttendanceTile label={attendanceLabels.Present} value={overview.present} status="Present" />
+          <AttendanceTile label={attendanceLabels.Late} value={overview.late} status="Late" />
+          <AttendanceTile label={attendanceLabels.Absent} value={overview.absent} status="Absent" />
+          <AttendanceTile label={attendanceLabels.Excused} value={overview.excused} status="Excused" />
         </div>
 
         <div className="rounded-md border border-white/10 bg-white/5 p-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="font-sport text-xs font-black uppercase text-white/55">QR Attendance</p>
-              <p className="mt-1 text-sm font-bold text-white">Gate A scanner verified</p>
+              <p className="font-sport text-xs font-black uppercase text-white/55">Absensi QR</p>
+              <p className="mt-1 text-sm font-bold text-white">Catatan check-in panitia</p>
             </div>
             <Badge className="bg-[rgba(72,199,142,0.16)] text-[#8ce6b5]">Live</Badge>
           </div>
@@ -806,7 +811,7 @@ function AttendanceMonitoring({
 function OperationalFeed({ feed }: { feed: ActivityItem[] }) {
   return (
     <section id="activity" className="rounded-lg border border-white/10 bg-[#08121f]">
-      <PanelHeader icon={Activity} title="Operational Feed" action="All activity" />
+      <PanelHeader icon={Activity} title="Aktivitas Terbaru" action="Semua aktivitas" />
       <div className="grid gap-0 divide-y divide-white/10 p-4">
         {feed.map((item) => (
           <div key={item.id} className="grid grid-cols-[48px_34px_minmax(0,1fr)] gap-3 py-3 first:pt-0 last:pb-0">
@@ -857,7 +862,7 @@ function StaffDirectory({
 }) {
   return (
     <section className="rounded-lg border border-white/10 bg-[#08121f]">
-      <PanelHeader icon={Users} title="Direktori Panitia" action={`${filteredStaff.length} records`} />
+      <PanelHeader icon={Users} title="Direktori Panitia" action={`${filteredStaff.length} data`} />
       <div className="grid gap-3 border-b border-white/10 p-3">
         <div className="grid gap-2 lg:grid-cols-[minmax(220px,1fr)_repeat(4,minmax(130px,0.46fr))]">
           <div className="relative">
@@ -865,14 +870,14 @@ function StaffDirectory({
             <Input
               value={query}
               onChange={(event) => onQuery(event.target.value)}
-              placeholder="Cari nama, divisi, role, tugas..."
+              placeholder="Cari nama, divisi, peran, tugas..."
               className="h-10 rounded-md border-white/15 bg-[#071421] pl-9 text-sm text-white placeholder:text-white/35"
             />
           </div>
-          <FilterControl icon={Filter} label="Division" options={divisionOptions} value={divisionFilter} onChange={onDivisionFilter} />
-          <FilterControl icon={ShieldCheck} label="Role" options={roleOptions} value={roleFilter} onChange={onRoleFilter} />
-          <FilterControl icon={ClipboardCheck} label="Attendance" options={attendanceOptions} value={attendanceFilter} onChange={onAttendanceFilter} />
-          <FilterControl icon={SlidersHorizontal} label="Task" options={taskOptions} value={taskFilter} onChange={onTaskFilter} />
+          <FilterControl icon={Filter} label="Divisi" options={divisionOptions} value={divisionFilter} onChange={onDivisionFilter} />
+          <FilterControl icon={ShieldCheck} label="Peran" options={roleOptions} value={roleFilter} onChange={onRoleFilter} />
+          <FilterControl icon={ClipboardCheck} label="Kehadiran" options={attendanceOptions} value={attendanceFilter} onChange={onAttendanceFilter} />
+          <FilterControl icon={SlidersHorizontal} label="Tugas" options={taskOptions} value={taskFilter} onChange={onTaskFilter} />
         </div>
       </div>
 
@@ -880,7 +885,7 @@ function StaffDirectory({
         <Table>
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent">
-              {["Nama", "Divisi", "Role", "Status", "Current Task", "Kontak", "Aksi"].map((heading) => (
+              {["Nama", "Divisi", "Peran", "Status", "Tugas Saat Ini", "Kontak", "Aksi"].map((heading) => (
                 <TableHead key={heading} className="px-4 text-[0.66rem] font-black uppercase tracking-[0.12em] text-white/42">
                   {heading}
                 </TableHead>
@@ -907,7 +912,7 @@ function StaffDirectory({
                     </div>
                   </TableCell>
                   <TableCell className="px-4 text-sm font-semibold text-white/68">{member.division}</TableCell>
-                  <TableCell className="px-4 text-xs text-white/52">{member.role}</TableCell>
+                  <TableCell className="px-4 text-xs text-white/52">{formatFilterOption(member.role)}</TableCell>
                   <TableCell className="px-4">
                     <Badge className={cn("rounded-[4px] text-[0.66rem]", statusClasses[member.attendance])}>
                       {attendanceLabels[member.attendance]}
@@ -929,11 +934,11 @@ function StaffDirectory({
                         onClick={() => onOpenDivision(division.id)}
                       >
                         <ChevronRight />
-                        <span className="sr-only">Open division</span>
+                        <span className="sr-only">Buka divisi</span>
                       </Button>
                       <Button variant="ghost" size="icon-xs" className="text-white/46 hover:bg-white/10 hover:text-white">
                         <MoreVertical />
-                        <span className="sr-only">More actions</span>
+                        <span className="sr-only">Aksi lain</span>
                       </Button>
                     </div>
                   </TableCell>
@@ -965,7 +970,7 @@ function StaffDirectory({
                 className="mt-3 h-9 w-full rounded-md border-white/15 bg-white/5 text-white/72"
                 onClick={() => onOpenDivision(division.id)}
               >
-                Open Division
+                Buka Divisi
                 <ChevronRight data-icon="inline-end" />
               </Button>
             </article>
@@ -979,17 +984,17 @@ function StaffDirectory({
 function TaskManagement({ tasks, onAssignTask }: { tasks: PanitiaTask[]; onAssignTask: () => void }) {
   return (
     <section id="tasks" className="rounded-lg border border-white/10 bg-[#08121f]">
-      <PanelHeader icon={ListChecks} title="Task Management" action="Workflow" />
+      <PanelHeader icon={ListChecks} title="Manajemen Tugas" action="Alur kerja" />
       <div className="flex items-center justify-between gap-3 border-b border-white/10 p-3">
         <div className="flex flex-wrap gap-2">
           <Badge className="bg-white/10 text-white/60">{tasks.length} total</Badge>
           <Badge className="bg-[rgba(225,180,81,0.15)] text-[color:var(--mcs-gold-soft)]">
-            {tasks.filter((task) => task.status !== "Completed").length} open
+            {tasks.filter((task) => task.status !== "Completed").length} terbuka
           </Badge>
         </div>
         <Button className="h-9 rounded-md bg-[color:var(--mcs-red)] font-sport text-xs font-black uppercase text-white hover:bg-[color:var(--mcs-red-dark)]" onClick={onAssignTask}>
           <Plus data-icon="inline-start" />
-          Assign Task
+          Buat Tugas
         </Button>
       </div>
 
@@ -998,7 +1003,7 @@ function TaskManagement({ tasks, onAssignTask }: { tasks: PanitiaTask[]; onAssig
           <div key={task.id} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1fr)_120px_88px] md:items-center">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className={cn("rounded-[4px] text-[0.62rem]", priorityClasses[task.priority])}>{task.priority}</Badge>
+                <Badge className={cn("rounded-[4px] text-[0.62rem]", priorityClasses[task.priority])}>{formatPriorityLabel(task.priority)}</Badge>
                 <p className="truncate font-sport text-sm font-black uppercase text-white">{task.title}</p>
               </div>
               <p className="mt-1 text-xs text-white/45">{task.division} - PIC {task.pic}</p>
@@ -1011,11 +1016,11 @@ function TaskManagement({ tasks, onAssignTask }: { tasks: PanitiaTask[]; onAssig
               </div>
             </div>
             <div className="grid gap-1">
-              <p className="text-[0.64rem] font-bold uppercase tracking-[0.1em] text-white/38">Deadline</p>
+              <p className="text-[0.64rem] font-bold uppercase tracking-[0.1em] text-white/38">Batas Waktu</p>
               <p className="font-mono text-sm font-bold text-white">{task.deadline}</p>
             </div>
             <Badge className={cn("w-fit rounded-[4px] text-[0.66rem]", taskStatusClasses[task.status])}>
-              {task.status}
+              {taskStatusLabels[task.status]}
             </Badge>
           </div>
         ))}
@@ -1035,7 +1040,7 @@ function DivisionPerformance({
 
   return (
     <section className="rounded-lg border border-white/10 bg-[#08121f]">
-      <PanelHeader icon={BarChart3} title="Division Performance Monitoring" action="Performance report" />
+      <PanelHeader icon={BarChart3} title="Performa Divisi" action="Laporan performa" />
       <div className="grid gap-2 p-4 md:grid-cols-2 xl:grid-cols-4">
         {sorted.map((division) => (
           <button
@@ -1046,12 +1051,12 @@ function DivisionPerformance({
           >
             <div className="flex items-center justify-between gap-3">
               <p className="font-sport text-sm font-black uppercase text-white">{division.name}</p>
-              <Badge className={divisionStatusClass(division.status)}>{division.status}</Badge>
+              <Badge className={divisionStatusClass(division.status)}>{formatDivisionStatusLabel(division.status)}</Badge>
             </div>
             <div className="mt-4 grid gap-3">
-              <ScoreLine label="Attendance" value={Math.round((division.present / division.members) * 100)} />
-              <ScoreLine label="Task Completion" value={division.completion} />
-              <ScoreLine label="Responsiveness" value={division.responsiveness} />
+              <ScoreLine label="Kehadiran" value={Math.round((division.present / division.members) * 100)} />
+              <ScoreLine label="Penyelesaian Tugas" value={division.completion} />
+              <ScoreLine label="Respons" value={division.responsiveness} />
             </div>
           </button>
         ))}
@@ -1062,20 +1067,20 @@ function DivisionPerformance({
 
 function SuperAdminPanel({ onAssignTask }: { onAssignTask: () => void }) {
   const actions = [
-    { label: "Add Member", icon: UserPlus },
-    { label: "Edit Roles", icon: ShieldCheck },
-    { label: "Move Division", icon: Users },
-    { label: "Assign Task", icon: Plus, onClick: onAssignTask },
-    { label: "Verify Attendance", icon: ClipboardCheck },
-    { label: "Daily Report", icon: BarChart3 },
+    { label: "Tambah Panitia", icon: UserPlus },
+    { label: "Atur Peran", icon: ShieldCheck },
+    { label: "Pindah Divisi", icon: Users },
+    { label: "Buat Tugas", icon: Plus, onClick: onAssignTask },
+    { label: "Cek Kehadiran", icon: ClipboardCheck },
+    { label: "Laporan Harian", icon: BarChart3 },
   ]
 
   return (
     <section className="rounded-lg border border-white/10 bg-[#08121f] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl leading-none text-white">Super Admin Control</h2>
-          <p className="mt-1 text-xs text-white/48">Role, attendance, task, and health commands</p>
+          <h2 className="font-display text-3xl leading-none text-white">Kontrol Super Admin</h2>
+          <p className="mt-1 text-xs text-white/48">Peran, kehadiran, tugas, dan kesiapan panitia</p>
         </div>
         <ShieldCheck className="size-5 text-[color:var(--mcs-gold-soft)]" />
       </div>
@@ -1142,8 +1147,8 @@ function DivisionDetailSheet({
             </div>
             <Progress value={division.completion} className="h-2 bg-white/10" />
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <ScoreBox label="Responsiveness" value={`${division.responsiveness}%`} />
-              <ScoreBox label="Attendance" value={`${Math.round((division.present / division.members) * 100)}%`} />
+              <ScoreBox label="Respons" value={`${division.responsiveness}%`} />
+              <ScoreBox label="Kehadiran" value={`${Math.round((division.present / division.members) * 100)}%`} />
             </div>
           </div>
 
@@ -1179,7 +1184,7 @@ function DivisionDetailSheet({
               <p className="font-sport text-xs font-black uppercase tracking-[0.12em] text-white/58">Tugas Aktif</p>
               <Button size="xs" className="bg-[color:var(--mcs-red)] text-white hover:bg-[color:var(--mcs-red-dark)]" onClick={onAssignTask}>
                 <Plus />
-                Assign
+                Buat
               </Button>
             </div>
             <div className="grid divide-y divide-white/10">
@@ -1191,7 +1196,7 @@ function DivisionDetailSheet({
                       <p className="text-xs text-white/45">{task.pic} - {task.deadline}</p>
                     </div>
                     <Badge className={cn("rounded-[4px] text-[0.62rem]", taskStatusClasses[task.status])}>
-                      {task.status}
+                      {taskStatusLabels[task.status]}
                     </Badge>
                   </div>
                 ))
@@ -1254,7 +1259,7 @@ function FilterControl({
       >
         {options.map((option) => (
           <option key={option} value={option} className="bg-[#071421] text-white">
-            {option}
+            {formatFilterOption(option)}
           </option>
         ))}
       </select>
@@ -1347,12 +1352,12 @@ function MobileBottomNav() {
           }
         >
           <Menu className="size-5" />
-          <span>More</span>
+          <span>Lainnya</span>
         </SheetTrigger>
         <SheetContent side="right" className="w-[86vw] max-w-[360px] border-white/10 bg-[#050c15] p-0">
           <SheetHeader className="sr-only">
-            <SheetTitle>MCS navigation</SheetTitle>
-            <SheetDescription>Open panitia navigation</SheetDescription>
+            <SheetTitle>Navigasi MCS</SheetTitle>
+            <SheetDescription>Buka navigasi kepanitiaan</SheetDescription>
           </SheetHeader>
           <PanitiaSidebar activeDivisionId="acara" onDivisionSelect={() => undefined} />
         </SheetContent>
@@ -1371,6 +1376,47 @@ function divisionStatusClass(status: PanitiaDivision["status"]) {
   }
 
   return "bg-[rgba(255,77,84,0.16)] text-[#ff9ca0]"
+}
+
+function formatDivisionStatusLabel(status: PanitiaDivision["status"]) {
+  const labels: Record<PanitiaDivision["status"], string> = {
+    Attention: "Butuh Tindak Lanjut",
+    Stable: "Stabil",
+    Watch: "Perlu Dipantau",
+  }
+
+  return labels[status]
+}
+
+function formatFilterOption(option: string) {
+  const labels: Record<string, string> = {
+    "All Attendance": "Semua Kehadiran",
+    "All Divisions": "Semua Divisi",
+    "All Roles": "Semua Peran",
+    "All Tasks": "Semua Tugas",
+    "Division Coordinator": "Koordinator Divisi",
+    Absent: attendanceLabels.Absent,
+    Blocked: taskStatusLabels.Blocked,
+    Completed: taskStatusLabels.Completed,
+    Excused: attendanceLabels.Excused,
+    "In Progress": taskStatusLabels["In Progress"],
+    Late: attendanceLabels.Late,
+    Present: attendanceLabels.Present,
+    Scheduled: taskStatusLabels.Scheduled,
+    Staff: "Anggota",
+  }
+
+  return labels[option] ?? option
+}
+
+function formatPriorityLabel(priority: TaskPriority) {
+  const labels: Record<TaskPriority, string> = {
+    High: "Tinggi",
+    Low: "Rendah",
+    Medium: "Sedang",
+  }
+
+  return labels[priority]
 }
 
 function initials(name: string) {
