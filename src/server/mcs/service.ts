@@ -703,7 +703,12 @@ export function createAnnouncement(auth: AuthContext, input: JsonObject) {
   const priority = getAnnouncementPriority(input.priority) ?? "normal"
   const audience = getRoleArray(input.audience)
   const canSelfPublish = can(auth.user.role, "announcements.approve") && can(auth.user.role, "announcements.publish")
-  const status: AnnouncementStatus = canSelfPublish && Boolean(input.publishNow) ? "published" : "pending_approval"
+  const status: AnnouncementStatus =
+    input.status === "draft"
+      ? "draft"
+      : canSelfPublish && Boolean(input.publishNow)
+        ? "published"
+        : "pending_approval"
   const record: AnnouncementRecord = {
     id: createId("announcement"),
     tournamentId: MCS_TOURNAMENT_ID,
@@ -725,7 +730,7 @@ export function createAnnouncement(auth: AuthContext, input: JsonObject) {
 
   if (record.status === "published") {
     notifyAnnouncement(record)
-  } else {
+  } else if (record.status === "pending_approval") {
     createRoleNotifications(["ketua_pelaksana", "wakil_ketua", "super_admin"], {
       type: "announcement",
       title: "Announcement approval needed",

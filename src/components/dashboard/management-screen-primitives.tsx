@@ -22,19 +22,19 @@ export type HeaderAction = {
 export type StatusTone = "neutral" | "info" | "success" | "warning" | "danger" | "navy" | "gold"
 
 const actionToneClasses: Record<NonNullable<HeaderAction["tone"]>, string> = {
-  primary: "border-[#0F172A] bg-[#0F172A] text-white hover:bg-[#1E293B]",
-  secondary: "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F8F9FB]",
+  primary: "border-[#F97316] bg-[#F97316] text-white shadow-[2px_2px_0_rgba(17,24,39,0.18)] hover:bg-[#EA580C]",
+  secondary: "border-[#111827]/12 bg-white text-[#111827] shadow-[2px_2px_0_rgba(17,24,39,0.06)] hover:bg-[#FFF7ED]",
   danger: "border-[#FEE2E2] bg-[#FEF2F2] text-[#B91C1C] hover:bg-[#FEE2E2]",
 }
 
 const statusToneClasses: Record<StatusTone, string> = {
-  neutral: "border-[#E5E7EB] bg-[#F8F9FB] text-[#64748B]",
-  info: "border-[#DBEAFE] bg-[#EFF6FF] text-[#1D4ED8]",
-  success: "border-[#DCFCE7] bg-[#F0FDF4] text-[#16A34A]",
+  neutral: "border-[#E5E7EB] bg-[#FFFDF8] text-[#6B7280]",
+  info: "border-[#BAE6FD] bg-[#F0F9FF] text-[#0369A1]",
+  success: "border-[#BBF7D0] bg-[#F0FDF4] text-[#15803D]",
   warning: "border-[#FEF3C7] bg-[#FFFBEB] text-[#D97706]",
   danger: "border-[#FEE2E2] bg-[#FEF2F2] text-[#DC2626]",
-  navy: "border-[#0F172A] bg-[#0F172A] text-white",
-  gold: "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]",
+  navy: "border-[#111827] bg-[#111827] text-white",
+  gold: "border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]",
 }
 
 export function ManagementPageHeader({
@@ -47,13 +47,13 @@ export function ManagementPageHeader({
   title: string
 }) {
   return (
-    <section className="flex flex-col gap-4 rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-sm lg:flex-row lg:items-start lg:justify-between">
-      <div className="min-w-0">
-        <h2 className="text-2xl font-semibold tracking-normal text-[#111827]">{title}</h2>
-        <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#64748B]">{subtitle}</p>
+    <section className="mcs-soft-surface mcs-starburst flex flex-col gap-4 overflow-hidden rounded-lg p-5 after:-right-5 after:top-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="relative z-10 min-w-0">
+        <h2 className="font-heading text-2xl font-bold leading-tight tracking-normal text-[#111827]">{title}</h2>
+        <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#6B7280]">{subtitle}</p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="relative z-10 flex flex-wrap gap-2">
         {actions.map((action) => (
           <ActionButton
             key={action.label}
@@ -85,7 +85,7 @@ export function ActionButton({
     <button
       type={type}
       className={cn(
-        "inline-flex h-9 items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A]/20 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]/25 disabled:pointer-events-none disabled:opacity-50",
         actionToneClasses[tone],
         className,
       )}
@@ -100,7 +100,7 @@ export function ActionButton({
 
 export function FilterPanel({ children }: { children: ReactNode }) {
   return (
-    <section className="grid min-w-0 gap-3 rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm sm:grid-cols-2 xl:grid-cols-5">
+    <section className="mcs-surface grid min-w-0 gap-4 rounded-lg p-4 sm:grid-cols-2 xl:grid-cols-5">
       {children}
     </section>
   )
@@ -119,9 +119,9 @@ export function FilterSelect({
 }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{label}</span>
       <select
-        className="h-10 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10"
+        className="h-10 rounded-lg border border-[#111827]/12 bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
@@ -150,15 +150,15 @@ export function FilterInput({
 }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{label}</span>
       <span className="relative">
         {type === "search" ? (
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94A3B8]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#6B7280]" />
         ) : null}
         <input
           type={type}
           className={cn(
-            "h-10 w-full rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#111827] outline-none transition placeholder:text-[#94A3B8] focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10",
+            "h-10 w-full rounded-lg border border-[#111827]/12 bg-white px-3 text-sm font-medium text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20",
             type === "search" ? "pl-9" : "",
           )}
           placeholder={placeholder}
@@ -182,11 +182,11 @@ export function SectionPanel({
   title: string
 }) {
   return (
-    <section className="min-w-0 rounded-lg border border-[#E5E7EB] bg-white shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-[#E5E7EB] p-5 sm:flex-row sm:items-start sm:justify-between">
+    <section className="mcs-surface min-w-0 overflow-hidden rounded-lg">
+      <div className="flex flex-col gap-3 border-b border-[#111827]/10 p-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-[#111827]">{title}</h3>
-          {description ? <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p> : null}
+          <h3 className="font-heading text-base font-bold text-[#111827]">{title}</h3>
+          {description ? <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p> : null}
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
@@ -199,7 +199,7 @@ export function StatusBadge({ label, tone = "neutral" }: { label: string; tone?:
   return (
     <span
       className={cn(
-        "inline-flex h-7 w-fit items-center rounded-full border px-2.5 text-xs font-semibold",
+        "inline-flex h-7 w-fit items-center rounded-md border px-2.5 text-xs font-bold",
         statusToneClasses[tone],
       )}
     >
@@ -216,10 +216,14 @@ export function EmptyState({
   title: string
 }) {
   return (
-    <div className="grid min-h-40 place-items-center px-4 py-10 text-center">
+    <div className="mcs-inset-panel grid min-h-40 place-items-center rounded-lg border-dashed px-4 py-10 text-center">
       <div className="max-w-sm">
-        <p className="text-sm font-semibold text-[#111827]">{title}</p>
-        <p className="mt-1 text-sm font-medium text-[#64748B]">{description}</p>
+        <span className="mcs-empty-mark" aria-hidden="true">
+          <span />
+          <i />
+        </span>
+        <p className="text-sm font-bold text-[#111827]">{title}</p>
+        <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
       </div>
     </div>
   )
@@ -237,22 +241,24 @@ export function StatGrid({
   return (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className="rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm">
-          <p className="text-sm font-medium text-[#64748B]">{item.label}</p>
+        <div key={item.label} className="mcs-neo-card rounded-lg p-4">
+          <p className="text-sm font-semibold text-[#6B7280]">{item.label}</p>
           <div className="mt-3 flex items-end justify-between gap-3">
-            <p className="text-2xl font-semibold tracking-normal text-[#111827]">{item.value}</p>
+            <p className="font-heading text-2xl font-bold tracking-normal text-[#111827]">{item.value}</p>
             <span
               className={cn(
                 "mb-1 size-2.5 rounded-full",
                 item.tone === "success"
-                  ? "bg-[#16A34A]"
+                  ? "bg-[#22C55E]"
                   : item.tone === "warning"
-                    ? "bg-[#D97706]"
+                    ? "bg-[#F97316]"
                     : item.tone === "danger"
                       ? "bg-[#DC2626]"
                       : item.tone === "gold"
-                        ? "bg-[#D4A017]"
-                        : "bg-[#CBD5E1]",
+                        ? "bg-[#F97316]"
+                        : item.tone === "info"
+                          ? "bg-[#0EA5E9]"
+                          : "bg-[#CBD5E1]",
               )}
             />
           </div>
@@ -277,10 +283,10 @@ export function RowActionButton({
     <button
       type="button"
       className={cn(
-        "inline-flex h-7 items-center justify-center rounded-md border px-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A]/20 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex h-8 items-center justify-center rounded-lg border px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F97316]/25 disabled:pointer-events-none disabled:opacity-50",
         tone === "danger"
           ? "border-[#FEE2E2] bg-[#FEF2F2] text-[#B91C1C] hover:bg-[#FEE2E2]"
-          : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F8F9FB]",
+          : "border-[#111827]/12 bg-white text-[#111827] hover:bg-[#FFF7ED]",
       )}
       disabled={disabled}
       onClick={onClick}
@@ -334,7 +340,7 @@ export function ManagementModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-[#0F172A]/20 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 grid place-items-center bg-[#111827]/28 px-4 py-6 backdrop-blur-sm"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
@@ -346,24 +352,24 @@ export function ManagementModal({
         aria-describedby={description ? descriptionId : undefined}
         aria-labelledby={titleId}
         aria-modal="true"
-        className="max-h-[calc(100vh-48px)] w-full max-w-2xl overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-xl"
+        className="max-h-[calc(100vh-48px)] w-full max-w-2xl overflow-hidden rounded-lg border border-[#111827]/12 bg-white shadow-[5px_5px_0_rgba(249,115,22,0.18),0_24px_60px_rgba(17,24,39,0.18)]"
         role="dialog"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-[#E5E7EB] p-5">
+        <div className="flex items-start justify-between gap-4 border-b border-[#111827]/10 p-5">
           <div className="min-w-0">
-            <h3 id={titleId} className="text-lg font-semibold text-[#111827]">
+            <h3 id={titleId} className="font-heading text-lg font-bold text-[#111827]">
               {title}
             </h3>
             {description ? (
-              <p id={descriptionId} className="mt-1 text-sm font-medium leading-6 text-[#64748B]">
+              <p id={descriptionId} className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">
                 {description}
               </p>
             ) : null}
           </div>
           <button
             type="button"
-            className="grid size-9 shrink-0 place-items-center rounded-md border border-[#E5E7EB] bg-white text-[#64748B] transition hover:bg-[#F8F9FB]"
+            className="grid size-9 shrink-0 place-items-center rounded-lg border border-[#111827]/12 bg-white text-[#6B7280] transition hover:bg-[#FFF7ED]"
             aria-label="Close modal"
             onClick={onClose}
           >
@@ -371,7 +377,7 @@ export function ManagementModal({
           </button>
         </div>
         <div className="max-h-[calc(100vh-220px)] overflow-y-auto p-5">{children}</div>
-        {footer ? <div className="border-t border-[#E5E7EB] bg-[#F8F9FB] p-4">{footer}</div> : null}
+        {footer ? <div className="border-t border-[#111827]/10 bg-[#FFF7ED] p-4">{footer}</div> : null}
       </section>
     </div>
   )
@@ -394,10 +400,10 @@ export function FormField({
 }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-sm font-semibold text-[#111827]">{label}</span>
+      <span className="text-sm font-bold text-[#111827]">{label}</span>
       <input
         type={type}
-        className="h-10 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#111827] outline-none transition placeholder:text-[#94A3B8] focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10"
+        className="h-10 rounded-lg border border-[#111827]/12 bg-white px-3 text-sm font-medium text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20"
         placeholder={placeholder}
         defaultValue={value}
       />
@@ -416,9 +422,9 @@ export function FormSelect({
 }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-sm font-semibold text-[#111827]">{label}</span>
+      <span className="text-sm font-bold text-[#111827]">{label}</span>
       <select
-        className="h-10 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10"
+        className="h-10 rounded-lg border border-[#111827]/12 bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20"
         defaultValue={value ?? options[0]?.value}
       >
         {options.map((option) => (
@@ -442,9 +448,9 @@ export function FormTextarea({
 }) {
   return (
     <label className="grid gap-1.5 sm:col-span-2">
-      <span className="text-sm font-semibold text-[#111827]">{label}</span>
+      <span className="text-sm font-bold text-[#111827]">{label}</span>
       <textarea
-        className="min-h-28 rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm font-medium text-[#111827] outline-none transition placeholder:text-[#94A3B8] focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10"
+        className="min-h-28 rounded-lg border border-[#111827]/12 bg-white px-3 py-2 text-sm font-medium text-[#111827] outline-none transition placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20"
         placeholder={placeholder}
         defaultValue={value}
       />
@@ -465,14 +471,14 @@ export function ModalFooter({
     <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
       <button
         type="button"
-        className="inline-flex h-9 items-center justify-center rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
+        className="mcs-button-secondary inline-flex h-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition"
         onClick={onClose}
       >
         {secondaryLabel}
       </button>
       <button
         type="button"
-        className="inline-flex h-9 items-center justify-center rounded-md border border-[#0F172A] bg-[#0F172A] px-3 text-sm font-semibold text-white transition hover:bg-[#1E293B]"
+        className="mcs-button-primary inline-flex h-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition"
         onClick={onClose}
       >
         {primaryLabel}

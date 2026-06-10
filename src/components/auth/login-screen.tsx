@@ -37,6 +37,9 @@ const authorizedRoles = [
   "Operator",
 ]
 
+const inputClassName =
+  "h-12 w-full min-w-0 rounded-lg border border-[#081c3a]/12 bg-white px-3 py-2 pl-11 text-[0.95rem] font-semibold text-[#07111d] shadow-[0_10px_24px_rgba(8,28,58,0.07),inset_0_1px_0_rgba(255,255,255,0.95)] outline-none transition placeholder:text-[#07111d]/34 hover:border-[#081c3a]/22 hover:shadow-[0_14px_30px_rgba(8,28,58,0.1),inset_0_1px_0_rgba(255,255,255,0.95)] focus-visible:border-[color:var(--mcs-red)] focus-visible:ring-[4px] focus-visible:ring-[rgba(166,29,45,0.14)]"
+
 export function LoginScreen() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
@@ -87,7 +90,7 @@ export function LoginScreen() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#eef2f6] text-[#07111d]">
+    <main className="min-h-screen overflow-x-hidden bg-[linear-gradient(135deg,#eef2f6_0%,#f8fafc_44%,#e9eef5_100%)] text-[#07111d]">
       <div className="mx-auto flex min-h-screen w-full max-w-[1180px] flex-col px-4 py-4 sm:px-6 lg:px-8">
         <header className="flex min-h-11 items-center justify-between gap-3">
           <Link
@@ -105,7 +108,7 @@ export function LoginScreen() {
         </header>
 
         <section className="grid flex-1 place-items-center py-4 sm:py-6">
-          <div className="grid w-full overflow-hidden rounded-lg border border-[#081c3a]/12 bg-white shadow-[0_24px_80px_rgba(8,28,58,0.14)] lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,0.75fr)]">
+          <div className="grid w-full overflow-hidden rounded-lg border border-[#081c3a]/12 bg-white shadow-[0_32px_90px_rgba(8,28,58,0.18),0_2px_0_rgba(255,255,255,0.85)_inset] lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,0.75fr)]">
             <BrandPanel />
 
             <div className="min-w-0 px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
@@ -131,10 +134,15 @@ export function LoginScreen() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="mt-8" aria-busy={status === "checking"}>
+              <form
+                onSubmit={handleSubmit}
+                className="mt-8 rounded-lg border border-[#081c3a]/10 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4 shadow-[0_22px_54px_rgba(8,28,58,0.13),inset_0_1px_0_rgba(255,255,255,0.95)] sm:p-5"
+                aria-busy={status === "checking"}
+              >
+                <div className="mb-5 h-1 rounded-full bg-[linear-gradient(90deg,var(--mcs-red),var(--mcs-gold-soft),#081c3a)] shadow-[0_8px_18px_rgba(166,29,45,0.18)]" />
                 <div className="grid gap-4">
                   <FieldLabel htmlFor="email" label="Email">
-                    <Mail className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#07111d]/36" />
+                    <Mail className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#07111d]/42 transition group-focus-within:text-[color:var(--mcs-red)]" />
                     <input
                       id="email"
                       name="email"
@@ -143,12 +151,12 @@ export function LoginScreen() {
                       suppressHydrationWarning
                       autoComplete="email"
                       placeholder="Email akun panitia"
-                      className="h-12 w-full min-w-0 rounded-md border border-[#07111d]/14 bg-[#f8fafc] px-3 py-2 pl-11 text-[0.95rem] font-semibold text-[#07111d] outline-none transition placeholder:text-[#07111d]/34 focus-visible:border-[color:var(--mcs-red)] focus-visible:ring-[3px] focus-visible:ring-[rgba(166,29,45,0.12)]"
+                      className={inputClassName}
                     />
                   </FieldLabel>
 
                   <FieldLabel htmlFor="password" label="Password">
-                    <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#07111d]/36" />
+                    <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#07111d]/42 transition group-focus-within:text-[color:var(--mcs-red)]" />
                     <input
                       id="password"
                       name="password"
@@ -157,12 +165,12 @@ export function LoginScreen() {
                       suppressHydrationWarning
                       autoComplete="current-password"
                       placeholder="Password akun"
-                      className="h-12 w-full min-w-0 rounded-md border border-[#07111d]/14 bg-[#f8fafc] px-3 py-2 pl-11 pr-11 text-[0.95rem] font-semibold text-[#07111d] outline-none transition placeholder:text-[#07111d]/34 focus-visible:border-[color:var(--mcs-red)] focus-visible:ring-[3px] focus-visible:ring-[rgba(166,29,45,0.12)]"
+                      className={`${inputClassName} pr-11`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((current) => !current)}
-                      className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-md text-[#07111d]/44 transition hover:bg-[#07111d]/6 hover:text-[#07111d]"
+                      className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-md text-[#07111d]/48 transition hover:bg-[#07111d]/7 hover:text-[#07111d] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--mcs-red)]"
                     >
                       {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       <span className="sr-only">{showPassword ? "Sembunyikan password" : "Tampilkan password"}</span>
@@ -177,7 +185,7 @@ export function LoginScreen() {
                       checked={rememberMe}
                       suppressHydrationWarning
                       onChange={(event) => setRememberMe(event.target.checked)}
-                      className="size-4 appearance-none rounded-[3px] border border-[#07111d]/26 bg-white transition checked:border-[color:var(--mcs-red)] checked:bg-[color:var(--mcs-red)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--mcs-red)]"
+                      className="size-4 rounded border-[#07111d]/26 bg-white accent-[color:var(--mcs-red)] shadow-[0_4px_12px_rgba(8,28,58,0.12)] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--mcs-red)]"
                     />
                     Ingat sesi
                   </label>
@@ -193,7 +201,7 @@ export function LoginScreen() {
                 <Button
                   type="submit"
                   disabled={status === "checking"}
-                  className="mt-7 h-12 w-full rounded-md bg-[color:var(--mcs-red)] font-sport text-sm font-black uppercase tracking-[0.08em] text-white shadow-none hover:bg-[#7f1422]"
+                  className="mt-7 h-12 w-full rounded-lg bg-[color:var(--mcs-red)] font-sport text-sm font-black uppercase tracking-[0.08em] text-white shadow-[0_16px_32px_rgba(166,29,45,0.24),inset_0_1px_0_rgba(255,255,255,0.26)] transition hover:-translate-y-0.5 hover:bg-[#7f1422] hover:shadow-[0_20px_38px_rgba(166,29,45,0.3),inset_0_1px_0_rgba(255,255,255,0.28)] active:translate-y-px"
                 >
                   {status === "checking" ? (
                     "Memeriksa Akses"
@@ -291,8 +299,8 @@ function FieldLabel({
   children: ReactNode
 }) {
   return (
-    <div className="grid gap-2">
-      <label htmlFor={htmlFor} className="text-sm font-bold text-[#07111d]">
+    <div className="group grid gap-2">
+      <label htmlFor={htmlFor} className="text-sm font-bold text-[#07111d]/76">
         {label}
       </label>
       <div className="relative">{children}</div>
@@ -315,8 +323,8 @@ function StatusMessage({ status, message }: { status: "idle" | "checking" | "rea
     <div
       className={`mt-4 flex items-start gap-2 rounded-md border px-3 py-2 text-sm font-semibold ${
         isReady
-          ? "border-emerald-500/20 bg-emerald-50 text-emerald-700"
-          : "border-[color:var(--mcs-red)]/20 bg-red-50 text-[color:var(--mcs-red)]"
+          ? "border-emerald-500/20 bg-emerald-50 text-emerald-700 shadow-[0_10px_22px_rgba(16,185,129,0.12)]"
+          : "border-[color:var(--mcs-red)]/20 bg-red-50 text-[color:var(--mcs-red)] shadow-[0_10px_22px_rgba(166,29,45,0.12)]"
       }`}
       aria-live="polite"
     >

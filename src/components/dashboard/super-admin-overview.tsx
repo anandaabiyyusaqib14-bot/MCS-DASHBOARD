@@ -3,13 +3,15 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 import type { LucideIcon } from "lucide-react"
 import {
-  Activity,
   AlertTriangle,
+  Bell,
   CheckCircle2,
   CircleDot,
+  GitBranch,
   ListChecks,
   Megaphone,
   ShieldCheck,
+  Ticket,
 } from "lucide-react"
 
 import { brandAssets, dashboardFootage, event as mcsEvent, sponsorProspects } from "@/data/mcs"
@@ -67,6 +69,14 @@ type ReadinessItem = {
   tone: Tone
 }
 
+type AttentionMetric = {
+  href: string
+  icon: LucideIcon
+  label: string
+  tone: Tone
+  value: number | string
+}
+
 const NO_DATA = "Belum Ada Data"
 const WAITING = "Menunggu Update"
 const NOT_PUBLISHED = "Belum Dipublikasikan"
@@ -77,45 +87,44 @@ export function SuperAdminOverview({ permissions, summary, user }: SuperAdminOve
   const eventState = getEventState(summary.event.startsAt, summary.event.endsAt, now)
   const alerts = getOperationalAlerts(summary, eventState.phase, now)
   const activeFollowUps = getActiveFollowUps(summary, eventState.phase, now)
+  const attentionMetrics = getAttentionMetrics(summary, now)
   const readinessItems = getReadinessItems(summary, eventState.phase, activeFollowUps)
+  const quickActionDivisions = summary.committeeStatus.map((division) => ({
+    coordinator: division.coordinator,
+    id: division.id,
+    name: division.name,
+  }))
+  const quickActionReportSnapshot = {
+    activeIssueCount: summary.activeIssues.length,
+    eventEnd: summary.event.endsAt,
+    eventStart: summary.event.startsAt,
+    mediaStatus: getMediaUploadStatus(summary),
+    onDutyPanitia: summary.metrics.onDutyPanitia || NO_DATA,
+    participantStatus: getParticipantVerifiedStatus(summary),
+    pendingAnnouncementCount: summary.metrics.pendingAnnouncements,
+    pendingTaskCount: summary.metrics.pendingTasks,
+    todayScheduleCount: summary.todaySchedule.length,
+  }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5">
       <CommandHeader eventState={eventState} now={now} summary={summary} user={user} />
 
       <ExecutiveSummary summary={summary} />
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.72fr)]">
-        <Panel icon={AlertTriangle} title="Prioritas Hari Ini" description="Hal yang paling perlu dicek dulu oleh Super Admin.">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(320px,0.68fr)]">
+        <Panel icon={AlertTriangle} title="Prioritas Hari Ini" description="Risiko dan follow-up yang perlu ditangani sekarang.">
           <PriorityOverview alerts={alerts} followUps={activeFollowUps} />
         </Panel>
 
-        <Panel icon={Activity} title="Aksi Cepat" description="Form ringkas untuk update kepanitiaan.">
-          <SuperAdminQuickActions
-            divisions={summary.committeeStatus.map((division) => ({
-              coordinator: division.coordinator,
-              id: division.id,
-              name: division.name,
-            }))}
-            permissions={permissions}
-            reportSnapshot={{
-              activeIssueCount: summary.activeIssues.length,
-              eventEnd: summary.event.endsAt,
-              eventStart: summary.event.startsAt,
-              mediaStatus: getMediaUploadStatus(summary),
-              onDutyPanitia: summary.metrics.onDutyPanitia || NO_DATA,
-              participantStatus: getParticipantVerifiedStatus(summary),
-              pendingAnnouncementCount: summary.metrics.pendingAnnouncements,
-              pendingTaskCount: summary.metrics.pendingTasks,
-              todayScheduleCount: summary.todaySchedule.length,
-            }}
-          />
+        <Panel icon={AlertTriangle} title="Operasi Memerlukan Perhatian" description="Angka yang harus dicek sebelum membuat aksi baru.">
+          <AttentionSnapshot items={attentionMetrics} />
         </Panel>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-        <Panel icon={CheckCircle2} title="Kesiapan Inti" description="Sinyal minimum sebelum modul operasional dipakai penuh.">
-          <ReadinessChecklist items={readinessItems} />
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <Panel icon={ShieldCheck} title="Status Divisi" description="Divisi yang aman, perlu dipantau, atau tertinggal.">
+          <DivisionStatusBoard summary={summary} />
         </Panel>
 
         <Panel icon={ListChecks} title="Agenda Terdekat" description="Rundown resmi dalam bentuk ringkas, tanpa tabel panjang.">
@@ -124,13 +133,17 @@ export function SuperAdminOverview({ permissions, summary, user }: SuperAdminOve
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <Panel icon={ShieldCheck} title="Status Divisi" description="Kondisi kerja tiap divisi dan catatan PIC.">
-          <DivisionStatusBoard summary={summary} />
-        </Panel>
-
         <Panel icon={Megaphone} title="Pengumuman & Aktivitas" description="Update terbaru dari data resmi yang sudah masuk.">
           <CommunicationFeed activity={summary.auditPreview} announcements={summary.announcements} />
         </Panel>
+
+        <Panel icon={CheckCircle2} title="Kesiapan Inti" description="Sinyal minimum sebelum modul operasional dipakai penuh.">
+          <ReadinessChecklist items={readinessItems} />
+        </Panel>
+      </section>
+
+      <section aria-label="Aksi Cepat">
+        <SuperAdminQuickActions divisions={quickActionDivisions} permissions={permissions} reportSnapshot={quickActionReportSnapshot} />
       </section>
     </div>
   )
@@ -148,11 +161,12 @@ function CommandHeader({
   user: UserDTO
 }) {
   const nextActivity = getNextActivity(summary.todaySchedule, now)
-  const heroFootage = dashboardFootage[1] ?? {
-    crop: "object-[45%_50%]",
-    label: "MCS court footage",
-    src: "/images/mcs-gallery/futsal-02.jpg",
-  }
+  const heroFootage =
+    dashboardFootage.find((footage) => footage.id === "mcs-team-photo") ?? {
+      crop: "object-[50%_58%]",
+      label: "MCS Team Photo",
+      src: "/images/mcs/foto-ospk.jpeg",
+    }
   const facts = [
     { label: "Fase", value: eventState.phase },
     { label: "Hari", value: eventState.dayLabel },
@@ -161,34 +175,34 @@ function CommandHeader({
   ]
 
   return (
-    <section className="overflow-hidden rounded-lg border border-[#081C3A]/20 bg-[#081C3A] text-white shadow-sm">
+    <section className="mcs-starburst overflow-hidden rounded-lg border border-[#111827]/25 bg-[#111827] text-white shadow-[5px_5px_0_rgba(249,115,22,0.2),0_18px_45px_rgba(17,24,39,0.16)] after:right-[330px] after:top-8">
       <div className="grid min-h-[260px] lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="min-w-0 p-5 sm:p-6">
+        <div className="relative z-10 min-w-0 p-5 sm:p-6 lg:p-8">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5">
               {brandAssets.map((asset) => (
-                <span key={asset.name} className="relative grid size-9 place-items-center rounded-md bg-white p-1">
+                <span key={asset.name} className="relative grid size-9 place-items-center rounded-lg bg-white p-1 shadow-[2px_2px_0_rgba(249,115,22,0.3)]">
                   <Image src={asset.src} alt={asset.name} fill sizes="36px" className="object-contain p-1" />
                 </span>
               ))}
             </div>
-            <span className="h-6 rounded-md border border-white/15 bg-white/10 px-2 text-xs font-semibold leading-6 text-white/80">
+            <span className="h-7 rounded-md border border-white/20 bg-white/10 px-2.5 text-xs font-bold leading-7 text-white/90">
               {formatDisplayLabel(eventState.phase)}
             </span>
           </div>
 
-          <p className="mt-6 text-sm font-medium text-[#F0D58C]">{formatLongDate(now)}</p>
-          <h2 className="mt-2 max-w-3xl text-2xl font-semibold leading-tight tracking-normal text-white sm:text-3xl">
+          <p className="mt-6 text-sm font-bold text-[#F0D58C]">{formatLongDate(now)}</p>
+          <h2 className="mt-2 max-w-3xl font-heading text-3xl font-bold leading-tight tracking-normal text-white sm:text-4xl">
             {getGreeting(now)}, {user.displayName}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-white/72">
-            Pantau prioritas, kesiapan divisi, agenda, dan update utama {mcsEvent.shortName} tanpa menumpuk semua modul di satu layar.
+          <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-white/76">
+            Lihat kendala, follow-up, divisi tertinggal, dan risiko terbesar {mcsEvent.shortName} sebelum mengambil keputusan berikutnya.
           </p>
 
-          <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {facts.map((fact) => (
-              <div key={fact.label} className="min-w-0 rounded-md border border-white/12 bg-white/[0.06] px-3 py-2.5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/46">{fact.label}</p>
+              <div key={fact.label} className="min-w-0 rounded-lg border border-white/14 bg-white/[0.07] px-3 py-3 shadow-[2px_2px_0_rgba(255,255,255,0.06)]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/50">{fact.label}</p>
                 <p className="mt-1 truncate text-sm font-semibold text-white" suppressHydrationWarning>
                   {formatDisplayLabel(fact.value)}
                 </p>
@@ -197,7 +211,7 @@ function CommandHeader({
           </div>
         </div>
 
-        <div className="relative hidden min-h-full overflow-hidden lg:block">
+        <div className="relative hidden min-h-full overflow-hidden border-l border-white/10 lg:block">
           <Image
             src={heroFootage.src}
             alt={heroFootage.label}
@@ -206,14 +220,38 @@ function CommandHeader({
             sizes="340px"
             className={cn("object-cover", heroFootage.crop)}
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,28,58,0.92),rgba(8,28,58,0.18))]" />
-          <div className="absolute bottom-4 left-4 right-4 rounded-md border border-white/14 bg-[#081C3A]/75 px-3 py-2 backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#F0D58C]">MCS 1</p>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,24,39,0.92),rgba(17,24,39,0.18))]" />
+          <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/14 bg-[#111827]/76 px-3 py-2 backdrop-blur">
+            <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#F0D58C]">MCS 1</p>
             <p className="mt-1 text-sm font-semibold text-white">{mcsEvent.theme}</p>
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+function AttentionSnapshot({ items }: { items: AttentionMetric[] }) {
+  return (
+    <div className="grid gap-2">
+      {items.map((item) => {
+        const Icon = item.icon
+
+        return (
+          <Link
+            key={item.label}
+            href={item.href}
+            className="grid min-h-[58px] grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-[#111827]/10 bg-[#FFFDF8] px-3 py-2.5 transition hover:border-[#F97316]/45 hover:bg-white hover:shadow-[2px_2px_0_rgba(17,24,39,0.08)]"
+          >
+            <span className={cn("grid size-9 place-items-center rounded-lg border", getAttentionIconClassName(item.tone))}>
+              <Icon className="size-4" aria-hidden="true" />
+            </span>
+            <span className="min-w-0 text-sm font-bold text-[#111827]">{item.label}</span>
+            <span className="font-heading text-2xl font-bold leading-none text-[#111827]">{item.value}</span>
+          </Link>
+        )
+      })}
+    </div>
   )
 }
 
@@ -230,12 +268,12 @@ function ExecutiveSummary({ summary }: { summary: DashboardSummary }) {
   ]
 
   return (
-    <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-6">
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
       {items.map((item) => (
-        <article key={item.label} className="rounded-lg border border-[#E5E7EB] bg-white p-3 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{item.label}</p>
+        <article key={item.label} className="mcs-neo-card rounded-lg p-3.5">
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{item.label}</p>
           <div className="mt-2 flex items-end justify-between gap-3">
-            <p className="min-w-0 text-base font-semibold leading-6 tracking-normal text-[#111827]">{item.value}</p>
+            <p className="min-w-0 font-heading text-lg font-bold leading-6 tracking-normal text-[#111827]">{item.value}</p>
             <span className={cn("mb-1 size-2.5 shrink-0 rounded-full", getDotClassName(item.tone))} />
           </div>
         </article>
@@ -256,15 +294,15 @@ function Panel({
   title: string
 }) {
   return (
-    <section className="min-w-0 rounded-lg border border-[#E5E7EB] bg-white shadow-sm">
-      <div className="border-b border-[#E5E7EB] px-4 py-3 sm:px-5">
+    <section className="mcs-surface min-w-0 overflow-hidden rounded-lg">
+      <div className="border-b border-[#111827]/10 px-4 py-3 sm:px-5">
         <div className="flex items-start gap-3">
-          <span className="grid size-8 shrink-0 place-items-center rounded-md bg-[#F8F9FB] text-[#081C3A]">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-[#111827]/10 bg-[#FFF7ED] text-[#F97316]">
             <Icon className="size-4" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-[#111827]">{title}</h3>
-            <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
+            <h3 className="font-heading text-base font-bold text-[#111827]">{title}</h3>
+            <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
           </div>
         </div>
       </div>
@@ -296,7 +334,7 @@ function PriorityOverview({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="grid content-start gap-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Catatan Penting</p>
+        <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">Catatan Penting</p>
         {visibleAlerts.length > 0 ? (
           visibleAlerts.map((alert) => (
             <PriorityRow
@@ -313,7 +351,7 @@ function PriorityOverview({
       </div>
 
       <div className="grid content-start gap-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Tindak Lanjut</p>
+        <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">Tindak Lanjut</p>
         {visibleFollowUps.length > 0 ? (
           visibleFollowUps.map((item) => (
             <PriorityRow
@@ -346,13 +384,13 @@ function PriorityRow({
   return (
     <Link
       href={href}
-      className="grid min-w-0 gap-2 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 transition hover:border-[#081C3A]/30 hover:bg-white"
+      className="grid min-w-0 gap-2 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3 transition hover:border-[#F97316]/45 hover:bg-white hover:shadow-[2px_2px_0_rgba(17,24,39,0.08)]"
     >
       <div className="flex items-start justify-between gap-3">
         <p className="min-w-0 text-sm font-semibold leading-5 text-[#111827]">{title}</p>
         <span className={cn("mt-1 size-2.5 shrink-0 rounded-full", getDotClassName(tone))} />
       </div>
-      <p className="line-clamp-1 text-xs font-medium text-[#64748B]">{meta}</p>
+      <p className="line-clamp-1 text-xs font-medium text-[#6B7280]">{meta}</p>
     </Link>
   )
 }
@@ -361,19 +399,19 @@ function ReadinessChecklist({ items }: { items: ReadinessItem[] }) {
   return (
     <div className="grid gap-2">
       {items.map((item) => (
-        <div key={item.label} className="grid gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div key={item.label} className="grid gap-3 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
               <span className={cn("size-2.5 shrink-0 rounded-full", getDotClassName(item.tone))} />
               <p className="truncate text-sm font-semibold text-[#111827]">{item.label}</p>
             </div>
-            <p className="mt-1 truncate text-xs font-medium text-[#64748B]">PIC: {item.owner}</p>
+            <p className="mt-1 truncate text-xs font-medium text-[#6B7280]">PIC: {item.owner}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:justify-end">
             <StatusBadge label={item.status} tone={item.tone} />
             <Link
               href={item.actionHref}
-              className="inline-flex h-7 items-center rounded-md border border-[#E5E7EB] bg-white px-2.5 text-xs font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
+              className="mcs-button-secondary inline-flex h-7 items-center rounded-md border px-2.5 text-xs font-semibold transition"
             >
               {item.actionLabel}
             </Link>
@@ -412,12 +450,12 @@ function AgendaPreview({
           <Link
             key={schedule.id}
             href="/dashboard/schedules"
-            className="grid gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 transition hover:border-[#081C3A]/30 hover:bg-white sm:grid-cols-[92px_minmax(0,1fr)_auto] sm:items-center"
+            className="grid gap-3 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3 transition hover:border-[#F97316]/45 hover:bg-white hover:shadow-[2px_2px_0_rgba(17,24,39,0.08)] sm:grid-cols-[92px_minmax(0,1fr)_auto] sm:items-center"
           >
             <span className="text-sm font-semibold text-[#081C3A]">{formatScheduleTime(schedule.time)}</span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold text-[#111827]">{schedule.title}</span>
-              <span className="mt-0.5 block truncate text-xs font-medium text-[#64748B]">{schedule.venue} / {schedule.pic}</span>
+              <span className="mt-0.5 block truncate text-xs font-medium text-[#6B7280]">{schedule.venue} / {schedule.pic}</span>
             </span>
             <StatusBadge label={status.label} tone={status.tone} />
           </Link>
@@ -425,7 +463,7 @@ function AgendaPreview({
       })}
       <Link
         href="/dashboard/event-day"
-        className="inline-flex h-9 w-fit items-center rounded-md border border-[#081C3A]/15 bg-white px-3 text-sm font-semibold text-[#081C3A] transition hover:bg-[#F8F9FB]"
+        className="mcs-button-secondary inline-flex h-9 w-fit items-center rounded-lg border px-3 text-sm font-semibold transition"
       >
         Buka Hari Kegiatan
       </Link>
@@ -456,19 +494,19 @@ function CommunicationFeed({
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Pengumuman</p>
+        <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">Pengumuman</p>
         {visibleAnnouncements.length > 0 ? (
           visibleAnnouncements.map((announcement) => (
             <Link
               key={announcement.id}
               href="/dashboard/announcements"
-              className="grid gap-2 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 transition hover:border-[#081C3A]/30 hover:bg-white"
+              className="grid gap-2 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3 transition hover:border-[#F97316]/45 hover:bg-white hover:shadow-[2px_2px_0_rgba(17,24,39,0.08)]"
             >
               <div className="flex items-start justify-between gap-3">
                 <p className="min-w-0 text-sm font-semibold text-[#111827]">{announcement.title}</p>
                 <StatusBadge label={formatStatusLabel(announcement.priority)} tone={getAnnouncementTone(announcement.priority)} />
               </div>
-              <p className="line-clamp-2 text-xs font-medium leading-5 text-[#64748B]">{announcement.body}</p>
+              <p className="line-clamp-2 text-xs font-medium leading-5 text-[#6B7280]">{announcement.body}</p>
             </Link>
           ))
         ) : (
@@ -477,12 +515,12 @@ function CommunicationFeed({
       </div>
 
       <div className="grid gap-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Aktivitas Terbaru</p>
+        <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">Aktivitas Terbaru</p>
         {visibleActivity.length > 0 ? (
           visibleActivity.map((item) => (
-            <div key={item.id} className="grid gap-1 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
+            <div key={item.id} className="grid gap-1 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3">
               <p className="truncate text-sm font-semibold text-[#111827]">{formatAction(item.action)}</p>
-              <p className="truncate text-xs font-medium text-[#64748B]">
+              <p className="truncate text-xs font-medium text-[#6B7280]">
                 {item.userName} / {formatShortDateTime(item.timestamp)}
               </p>
             </div>
@@ -517,15 +555,15 @@ function DivisionStatusBoard({ summary }: { summary: DashboardSummary }) {
         const focus = record?.focus ?? WAITING
 
         return (
-          <article key={division.id} className="rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
+          <article key={division.id} className="rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-[#111827]">{division.label}</p>
-                <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{record?.coordinator ?? WAITING}</p>
+                <p className="mt-1 truncate text-xs font-medium text-[#6B7280]">{record?.coordinator ?? WAITING}</p>
               </div>
               <StatusBadge label={status} tone={getDivisionTone(status)} />
             </div>
-            <div className="mt-3 grid gap-2 border-t border-[#E5E7EB] pt-3 text-xs font-medium text-[#64748B]">
+            <div className="mt-3 grid gap-2 border-t border-[#111827]/10 pt-3 text-xs font-medium text-[#6B7280]">
               <div className="flex items-center justify-between gap-3">
                 <span>Tugas</span>
                 <span className="truncate text-right font-semibold text-[#111827]">{formatDisplayLabel(taskSummary)}</span>
@@ -553,11 +591,15 @@ function EmptyState({
   const displayTitle = getEmptyStateTitle(title)
 
   return (
-    <div className="grid min-h-32 place-items-center rounded-md border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-8 text-center">
+    <div className="mcs-inset-panel grid min-h-32 place-items-center rounded-lg border-dashed px-4 py-8 text-center">
       <div className="max-w-sm">
+        <span className="mcs-empty-mark" aria-hidden="true">
+          <span />
+          <i />
+        </span>
         <p className="text-sm font-semibold text-[#111827]">{displayTitle}</p>
-        <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
-        <p className="mt-3 rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#081C3A]">
+        <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
+        <p className="mt-3 rounded-lg border border-[#111827]/10 bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#111827]">
           Tindak Lanjut: {nextAction ?? getEmptyStateAction(displayTitle)}
         </p>
       </div>
@@ -567,7 +609,7 @@ function EmptyState({
 
 function CompactEmptyState({ title }: { title: string }) {
   return (
-    <div className="rounded-md border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-3 py-3 text-sm font-semibold text-[#64748B]">
+    <div className="mcs-inset-panel rounded-lg border-dashed px-3 py-3 text-sm font-semibold text-[#6B7280]">
       {title}
     </div>
   )
@@ -813,6 +855,95 @@ function getActiveFollowUps(summary: DashboardSummary, phase: EventPhase, now: D
     ...mediaFollowUps,
     ...liveMonitorFollowUps,
   ]
+}
+
+function getAttentionMetrics(summary: DashboardSummary, now: Date): AttentionMetric[] {
+  const activeIssueCount = summary.activeIssues.length
+  const pendingCoordinationCount = summary.divisionHandoffs.filter((handoff) => handoff.status === "Menunggu").length
+  const overdueTaskCount = countOverdueTasks(summary.upcomingTasks, now, summary.event.startsAt)
+  const unreadAnnouncementCount = summary.metrics.unreadNotifications
+
+  return [
+    {
+      href: "/dashboard/issues",
+      icon: Ticket,
+      label: "Kendala Aktif",
+      tone: activeIssueCount > 0 ? "danger" : "success",
+      value: activeIssueCount,
+    },
+    {
+      href: "/dashboard/tasks",
+      icon: ListChecks,
+      label: "Tugas Overdue",
+      tone: overdueTaskCount > 0 ? "danger" : "success",
+      value: overdueTaskCount,
+    },
+    {
+      href: "/dashboard/handoffs",
+      icon: GitBranch,
+      label: "Koordinasi Pending",
+      tone: pendingCoordinationCount > 0 ? "warning" : "success",
+      value: pendingCoordinationCount,
+    },
+    {
+      href: "/dashboard/notifications",
+      icon: Bell,
+      label: "Pengumuman Belum Dibaca",
+      tone: unreadAnnouncementCount > 0 ? "warning" : "success",
+      value: unreadAnnouncementCount,
+    },
+  ]
+}
+
+function countOverdueTasks(tasks: TaskRecord[], now: Date, eventStart: string) {
+  return tasks.filter((task) => task.status !== "Completed" && isOperationalDeadlinePast(task.deadline, now, eventStart)).length
+}
+
+function isOperationalDeadlinePast(value: string, now: Date, fallbackDate: string) {
+  const deadline = parseOperationalDeadline(value, fallbackDate)
+
+  return Boolean(deadline && deadline.getTime() < now.getTime())
+}
+
+function parseOperationalDeadline(value: string, fallbackDate: string) {
+  const normalized = value.trim().replace("WIB", "").replace(/\s+/g, " ").trim()
+  const timeOnly = /^(\d{1,2})[:.](\d{2})$/.exec(normalized)
+
+  if (timeOnly) {
+    const [year, month, day] = fallbackDate.split("-").map(Number)
+
+    return new Date(year, month - 1, day, Number(timeOnly[1]), Number(timeOnly[2]))
+  }
+
+  const timestamp = Date.parse(normalized)
+  if (Number.isFinite(timestamp)) return new Date(timestamp)
+
+  const indoDate = /^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})(?:,\s*(\d{1,2})[:.](\d{2}))?$/i.exec(normalized)
+  if (!indoDate) return null
+
+  const monthIndex = getIndonesianMonthIndex(indoDate[2])
+  if (monthIndex === -1) return null
+
+  return new Date(Number(indoDate[3]), monthIndex, Number(indoDate[1]), Number(indoDate[4] ?? 23), Number(indoDate[5] ?? 59))
+}
+
+function getIndonesianMonthIndex(value: string) {
+  const months = [
+    "januari",
+    "februari",
+    "maret",
+    "april",
+    "mei",
+    "juni",
+    "juli",
+    "agustus",
+    "september",
+    "oktober",
+    "november",
+    "desember",
+  ]
+
+  return months.indexOf(value.toLowerCase())
 }
 
 function getMediaUploadStatus(summary: DashboardSummary) {
@@ -1137,6 +1268,13 @@ function getDotClassName(tone: Tone) {
   return "bg-[#CBD5E1]"
 }
 
+function getAttentionIconClassName(tone: Tone) {
+  if (tone === "danger") return "border-[#FECACA] bg-[#FEF2F2] text-[#DC2626]"
+  if (tone === "warning") return "border-[#FEF3C7] bg-[#FFFBEB] text-[#D97706]"
+  if (tone === "success") return "border-[#BBF7D0] bg-[#F0FDF4] text-[#16A34A]"
+  return "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]"
+}
+
 function getEmptyStateTitle(title: string) {
   if (title === NO_DATA) return "Data Belum Tersedia"
   if (title === WAITING) return "Menunggu Update Resmi"
@@ -1159,7 +1297,7 @@ function getToneClassName(tone: Tone) {
     gold: "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]",
     info: "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]",
     navy: "border-[#0F172A] bg-[#0F172A] text-white",
-    neutral: "border-[#E5E7EB] bg-[#F8F9FB] text-[#64748B]",
+    neutral: "border-[#E5E7EB] bg-[#FFFDF8] text-[#6B7280]",
     success: "border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]",
     warning: "border-[#FDE68A] bg-[#FFFBEB] text-[#92400E]",
   }

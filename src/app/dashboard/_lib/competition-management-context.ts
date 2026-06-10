@@ -32,10 +32,10 @@ import {
 import { SESSION_COOKIE_NAME, roleLabels, type AuthContext, type ScheduleRecord } from "@/server/mcs/types"
 
 const ALL = "all"
-const EMPTY = "Belum Ada Data"
-const NOT_PUBLISHED = "Belum Dipublikasikan"
-const BRACKET_UNAVAILABLE = "Bracket Not Generated Yet"
-const MATCH_UNAVAILABLE = "Data match belum tersedia."
+const EMPTY = "Belum dipublikasikan"
+const NOT_PUBLISHED = "Belum dipublikasikan"
+const BRACKET_UNAVAILABLE = "Bracket belum dibuat"
+const MATCH_UNAVAILABLE = "Match belum dijadwalkan."
 
 type CompetitionManagementContext = CompetitionManagementScreenProps & {
   auth: AuthContext
@@ -205,6 +205,8 @@ export async function getCompetitionManagementContext(fromPath: string): Promise
         teams
           .filter((team) => team.status === "Disqualified")
           .reduce((total, team) => total + team.members.length, 0),
+      rejected:
+        participants.filter((participant) => participant.status === "Rejected").length,
     }
 
     const participantRows: CompetitionParticipantRow[] = [

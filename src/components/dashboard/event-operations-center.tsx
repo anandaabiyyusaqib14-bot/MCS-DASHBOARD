@@ -371,7 +371,7 @@ function IssuesTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[920px] border-separate border-spacing-0 text-left text-sm">
+      <table className="mcs-data-table min-w-[920px] text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
             {["Kendala", "Prioritas", "PIC", "Tempat", "Batas Waktu", "Status", "Aksi"].map((heading) => (
@@ -537,7 +537,7 @@ function IssueDetailDialog({
 
   return (
     <Dialog open={Boolean(issueId)} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-4xl">
+      <DialogContent className="mcs-dialog-panel max-h-[92vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{issue ? `${issue.issueCode} - ${issue.title}` : "Detail Kendala"}</DialogTitle>
         <DialogDescription>Riwayat, bukti, review pimpinan, dan catatan resolusi kendala.</DialogDescription>
@@ -545,7 +545,7 @@ function IssueDetailDialog({
         <WorkflowStatus status={status} />
 
         {loading ? (
-          <div className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] p-6 text-center text-sm font-semibold text-[#64748B]">
+          <div className="mcs-inset-panel rounded-lg border-dashed p-6 text-center text-sm font-semibold text-[#6B7280]">
             Memuat detail kendala...
           </div>
         ) : issue ? (
@@ -566,7 +566,7 @@ function IssueDetailDialog({
                 <div className="grid gap-3 text-sm">
                   <MetricLine label="Kategori" value={issue.category} />
                   <MetricLine label="Tempat" value={issue.venue ?? "Belum Diisi"} />
-                  <p className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 font-medium leading-6 text-[#64748B]">{issue.description}</p>
+                  <p className="mcs-list-row rounded-lg p-3 font-medium leading-6 text-[#6B7280]">{issue.description}</p>
                   <form
                     className="grid gap-3"
                     onSubmit={(event) => {
@@ -613,7 +613,7 @@ function IssueDetailDialog({
                     <a
                       key={item.id}
                       href={item.url ?? "#"}
-                      className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 text-sm font-semibold text-[#111827] transition hover:bg-white"
+                      className="mcs-list-row rounded-lg p-3 text-sm font-semibold text-[#111827] transition hover:bg-white"
                       target={item.url ? "_blank" : undefined}
                       rel={item.url ? "noreferrer" : undefined}
                     >
@@ -621,7 +621,7 @@ function IssueDetailDialog({
                       <span className="mt-1 block text-xs font-medium text-[#64748B]">{item.notes ?? item.type}</span>
                     </a>
                   )) : (
-                    <p className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] p-3 text-sm font-semibold text-[#64748B]">
+                    <p className="mcs-inset-panel rounded-lg border-dashed p-3 text-sm font-semibold text-[#6B7280]">
                       Belum ada bukti terunggah.
                     </p>
                   )}
@@ -708,7 +708,7 @@ function VenueUpdateDialog({
 
   return (
     <Dialog open={Boolean(venue)} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-2xl">
+      <DialogContent className="mcs-dialog-panel max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{venue ? `Update ${venue.venue}` : "Update Tempat"}</DialogTitle>
           <DialogDescription>Ubah kesiapan tempat, PIC, dan kendala terkait dari satu form.</DialogDescription>
@@ -739,7 +739,7 @@ function VenueUpdateDialog({
             <FormField label="ID Kendala Blocker">
               <Input name="blockerIssueId" defaultValue={venue.blockerIssueId ?? ""} placeholder="Isi jika tempat tertunda oleh kendala tertentu" />
             </FormField>
-            <DialogFooter className="mx-0 mb-0 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB]">
+            <DialogFooter className="mcs-dialog-footer mx-0 mb-0 rounded-lg">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
               <Button type="submit" disabled={submitting}>{submitting ? "Menyimpan..." : "Update Tempat"}</Button>
             </DialogFooter>
@@ -768,7 +768,7 @@ function HandoffFlow({ handoffs }: { handoffs: DivisionHandoffRecord[] }) {
         const tone = handoff ? getHandoffStatusTone(handoff.status) : "neutral"
 
         return (
-          <div key={`${lane.sourceId}-${lane.targetId}`} className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
+          <div key={`${lane.sourceId}-${lane.targetId}`} className="mcs-list-row rounded-lg p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-semibold text-[#111827]">{lane.from}</p>
               <GitBranch className="size-4 text-[#94A3B8]" aria-hidden="true" />
@@ -815,7 +815,7 @@ function HandoffsTable({ handoffs, permissions }: { handoffs: DivisionHandoffRec
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[900px] border-separate border-spacing-0 text-left text-sm">
+      <table className="mcs-data-table min-w-[900px] text-left text-sm">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
             {["Aktivitas", "Dari", "Ke", "PIC", "Batas Waktu", "Status", "Aksi"].map((heading) => (
@@ -915,7 +915,7 @@ function IssueDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-2xl">
+      <DialogContent className="mcs-dialog-panel max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Tambah Kendala</DialogTitle>
           <DialogDescription>Catat kendala kepanitiaan dengan PIC dan batas waktu tindak lanjut.</DialogDescription>
@@ -959,7 +959,7 @@ function IssueDialog({
               ))}
             </NativeSelect>
           </FormField>
-          <DialogFooter className="mx-0 mb-0 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB]">
+          <DialogFooter className="mcs-dialog-footer mx-0 mb-0 rounded-lg">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
             <Button type="submit" disabled={submitting}>{submitting ? "Menyimpan..." : "Catat Kendala"}</Button>
           </DialogFooter>
@@ -1021,7 +1021,7 @@ function HandoffDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto border border-[#E5E7EB] bg-white text-[#111827] sm:max-w-2xl">
+      <DialogContent className="mcs-dialog-panel max-h-[92vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Buat Koordinasi Divisi</DialogTitle>
           <DialogDescription>Serahkan aktivitas dari satu divisi ke divisi berikutnya dengan PIC dan batas waktu.</DialogDescription>
@@ -1058,7 +1058,7 @@ function HandoffDialog({
           <FormField label="Catatan">
             <Textarea name="notes" placeholder="Tuliskan catatan koordinasi atau kendala jika ada." />
           </FormField>
-          <DialogFooter className="mx-0 mb-0 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB]">
+          <DialogFooter className="mcs-dialog-footer mx-0 mb-0 rounded-lg">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Tutup</Button>
             <Button type="submit" disabled={submitting}>{submitting ? "Mengirim..." : "Buat Koordinasi"}</Button>
           </DialogFooter>
@@ -1122,7 +1122,7 @@ function ActivityFocus({ activity, emptyTitle }: { activity: EventDaySummary["cu
   const pic = "pic" in activity ? activity.pic : activity.updatedBy ?? "PIC belum ditentukan"
 
   return (
-    <div className="grid gap-4 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
+    <div className="mcs-list-row grid gap-4 rounded-lg p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-lg font-semibold text-[#111827]">{title}</p>
@@ -1153,7 +1153,7 @@ function VenueStatusList({ onEdit, venues }: { onEdit?: (venue: VenueStatusRecor
   return (
     <div className="grid gap-2 md:grid-cols-2">
       {venues.map((venue) => (
-        <div key={venue.id} className="rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3">
+        <div key={venue.id} className="mcs-list-row rounded-lg p-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-[#111827]">{venue.venue}</p>
@@ -1190,15 +1190,15 @@ function OperationsHero({
   title: string
 }) {
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+    <section className="mcs-soft-surface mcs-starburst overflow-hidden rounded-lg p-6 after:-right-5 after:top-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-[#B91C1C]">
+          <div className="flex items-center gap-2 text-[#F97316]">
             {icon}
-            <p className="text-xs font-semibold uppercase tracking-[0.12em]">{eyebrow}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.12em]">{eyebrow}</p>
           </div>
-          <h1 className="mt-3 text-2xl font-semibold tracking-normal text-[#111827]">{title}</h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-[#64748B]">{subtitle}</p>
+          <h1 className="mt-3 font-heading text-2xl font-bold tracking-normal text-[#111827]">{title}</h1>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-[#6B7280]">{subtitle}</p>
         </div>
         {action ? (
           <Button type="button" className="gap-2" onClick={action.onClick}>
@@ -1223,12 +1223,12 @@ function Panel({
   title: string
 }) {
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+    <section className="mcs-surface rounded-lg p-5">
       <div className="mb-4 flex items-start gap-3">
-        <span className="mt-0.5 grid size-8 place-items-center rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] text-[#B91C1C]">{icon}</span>
+        <span className="mt-0.5 grid size-8 place-items-center rounded-lg border border-[#111827]/10 bg-[#FFF7ED] text-[#F97316]">{icon}</span>
         <div className="min-w-0">
-          <h2 className="text-base font-semibold text-[#111827]">{title}</h2>
-          <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
+          <h2 className="font-heading text-base font-bold text-[#111827]">{title}</h2>
+          <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
         </div>
       </div>
       {children}
@@ -1238,9 +1238,9 @@ function Panel({
 
 function MetricTile({ label, tone = "neutral", value }: { label: string; tone?: "neutral" | "success" | "danger"; value: number | string }) {
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</p>
-      <p className={cn("mt-2 text-xl font-semibold", tone === "danger" ? "text-[#B91C1C]" : tone === "success" ? "text-[#166534]" : "text-[#111827]")}>
+    <div className="mcs-neo-card rounded-lg p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{label}</p>
+      <p className={cn("mt-2 font-heading text-xl font-bold", tone === "danger" ? "text-[#B91C1C]" : tone === "success" ? "text-[#166534]" : "text-[#111827]")}>
         {value}
       </p>
     </div>
@@ -1249,7 +1249,7 @@ function MetricTile({ label, tone = "neutral", value }: { label: string; tone?: 
 
 function StatusBadge({ label, tone }: { label: string; tone: "neutral" | "info" | "success" | "warning" | "danger" }) {
   return (
-    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-full border px-2.5 text-xs font-semibold", getToneClassName(tone))}>
+    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-md border px-2.5 text-xs font-bold", getToneClassName(tone))}>
       {formatStatusLabel(label)}
     </span>
   )
@@ -1267,11 +1267,15 @@ function ActionableEmptyState({
   title: string
 }) {
   return (
-    <div className="grid min-h-36 place-items-center rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-8 text-center">
+    <div className="mcs-inset-panel grid min-h-36 place-items-center rounded-lg border-dashed px-4 py-8 text-center">
       <div className="max-w-md">
+        <span className="mcs-empty-mark" aria-hidden="true">
+          <span />
+          <i />
+        </span>
         <p className="text-sm font-semibold text-[#111827]">{title}</p>
-        <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
-        <div className="mt-3 grid gap-2 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#0F172A]">
+        <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
+        <div className="mt-3 grid gap-2 rounded-lg border border-[#111827]/10 bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#111827]">
           <span>Penanggung Jawab: {owner}</span>
           <span>Tindak Lanjut: {actionLabel}</span>
         </div>
@@ -1282,20 +1286,20 @@ function ActionableEmptyState({
 
 function CompactRow({ meta, title, value }: { meta: string; title: string; value: string }) {
   return (
-    <div className="grid gap-2 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
+    <div className="grid gap-2 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
       <div className="min-w-0">
         <p className="truncate text-sm font-semibold text-[#111827]">{title}</p>
-        <p className="mt-1 text-xs font-medium text-[#64748B]">{meta}</p>
+        <p className="mt-1 text-xs font-medium text-[#6B7280]">{meta}</p>
       </div>
-      <p className="text-sm font-medium text-[#64748B] sm:text-right">{value}</p>
+      <p className="text-sm font-medium text-[#6B7280] sm:text-right">{value}</p>
     </div>
   )
 }
 
 function MetricLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2">
-      <span className="text-[#64748B]">{label}</span>
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-[#111827]/10 bg-white px-3 py-2">
+      <span className="text-[#6B7280]">{label}</span>
       <span className="truncate font-semibold text-[#111827]">{value}</span>
     </div>
   )
@@ -1313,7 +1317,7 @@ function FormField({ children, label }: { children: ReactNode; label: string }) 
 function NativeSelect({ children, defaultValue, name }: { children: ReactNode; defaultValue?: string; name: string }) {
   return (
     <select
-      className="h-10 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#0F172A]"
+      className="h-10 rounded-lg border border-[#111827]/12 bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20"
       defaultValue={defaultValue}
       name={name}
     >
@@ -1363,7 +1367,7 @@ function getToneClassName(tone: "neutral" | "info" | "success" | "warning" | "da
   if (tone === "success") return "border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]"
   if (tone === "info") return "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]"
   if (tone === "warning") return "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]"
-  return "border-[#E5E7EB] bg-[#F8F9FB] text-[#64748B]"
+  return "border-[#E5E7EB] bg-[#FFFDF8] text-[#6B7280]"
 }
 
 function formatStatusLabel(label: string) {

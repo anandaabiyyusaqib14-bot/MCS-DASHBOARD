@@ -60,17 +60,17 @@ export function ExecutiveOperationsPanel({
   )
 
   return (
-    <section className="min-w-0 rounded-2xl border border-[#E5E7EB] bg-white shadow-sm">
-      <div className="border-b border-[#E5E7EB] px-5 py-4 sm:px-6">
+    <section className="mcs-surface min-w-0 overflow-hidden rounded-lg">
+      <div className="border-b border-[#111827]/10 px-5 py-4 sm:px-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-lg bg-[#F8F9FB] text-[#0F172A]">
+              <span className="grid size-8 place-items-center rounded-lg border border-[#111827]/10 bg-[#FFF7ED] text-[#F97316]">
                 <CalendarDays className="size-4" aria-hidden="true" />
               </span>
               <div>
-                <h3 className="text-base font-semibold text-[#111827]">Kegiatan Hari Ini</h3>
-                <p className="mt-1 text-sm font-medium leading-5 text-[#64748B]">
+                <h3 className="font-heading text-base font-bold text-[#111827]">Kegiatan Hari Ini</h3>
+                <p className="mt-1 text-sm font-medium leading-5 text-[#6B7280]">
                   {viewingCurrentDate
                     ? `Timeline kegiatan ${sourceDateLabel}`
                     : `Jadwal hari ini belum dipublikasikan. Menampilkan rundown ${sourceDateLabel}.`}
@@ -84,10 +84,10 @@ export function ExecutiveOperationsPanel({
               type="button"
               aria-pressed={viewMode === "timeline"}
               className={cn(
-                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-semibold transition",
+                "inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-semibold transition",
                 viewMode === "timeline"
-                  ? "border-[#0F172A] bg-[#0F172A] text-white"
-                  : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F8F9FB]",
+                  ? "border-[#F97316] bg-[#F97316] text-white shadow-[2px_2px_0_rgba(17,24,39,0.18)]"
+                  : "border-[#111827]/12 bg-white text-[#111827] hover:bg-[#FFF7ED]",
               )}
               onClick={() => setViewMode("timeline")}
             >
@@ -98,10 +98,10 @@ export function ExecutiveOperationsPanel({
               type="button"
               aria-pressed={viewMode === "rundown"}
               className={cn(
-                "inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-semibold transition",
+                "inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-semibold transition",
                 viewMode === "rundown"
-                  ? "border-[#0F172A] bg-[#0F172A] text-white"
-                  : "border-[#E5E7EB] bg-white text-[#111827] hover:bg-[#F8F9FB]",
+                  ? "border-[#F97316] bg-[#F97316] text-white shadow-[2px_2px_0_rgba(17,24,39,0.18)]"
+                  : "border-[#111827]/12 bg-white text-[#111827] hover:bg-[#FFF7ED]",
               )}
               onClick={() => setViewMode("rundown")}
             >
@@ -156,9 +156,9 @@ function FilterSelect({
 }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{label}</span>
       <select
-        className="h-10 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10"
+        className="h-10 rounded-lg border border-[#111827]/12 bg-white px-3 text-sm font-medium text-[#111827] outline-none transition focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
@@ -194,7 +194,7 @@ function TimelineView({
         return (
           <article
             key={schedule.id}
-            className="grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4 md:grid-cols-[92px_minmax(0,1fr)_minmax(150px,0.45fr)_auto] md:items-center"
+            className="grid gap-3 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-4 md:grid-cols-[92px_minmax(0,1fr)_minmax(150px,0.45fr)_auto] md:items-center"
           >
             <div className="flex items-center gap-3 md:block">
               <span className={cn("size-2.5 shrink-0 rounded-full md:mb-2 md:block", getDotClassName(status.tone))} />
@@ -202,11 +202,11 @@ function TimelineView({
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-[#111827]">{schedule.title}</p>
-              <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{getDivisionLabel(schedule)}</p>
+              <p className="mt-1 truncate text-xs font-medium text-[#6B7280]">{getDivisionLabel(schedule)}</p>
             </div>
             <div className="min-w-0 text-sm">
               <p className="truncate font-medium text-[#111827]">{schedule.venue}</p>
-              <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{schedule.pic || WAITING}</p>
+              <p className="mt-1 truncate text-xs font-medium text-[#6B7280]">{schedule.pic || WAITING}</p>
             </div>
             <StatusBadge label={status.label} tone={status.tone} />
           </article>
@@ -263,7 +263,7 @@ function RundownTable({
 
 function StatusBadge({ label, tone = "neutral" }: { label: string; tone?: Tone }) {
   return (
-    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-md border px-2.5 text-xs font-semibold", getToneClassName(tone))}>
+    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-md border px-2.5 text-xs font-bold", getToneClassName(tone))}>
       {label}
     </span>
   )
@@ -271,10 +271,14 @@ function StatusBadge({ label, tone = "neutral" }: { label: string; tone?: Tone }
 
 function EmptyState({ description, title }: { description: string; title: string }) {
   return (
-    <div className="grid min-h-36 place-items-center rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-8 text-center">
+    <div className="mcs-inset-panel grid min-h-36 place-items-center rounded-lg border-dashed px-4 py-8 text-center">
       <div className="max-w-md">
+        <span className="mcs-empty-mark" aria-hidden="true">
+          <span />
+          <i />
+        </span>
         <p className="text-sm font-semibold text-[#111827]">{title}</p>
-        <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
+        <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
       </div>
     </div>
   )
@@ -374,7 +378,7 @@ function getToneClassName(tone: Tone) {
     gold: "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]",
     info: "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]",
     navy: "border-[#0F172A] bg-[#0F172A] text-white",
-    neutral: "border-[#E5E7EB] bg-white text-[#64748B]",
+    neutral: "border-[#E5E7EB] bg-[#FFFDF8] text-[#6B7280]",
     success: "border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]",
     warning: "border-[#FDE68A] bg-[#FFFBEB] text-[#92400E]",
   }

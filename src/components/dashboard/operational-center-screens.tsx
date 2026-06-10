@@ -123,10 +123,10 @@ export function NotificationCenterScreen({
                 <div
                   key={notification.id}
                   className={cn(
-                    "grid gap-3 rounded-xl border p-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center",
+                    "grid gap-3 rounded-lg border p-3 shadow-[2px_2px_0_rgba(17,24,39,0.05)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center",
                     notification.status === "unread"
-                      ? "border-[#FDE68A] bg-[#FFFBEB]"
-                      : "border-[#E5E7EB] bg-[#F8F9FB]",
+                      ? "border-[#FED7AA] bg-[#FFF7ED]"
+                      : "border-[#111827]/10 bg-[#FFFDF8]",
                   )}
                 >
                   <Link href={getNotificationHref(notification)} className="min-w-0">
@@ -467,13 +467,13 @@ function OperationsHero({
   title: string
 }) {
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+    <section className="mcs-soft-surface mcs-starburst overflow-hidden rounded-lg p-6 after:-right-5 after:top-5">
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 text-[#B91C1C]">{icon}</span>
+        <span className="mt-0.5 grid size-10 shrink-0 place-items-center rounded-lg border border-[#111827]/10 bg-[#F97316] text-white shadow-[3px_3px_0_rgba(17,24,39,0.16)]">{icon}</span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#B91C1C]">{eyebrow}</p>
-          <h1 className="mt-3 text-2xl font-semibold tracking-normal text-[#111827]">{title}</h1>
-          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#64748B]">{subtitle}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#F97316]">{eyebrow}</p>
+          <h1 className="mt-3 font-heading text-2xl font-bold tracking-normal text-[#111827]">{title}</h1>
+          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#6B7280]">{subtitle}</p>
         </div>
       </div>
     </section>
@@ -492,12 +492,12 @@ function Panel({
   title: string
 }) {
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+    <section className="mcs-surface rounded-lg p-5">
       <div className="mb-4 flex items-start gap-3">
-        <span className="mt-0.5 grid size-8 place-items-center rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] text-[#B91C1C]">{icon}</span>
+        <span className="mt-0.5 grid size-8 place-items-center rounded-lg border border-[#111827]/10 bg-[#FFF7ED] text-[#F97316]">{icon}</span>
         <div className="min-w-0">
-          <h2 className="text-base font-semibold text-[#111827]">{title}</h2>
-          <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
+          <h2 className="font-heading text-base font-bold text-[#111827]">{title}</h2>
+          <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
         </div>
       </div>
       {children}
@@ -507,8 +507,8 @@ function Panel({
 
 function MetricTile({ label, tone = "neutral", value }: { label: string; tone?: "neutral" | "success" | "danger" | "warning"; value: number | string }) {
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</p>
+    <div className="mcs-neo-card rounded-lg p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{label}</p>
       <p
         className={cn(
           "mt-2 text-xl font-semibold",
@@ -523,7 +523,7 @@ function MetricTile({ label, tone = "neutral", value }: { label: string; tone?: 
 
 function StatusBadge({ label, tone }: { label: string; tone: Tone }) {
   return (
-    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-full border px-2.5 text-xs font-semibold", getToneClassName(tone))}>
+    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-md border px-2.5 text-xs font-bold", getToneClassName(tone))}>
       {label}
     </span>
   )
@@ -534,8 +534,10 @@ function FilterButton({ active, children, onClick }: { active: boolean; children
     <button
       type="button"
       className={cn(
-        "h-9 rounded-[10px] border px-3 text-sm font-semibold transition",
-        active ? "border-[#B91C1C] bg-[#FEF2F2] text-[#B91C1C]" : "border-[#E5E7EB] bg-white text-[#64748B] hover:bg-[#F8F9FB]",
+        "h-9 rounded-lg border px-3 text-sm font-semibold transition",
+        active
+          ? "border-[#F97316] bg-[#F97316] text-white shadow-[2px_2px_0_rgba(17,24,39,0.16)]"
+          : "border-[#111827]/12 bg-white text-[#6B7280] hover:bg-[#FFF7ED]",
       )}
       onClick={onClick}
     >
@@ -558,10 +560,10 @@ function ApprovalList({
   return (
     <div className="grid gap-2">
       {items.map((item) => (
-        <div key={`${item.title}-${item.meta}`} className="grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+        <div key={`${item.title}-${item.meta}`} className="grid gap-3 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-[#111827]">{item.title}</p>
-            <p className="mt-1 text-xs font-medium text-[#64748B]">{item.meta}</p>
+            <p className="mt-1 text-xs font-medium text-[#6B7280]">{item.meta}</p>
             <p className="mt-1 text-xs font-semibold text-[#0F172A]">{item.value}</p>
           </div>
           {item.action ? (
@@ -586,7 +588,7 @@ function CompactList({
 }) {
   if (!items.length) {
     return (
-      <div className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] p-4 text-sm font-semibold text-[#64748B]">
+      <div className="mcs-inset-panel rounded-lg border-dashed p-4 text-sm font-semibold text-[#6B7280]">
         {emptyDescription}
       </div>
     )
@@ -595,12 +597,12 @@ function CompactList({
   return (
     <div className="grid gap-2">
       {items.map((item) => (
-        <div key={`${item.title}-${item.meta}`} className="grid gap-2 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-3 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
+        <div key={`${item.title}-${item.meta}`} className="grid gap-2 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-3 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-[#111827]">{item.title}</p>
-            <p className="mt-1 text-xs font-medium text-[#64748B]">{item.meta}</p>
+            <p className="mt-1 text-xs font-medium text-[#6B7280]">{item.meta}</p>
           </div>
-          <p className="text-sm font-medium text-[#64748B] sm:text-right">{item.value}</p>
+          <p className="text-sm font-medium text-[#6B7280] sm:text-right">{item.value}</p>
         </div>
       ))}
     </div>
@@ -609,8 +611,8 @@ function CompactList({
 
 function MetricLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2 text-sm">
-      <span className="text-[#64748B]">{label}</span>
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-[#111827]/10 bg-white px-3 py-2 text-sm">
+      <span className="text-[#6B7280]">{label}</span>
       <span className="truncate font-semibold text-[#111827]">{value}</span>
     </div>
   )
@@ -628,11 +630,15 @@ function ActionableEmptyState({
   title: string
 }) {
   return (
-    <div className="grid min-h-36 place-items-center rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-8 text-center">
+    <div className="mcs-inset-panel grid min-h-36 place-items-center rounded-lg border-dashed px-4 py-8 text-center">
       <div className="max-w-md">
+        <span className="mcs-empty-mark" aria-hidden="true">
+          <span />
+          <i />
+        </span>
         <p className="text-sm font-semibold text-[#111827]">{title}</p>
-        <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
-        <div className="mt-3 grid gap-2 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#0F172A]">
+        <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
+        <div className="mt-3 grid gap-2 rounded-lg border border-[#111827]/10 bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#111827]">
           <span>Penanggung Jawab: {owner}</span>
           <span>Tindak Lanjut: {actionLabel}</span>
         </div>
@@ -720,7 +726,7 @@ function getToneClassName(tone: Tone) {
   if (tone === "success") return "border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]"
   if (tone === "info") return "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]"
   if (tone === "warning") return "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]"
-  return "border-[#E5E7EB] bg-[#F8F9FB] text-[#64748B]"
+  return "border-[#E5E7EB] bg-[#FFFDF8] text-[#6B7280]"
 }
 
 function formatStatusLabel(label: string) {

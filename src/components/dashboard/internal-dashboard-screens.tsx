@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import type { LucideIcon } from "lucide-react"
 import {
   Activity,
+  AlertTriangle,
   Archive,
   BarChart3,
   Bell,
@@ -165,7 +166,7 @@ const statusClasses: Record<StatusTone, string> = {
   gold: "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]",
   info: "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]",
   navy: "border-[#0F172A] bg-[#0F172A] text-white",
-  neutral: "border-[#E5E7EB] bg-[#F8F9FB] text-[#64748B]",
+  neutral: "border-[#E5E7EB] bg-[#FFFDF8] text-[#6B7280]",
   success: "border-[#DCFCE7] bg-[#F0FDF4] text-[#16A34A]",
   warning: "border-[#FEF3C7] bg-[#FFFBEB] text-[#D97706]",
 }
@@ -1600,13 +1601,17 @@ function JuknisManagementScreen({ moduleKey }: { moduleKey: DashboardModuleKey }
 }
 
 function AnalyticsScreen({ moduleKey, summary }: { moduleKey: DashboardModuleKey; summary: DashboardSummary }) {
+  if (moduleKey === "reports") {
+    return <OperationalReportsScreen summary={summary} />
+  }
+
   return (
     <div className="grid gap-6">
       <OperationsHeader
         actions={[{ href: "/dashboard/reports", icon: FileText, label: "Ekspor Laporan" }]}
-        icon={moduleKey === "reports" ? FileCheck : BarChart3}
+        icon={BarChart3}
         subtitle="Laporan kepanitiaan sederhana tanpa analitik yang dikarang."
-        title={moduleKey === "reports" ? "Laporan" : "Analitik"}
+        title="Analitik"
       />
 
       <StatStrip
@@ -1629,6 +1634,137 @@ function AnalyticsScreen({ moduleKey, summary }: { moduleKey: DashboardModuleKey
       </InfoPanel>
     </div>
   )
+}
+
+function OperationalReportsScreen({ summary }: { summary: DashboardSummary }) {
+  const totalTasks = summary.upcomingTasks.length
+  const overdueTasks = summary.upcomingTasks.filter((task) => isPastDeadline(task.deadline) && task.status !== "Completed").length
+  const pendingHandoffs = summary.divisionHandoffs.filter((handoff) => handoff.status === "Menunggu").length
+  const issueDivisionCounts = summary.activeIssues.reduce<Record<string, number>>((counts, issue) => {
+    const key = issue.assignedDivisionName ?? "Belum Ditentukan"
+    counts[key] = (counts[key] ?? 0) + 1
+    return counts
+  }, {})
+  const topIssueDivision = Object.entries(issueDivisionCounts).sort((first, second) => second[1] - first[1])[0]
+  const completedTasks = summary.upcomingTasks.filter((task) => task.status === "Completed").length
+  const inProgressTasks = summary.upcomingTasks.filter((task) => task.status === "In Progress").length
+  const blockedTasks = summary.upcomingTasks.filter((task) => task.status === "Blocked").length
+  const taskTotalForChart = Math.max(totalTasks, 1)
+  const severityRows = ["Kritis", "Tinggi", "Sedang", "Rendah"].map((severity) => ({
+    label: severity,
+    value: summary.activeIssues.filter((issue) => issue.severity === severity).length,
+  }))
+
+  return (
+    <div className="grid gap-6">
+      <OperationsHeader
+        actions={[
+          { href: "/dashboard/reports", icon: Download, label: "Export PDF" },
+          { href: "/dashboard/reports", icon: Download, label: "Export Excel" },
+        ]}
+        icon={FileCheck}
+        subtitle="Ringkasan operasional untuk tugas, kendala, koordinasi, jadwal, dan aktivitas MCS 1."
+        title="Laporan Operasional"
+      />
+
+      <StatStrip
+        items={[
+          { label: "Total Tugas", value: totalTasks || NO_DATA, tone: totalTasks ? "info" : "neutral" },
+          { label: "Tugas Terlambat", value: overdueTasks, tone: overdueTasks ? "danger" : "success" },
+          { label: "Tiket Kendala Aktif", value: summary.activeIssues.length, tone: summary.activeIssues.length ? "warning" : "success" },
+          { label: "Koordinasi Menunggu Respon", value: pendingHandoffs, tone: pendingHandoffs ? "warning" : "success" },
+          { label: "Jadwal Hari Ini", value: summary.todaySchedule.length || NO_DATA, tone: "gold" },
+          { label: "Divisi Dengan Kendala Terbanyak", value: topIssueDivision ? `${topIssueDivision[0]} (${topIssueDivision[1]})` : NO_DATA, tone: topIssueDivision ? "danger" : "neutral" },
+        ]}
+      />
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <InfoPanel icon={BarChart3} title="Grafik Penyelesaian Tugas" description="Distribusi status tugas yang sudah tercatat.">
+          <ProgressRows
+            rows={[
+              { label: "Selesai", value: completedTasks, total: taskTotalForChart, tone: "success" },
+              { label: "Berjalan", value: inProgressTasks, total: taskTotalForChart, tone: "info" },
+              { label: "Tertahan", value: blockedTasks, total: taskTotalForChart, tone: "danger" },
+              { label: "Terjadwal", value: Math.max(totalTasks - completedTasks - inProgressTasks - blockedTasks, 0), total: taskTotalForChart, tone: "warning" },
+            ]}
+          />
+        </InfoPanel>
+
+        <InfoPanel icon={AlertTriangle} title="Grafik Kendala" description="Distribusi severity tiket kendala aktif.">
+          <ProgressRows
+            rows={severityRows.map((row) => ({
+              label: row.label,
+              value: row.value,
+              total: Math.max(summary.activeIssues.length, 1),
+              tone: row.label === "Kritis" || row.label === "Tinggi" ? "danger" : row.label === "Sedang" ? "warning" : "info",
+            }))}
+          />
+        </InfoPanel>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Jejak perubahan dari workflow operasional.">
+          <RecentActivityList summary={summary} />
+        </InfoPanel>
+
+        <InfoPanel icon={Download} title="Export" description="Format laporan untuk arsip kepanitiaan.">
+          <div className="grid gap-3">
+            <button type="button" className="mcs-button-secondary inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold">
+              <Download className="size-4 text-[#0EA5E9]" aria-hidden="true" />
+              Export PDF
+            </button>
+            <button type="button" className="mcs-button-secondary inline-flex h-10 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold">
+              <Download className="size-4 text-[#0EA5E9]" aria-hidden="true" />
+              Export Excel
+            </button>
+            <p className="rounded-lg border border-[#111827]/10 bg-[#FFF7ED] px-3 py-2 text-xs font-semibold leading-5 text-[#6B7280]">
+              Export memakai data resmi yang sudah masuk ke modul operasional.
+            </p>
+          </div>
+        </InfoPanel>
+      </section>
+    </div>
+  )
+}
+
+function ProgressRows({
+  rows,
+}: {
+  rows: Array<{ label: string; total: number; tone: StatusTone; value: number }>
+}) {
+  return (
+    <div className="grid gap-3">
+      {rows.map((row) => {
+        const percent = row.total > 0 ? Math.round((row.value / row.total) * 100) : 0
+
+        return (
+          <div key={row.label} className="mcs-list-row rounded-lg p-3">
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="font-semibold text-[#111827]">{row.label}</span>
+              <span className="font-bold text-[#6B7280]">{row.value}</span>
+            </div>
+            <div className="mcs-progress-track mt-3 h-2 rounded-full">
+              <div className={cn("h-full rounded-full", getProgressToneClass(row.tone))} style={{ width: `${Math.min(percent, 100)}%` }} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function getProgressToneClass(tone: StatusTone) {
+  if (tone === "success") return "bg-[#22C55E]"
+  if (tone === "danger") return "bg-[#DC2626]"
+  if (tone === "warning" || tone === "gold") return "bg-[#F97316]"
+  if (tone === "info") return "bg-[#0EA5E9]"
+  return "bg-[#111827]"
+}
+
+function isPastDeadline(value: string) {
+  const timestamp = Date.parse(value)
+
+  return Number.isFinite(timestamp) && timestamp < Date.now()
 }
 
 function SettingsScreen() {
@@ -1763,15 +1899,15 @@ function OperationsHeader({
   title: string
 }) {
   return (
-    <section className="rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-sm">
+    <section className="mcs-soft-surface mcs-starburst overflow-hidden rounded-lg p-5 after:-right-5 after:top-4">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex min-w-0 gap-3">
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#0F172A] text-white">
+        <div className="relative z-10 flex min-w-0 gap-3">
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-[#111827]/15 bg-[#F97316] text-white shadow-[3px_3px_0_rgba(17,24,39,0.16)]">
             <Icon className="size-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <h2 className="text-2xl font-semibold tracking-normal text-[#111827]">{title}</h2>
-            <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#64748B]">{subtitle}</p>
+            <h2 className="font-heading text-2xl font-bold tracking-normal text-[#111827]">{title}</h2>
+            <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#6B7280]">{subtitle}</p>
           </div>
         </div>
 
@@ -1791,9 +1927,9 @@ function ActionGrid({ actions, compact = false }: { actions: ActionLink[]; compa
           <Link
             key={`${action.href}-${action.label}`}
             href={action.href}
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-[10px] border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A]/20"
+            className="mcs-button-secondary inline-flex h-9 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition focus-visible:outline-none"
           >
-            <Icon className="size-4 text-[#64748B]" aria-hidden="true" />
+            <Icon className="size-4 text-[#0EA5E9]" aria-hidden="true" />
             {action.label}
           </Link>
         )
@@ -1814,14 +1950,14 @@ function InfoPanel({
   title: string
 }) {
   return (
-    <section className="min-w-0 rounded-2xl border border-[#E5E7EB] bg-white shadow-sm">
-      <div className="flex items-start gap-3 border-b border-[#E5E7EB] px-5 py-4">
-        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#F8F9FB] text-[#0F172A]">
+    <section className="mcs-surface min-w-0 overflow-hidden rounded-lg">
+      <div className="flex items-start gap-3 border-b border-[#111827]/10 px-5 py-4">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-[#111827]/10 bg-[#FFF7ED] text-[#F97316]">
           <Icon className="size-4" aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-[#111827]">{title}</h3>
-          <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
+          <h3 className="font-heading text-base font-bold text-[#111827]">{title}</h3>
+          <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
         </div>
       </div>
       <div className="p-5">{children}</div>
@@ -1846,10 +1982,10 @@ function StatStrip({ items }: { items: StatItem[] }) {
   return (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
       {items.map((item) => (
-        <article key={item.label} className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-          <p className="text-sm font-medium text-[#64748B]">{item.label}</p>
+        <article key={item.label} className="mcs-neo-card rounded-lg p-4">
+          <p className="text-sm font-semibold text-[#6B7280]">{item.label}</p>
           <div className="mt-3 flex items-end justify-between gap-3">
-            <p className="min-w-0 text-xl font-semibold leading-6 tracking-normal text-[#111827]">{item.value}</p>
+            <p className="min-w-0 font-heading text-xl font-bold leading-6 tracking-normal text-[#111827]">{item.value}</p>
             <span className={cn("mb-1 size-2.5 shrink-0 rounded-full", getStatDotClass(item.tone ?? "neutral"))} />
           </div>
         </article>
@@ -1860,8 +1996,8 @@ function StatStrip({ items }: { items: StatItem[] }) {
 
 function FactTile({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="min-w-0 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</p>
+    <div className="min-w-0 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{label}</p>
       <p className="mt-2 text-sm font-semibold leading-6 text-[#111827]">{value}</p>
     </div>
   )
@@ -1879,11 +2015,15 @@ function EmptyState({
   const displayTitle = getEmptyStateTitle(title)
 
   return (
-    <div className="grid min-h-40 place-items-center rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-10 text-center">
+    <div className="mcs-inset-panel grid min-h-40 place-items-center rounded-lg border-dashed px-4 py-10 text-center">
       <div className="max-w-sm">
+        <span className="mcs-empty-mark" aria-hidden="true">
+          <span />
+          <i />
+        </span>
         <p className="text-sm font-semibold text-[#111827]">{displayTitle}</p>
-        <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
-        <p className="mt-3 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#0F172A]">
+        <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
+        <p className="mt-3 rounded-lg border border-[#111827]/10 bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#111827]">
           Next Action: {nextAction ?? getEmptyStateAction(displayTitle)}
         </p>
       </div>
@@ -1893,7 +2033,7 @@ function EmptyState({
 
 function StatusBadge({ label, tone = "neutral" }: { label: string; tone?: StatusTone }) {
   return (
-    <span className={cn("inline-flex h-7 w-fit items-center rounded-full border px-2.5 text-xs font-semibold", statusClasses[tone])}>
+    <span className={cn("inline-flex h-7 w-fit items-center rounded-md border px-2.5 text-xs font-bold", statusClasses[tone])}>
       {label}
     </span>
   )
@@ -1903,7 +2043,7 @@ function StatusGrid({ items }: { items: Array<{ label: string; status: string; t
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {items.map((item) => (
-        <div key={item.label} className="flex items-center justify-between gap-3 rounded-xl border border-[#E5E7EB] p-3">
+        <div key={item.label} className="flex items-center justify-between gap-3 rounded-lg border border-[#111827]/10 bg-[#FFFDF8] p-3">
           <span className="text-sm font-medium text-[#111827]">{item.label}</span>
           <StatusBadge label={item.status} tone={item.tone ?? "neutral"} />
         </div>
@@ -1914,13 +2054,13 @@ function StatusGrid({ items }: { items: Array<{ label: string; status: string; t
 
 function FilterBar({ fields, searchPlaceholder }: { fields: string[]; searchPlaceholder: string }) {
   return (
-    <section className="grid gap-3 rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-6">
+    <section className="mcs-surface grid gap-3 rounded-lg p-4 md:grid-cols-2 xl:grid-cols-6">
       <label className="relative grid gap-1.5 xl:col-span-2">
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">Search</span>
+        <span className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">Search</span>
         <span className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94A3B8]" aria-hidden="true" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#0EA5E9]" aria-hidden="true" />
           <input
-            className="h-10 w-full rounded-[10px] border border-[#E5E7EB] bg-white pl-9 pr-3 text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8] focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10"
+            className="h-10 w-full rounded-lg border border-[#111827]/12 bg-white pl-9 pr-3 text-sm font-medium text-[#111827] outline-none placeholder:text-[#9CA3AF] focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20"
             placeholder={searchPlaceholder}
             type="search"
           />
@@ -1928,8 +2068,8 @@ function FilterBar({ fields, searchPlaceholder }: { fields: string[]; searchPlac
       </label>
       {fields.map((field) => (
         <label key={field} className="grid gap-1.5">
-          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{field}</span>
-          <select className="h-10 rounded-[10px] border border-[#E5E7EB] bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/10">
+          <span className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">{field}</span>
+          <select className="h-10 rounded-lg border border-[#111827]/12 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#F97316] focus:ring-2 focus:ring-[#F97316]/20">
             <option>All</option>
           </select>
         </label>
@@ -2025,7 +2165,7 @@ function AnnouncementList({ summary }: { summary: DashboardSummary }) {
   return (
     <div className="grid gap-3">
       {summary.announcements.slice(0, 3).map((announcement) => (
-        <article key={announcement.id} className="rounded-md border border-[#E5E7EB] p-4">
+        <article key={announcement.id} className="mcs-list-row rounded-lg p-4">
           <div className="flex items-start justify-between gap-3">
             <h4 className="min-w-0 text-sm font-semibold text-[#111827]">{announcement.title}</h4>
             <StatusBadge label={formatStatus(announcement.priority)} tone={getPriorityTone(announcement.priority)} />
@@ -2045,7 +2185,7 @@ function TaskList({ summary }: { summary: DashboardSummary }) {
   return (
     <div className="grid gap-3">
       {summary.upcomingTasks.map((task) => (
-        <article key={task.id} className="grid gap-3 rounded-md border border-[#E5E7EB] p-4 md:grid-cols-[1fr_auto] md:items-center">
+        <article key={task.id} className="mcs-list-row grid gap-3 rounded-lg p-4 md:grid-cols-[1fr_auto] md:items-center">
           <div className="min-w-0">
             <h4 className="truncate text-sm font-semibold text-[#111827]">{task.title}</h4>
             <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{task.division} - {task.assigneeName}</p>
@@ -2065,8 +2205,8 @@ function RecentActivityList({ summary }: { summary: DashboardSummary }) {
   return (
     <div className="grid gap-3">
       {summary.auditPreview.slice(0, 5).map((item) => (
-        <article key={item.id} className="flex gap-3 rounded-md border border-[#E5E7EB] p-3">
-          <span className="mt-1 size-2 shrink-0 rounded-full bg-[#0F172A]" />
+        <article key={item.id} className="mcs-list-row flex gap-3 rounded-lg p-3">
+          <span className="mt-1 size-2 shrink-0 rounded-full bg-[#F97316]" />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-[#111827]">{formatStatus(item.action.replace(".", " "))}</p>
             <p className="mt-1 text-xs font-medium text-[#64748B]">{formatDate(item.timestamp)} - {item.userName}</p>
@@ -2286,9 +2426,13 @@ function FinancialDeadlineTable({ tasks }: { tasks: DashboardSummary["upcomingTa
 
 function CompactEmptyState({ description, title }: { description: string; title: string }) {
   return (
-    <div className="rounded-md border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-6 text-center">
+    <div className="mcs-inset-panel rounded-lg border-dashed px-4 py-6 text-center">
+      <span className="mcs-empty-mark" aria-hidden="true">
+        <span />
+        <i />
+      </span>
       <p className="text-sm font-semibold text-[#111827]">{title}</p>
-      <p className="mx-auto mt-1 max-w-md text-sm font-medium leading-6 text-[#64748B]">{description}</p>
+      <p className="mx-auto mt-1 max-w-md text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
     </div>
   )
 }
@@ -2305,7 +2449,7 @@ function EntrepreneurshipSalesOverview() {
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
       {items.map((item) => (
-        <article key={item.label} className="rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-4">
+        <article key={item.label} className="mcs-list-row rounded-lg p-4">
           <div className="flex items-start justify-between gap-3">
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{item.label}</p>
             <span className={cn("mt-1 size-2 shrink-0 rounded-full", getStatDotClass(item.tone))} />
@@ -2376,7 +2520,7 @@ function EntrepreneurshipBestSellers() {
   return (
     <div className="grid gap-2">
       {["#1", "#2", "#3", "#4", "#5"].map((rank) => (
-        <div key={rank} className="flex items-center justify-between gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] px-3 py-2.5">
+        <div key={rank} className="mcs-list-row flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
           <span className="text-sm font-semibold text-[#111827]">{rank}</span>
           <span className="text-sm font-medium text-[#64748B]">Menunggu Aktivitas Penjualan</span>
         </div>
@@ -2396,7 +2540,7 @@ function EntrepreneurshipCashSummary() {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {items.map(([label, value]) => (
-        <div key={label} className="min-w-0 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-4">
+        <div key={label} className="mcs-list-row min-w-0 rounded-lg p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</p>
           <p className="mt-2 text-sm font-semibold leading-6 text-[#111827]">{value}</p>
         </div>
@@ -2416,7 +2560,7 @@ function EntrepreneurshipDailyReports() {
   return (
     <div className="grid gap-3">
       {reports.map(([day, date]) => (
-        <div key={day} className="grid gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div key={day} className="mcs-list-row grid gap-3 rounded-lg p-3 sm:grid-cols-[1fr_auto] sm:items-center">
           <div>
             <p className="text-sm font-semibold text-[#111827]">{day}</p>
             <p className="mt-1 text-xs font-medium text-[#64748B]">{date}</p>
@@ -2612,7 +2756,7 @@ function StatMiniList({ items }: { items: Array<{ label: string; value: ReactNod
   return (
     <div className="grid gap-2">
       {items.map((item) => (
-        <div key={item.label} className="flex items-center justify-between gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] px-3 py-2.5">
+        <div key={item.label} className="mcs-list-row flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
           <span className="text-sm font-medium text-[#64748B]">{item.label}</span>
           <span className="max-w-[55%] truncate text-right text-sm font-semibold text-[#111827]">{item.value}</span>
         </div>
@@ -2797,7 +2941,7 @@ function ActivityRows({ items }: { items: DashboardSummary["auditPreview"] }) {
   return (
     <div className="grid gap-3">
       {items.slice(0, 5).map((item) => (
-        <article key={item.id} className="grid gap-2 rounded-md border border-[#E5E7EB] p-3 md:grid-cols-[minmax(0,1fr)_160px] md:items-center">
+        <article key={item.id} className="mcs-list-row grid gap-2 rounded-lg p-3 md:grid-cols-[minmax(0,1fr)_160px] md:items-center">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-[#111827]">{formatStatus(item.action.replace(".", " "))}</p>
             <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{item.resource} - {item.userName}</p>
@@ -2831,7 +2975,7 @@ function DocumentStatusList({ items }: { items: string[] }) {
   return (
     <div className="grid gap-2">
       {items.map((item) => (
-        <div key={item} className="flex items-center justify-between gap-3 rounded-md border border-[#E5E7EB] p-3">
+        <div key={item} className="mcs-list-row flex items-center justify-between gap-3 rounded-lg p-3">
           <span className="text-sm font-medium text-[#111827]">{item}</span>
           <StatusBadge label={NO_DATA} tone="neutral" />
         </div>
@@ -2842,9 +2986,9 @@ function DocumentStatusList({ items }: { items: string[] }) {
 
 function UploadDropzone({ title }: { title: string }) {
   return (
-    <div className="grid min-h-56 place-items-center rounded-md border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-10 text-center">
+    <div className="mcs-inset-panel grid min-h-56 place-items-center rounded-lg border-dashed px-4 py-10 text-center">
       <div className="max-w-sm">
-        <Upload className="mx-auto size-8 text-[#64748B]" aria-hidden="true" />
+        <Upload className="mx-auto size-8 text-[#F97316]" aria-hidden="true" />
         <p className="mt-3 text-sm font-semibold text-[#111827]">{title}</p>
         <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">Official files can be uploaded when the backend workflow is connected.</p>
       </div>
@@ -2856,7 +3000,7 @@ function SimpleList({ items }: { items: string[] }) {
   return (
     <div className="grid gap-2">
       {items.map((item) => (
-        <div key={item} className="rounded-md border border-[#E5E7EB] bg-[#F8F9FB] px-3 py-2 text-sm font-medium text-[#111827]">
+        <div key={item} className="mcs-list-row rounded-lg px-3 py-2 text-sm font-medium text-[#111827]">
           {item}
         </div>
       ))}
@@ -2894,7 +3038,7 @@ function DivisionTaskList({ tasks }: { tasks: DashboardSummary["upcomingTasks"] 
   return (
     <div className="grid gap-3">
       {tasks.map((task) => (
-        <article key={task.id} className="grid gap-3 rounded-md border border-[#E5E7EB] p-4 md:grid-cols-[1fr_auto] md:items-center">
+        <article key={task.id} className="mcs-list-row grid gap-3 rounded-lg p-4 md:grid-cols-[1fr_auto] md:items-center">
           <div className="min-w-0">
             <h4 className="truncate text-sm font-semibold text-[#111827]">{task.title}</h4>
             <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{task.deadline} - {task.assigneeName}</p>

@@ -207,40 +207,40 @@ function ExecutiveHeader({
   user: UserDTO
 }) {
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm sm:p-6">
+    <section className="mcs-soft-surface mcs-starburst overflow-hidden rounded-lg p-5 after:-right-5 after:top-5 sm:p-6">
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_390px] xl:items-start">
-        <div className="min-w-0">
+        <div className="relative z-10 min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <LogoStrip />
             <StatusBadge label={roleLabel} tone="navy" />
           </div>
-          <p className="mt-5 text-sm font-medium text-[#64748B]">{getGreeting(now)}, {user.displayName}</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-normal text-[#111827] sm:text-3xl">
+          <p className="mt-5 text-sm font-semibold text-[#6B7280]">{getGreeting(now)}, {user.displayName}</p>
+          <h2 className="mt-2 font-heading text-2xl font-bold tracking-normal text-[#111827] sm:text-3xl">
             {summary.event.name}
           </h2>
-          <p className="mt-2 text-sm font-semibold text-[#0F172A]">{summary.event.theme}</p>
-          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#64748B]">
+          <p className="mt-2 text-sm font-bold text-[#F97316]">{summary.event.theme}</p>
+          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#6B7280]">
             {event.slogan}
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
               href="/"
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
+              className="mcs-button-secondary inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-semibold transition"
             >
-              <Globe className="size-4 text-[#64748B]" aria-hidden="true" />
+              <Globe className="size-4 text-[#0EA5E9]" aria-hidden="true" />
               Website Publik
             </Link>
             <Link
               href="/dashboard/announcements"
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
+              className="mcs-button-secondary inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-semibold transition"
             >
-              <Bell className="size-4 text-[#64748B]" aria-hidden="true" />
+              <Bell className="size-4 text-[#0EA5E9]" aria-hidden="true" />
               Notifikasi
             </Link>
           </div>
         </div>
 
-        <div className="grid gap-3 rounded-xl border border-[#E5E7EB] bg-[#F8F9FB] p-4">
+        <div className="relative z-10 grid gap-3 rounded-lg border border-[#111827]/10 bg-[#FFF7ED] p-4 shadow-[2px_2px_0_rgba(17,24,39,0.07)]">
           <div className="flex flex-wrap gap-2">
             <StatusBadge label={eventState.dayLabel} tone="neutral" />
             <StatusBadge label={eventState.phase} tone={getEventPhaseTone(eventState.phase)} />
@@ -289,22 +289,22 @@ function EventStatusOverview({
   return (
     <section className="grid gap-3">
       <div className="flex items-center gap-3">
-        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white text-[#0F172A] ring-1 ring-[#E5E7EB]">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-[#111827]/10 bg-[#FFF7ED] text-[#F97316]">
           <Activity className="size-4" aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-[#111827]">Event Status Overview</h3>
-          <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">Fase event, kendala, persetujuan, dan status kegiatan saat ini.</p>
+          <h3 className="font-heading text-base font-bold text-[#111827]">Event Status Overview</h3>
+          <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">Fase event, kendala, persetujuan, dan status kegiatan saat ini.</p>
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
-          <article key={card.label} className="min-w-0 rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
+          <article key={card.label} className="mcs-neo-card min-w-0 rounded-lg p-4">
             <div className="flex items-start justify-between gap-3">
-              <p className="text-sm font-medium text-[#64748B]">{card.label}</p>
+              <p className="text-sm font-semibold text-[#6B7280]">{card.label}</p>
               <span className={cn("mt-1 size-2.5 shrink-0 rounded-full", getDotClassName(card.tone))} />
             </div>
-            <p className="mt-3 text-base font-semibold leading-6 text-[#111827]">{card.value}</p>
+            <p className="mt-3 font-heading text-base font-bold leading-6 text-[#111827]">{card.value}</p>
           </article>
         ))}
       </div>
@@ -324,15 +324,15 @@ function Panel({
   title: string
 }) {
   return (
-    <section className="min-w-0 rounded-2xl border border-[#E5E7EB] bg-white shadow-sm">
-      <div className="border-b border-[#E5E7EB] px-5 py-4 sm:px-6">
+    <section className="mcs-surface min-w-0 overflow-hidden rounded-lg">
+      <div className="border-b border-[#111827]/10 px-5 py-4 sm:px-6">
         <div className="flex items-start gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#F8F9FB] text-[#0F172A]">
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-[#111827]/10 bg-[#FFF7ED] text-[#F97316]">
             <Icon className="size-4" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-[#111827]">{title}</h3>
-            <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
+            <h3 className="font-heading text-base font-bold text-[#111827]">{title}</h3>
+            <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
           </div>
         </div>
       </div>
@@ -497,10 +497,10 @@ function QuickActions({ role }: { role: ExecutiveDashboardRole }) {
       {actions.map((action) => {
         const Icon = action.icon
         const className =
-          "flex min-h-12 items-center gap-3 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F172A]/20"
+          "mcs-button-secondary flex min-h-12 items-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold transition focus-visible:outline-none"
         const content = (
           <>
-            <Icon className="size-4 shrink-0 text-[#0F172A]" aria-hidden="true" />
+            <Icon className="size-4 shrink-0 text-[#0EA5E9]" aria-hidden="true" />
             <span className="min-w-0 truncate">{action.label}</span>
           </>
         )
@@ -741,7 +741,7 @@ function MetricCard({ label, value }: { label: string; value: string }) {
 
 function StatusBadge({ label, tone = "neutral" }: { label: string; tone?: Tone }) {
   return (
-    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-full border px-2.5 text-xs font-semibold", getToneClassName(tone))}>
+    <span className={cn("inline-flex h-7 w-fit shrink-0 items-center rounded-md border px-2.5 text-xs font-bold", getToneClassName(tone))}>
       {label}
     </span>
   )
@@ -759,11 +759,15 @@ function EmptyState({
   const displayTitle = getEmptyStateTitle(title)
 
   return (
-    <div className="grid min-h-36 place-items-center rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-4 py-8 text-center">
+    <div className="mcs-inset-panel grid min-h-36 place-items-center rounded-lg border-dashed px-4 py-8 text-center">
       <div className="max-w-md">
+        <span className="mcs-empty-mark" aria-hidden="true">
+          <span />
+          <i />
+        </span>
         <p className="text-sm font-semibold text-[#111827]">{displayTitle}</p>
-        <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">{description}</p>
-        <p className="mt-3 rounded-[10px] border border-[#E5E7EB] bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#0F172A]">
+        <p className="mt-1 text-sm font-medium leading-6 text-[#6B7280]">{description}</p>
+        <p className="mt-3 rounded-lg border border-[#111827]/10 bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#111827]">
           Tindak Lanjut: {nextAction ?? getEmptyStateAction(displayTitle)}
         </p>
       </div>
@@ -1129,7 +1133,7 @@ function getToneClassName(tone: Tone) {
     gold: "border-[#FEF3C7] bg-[#FFFBEB] text-[#92400E]",
     info: "border-[#DBEAFE] bg-[#EFF6FF] text-[#2563EB]",
     navy: "border-[#0F172A] bg-[#0F172A] text-white",
-    neutral: "border-[#E5E7EB] bg-white text-[#64748B]",
+    neutral: "border-[#E5E7EB] bg-[#FFFDF8] text-[#6B7280]",
     success: "border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]",
     warning: "border-[#FDE68A] bg-[#FFFBEB] text-[#92400E]",
   }

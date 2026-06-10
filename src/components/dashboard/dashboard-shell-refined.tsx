@@ -135,66 +135,57 @@ const displayEventDate = formatEventDateRange(event.startDate, event.endDate)
 const recentSearchStorageKey = "mcs:recent-searches:v1"
 const commandPaletteActions: ShellSearchResult[] = [
   {
-    description: "Buka form kendala aktif",
+    description: "Kirim update resmi internal ke panitia",
+    href: "/dashboard/announcements?action=create",
+    icon: "megaphone",
+    id: "command-create-announcement",
+    meta: "Aksi Cepat",
+    title: "Buat Pengumuman",
+    type: "Aksi",
+  },
+  {
+    description: "Tambahkan aktivitas resmi ke timeline event",
+    href: "/dashboard/schedules?action=create",
+    icon: "calendar",
+    id: "command-create-schedule",
+    meta: "Aksi Cepat",
+    title: "Tambah Jadwal",
+    type: "Aksi",
+  },
+  {
+    description: "Tugaskan pekerjaan ke divisi atau PIC",
+    href: "/dashboard/tasks?action=create",
+    icon: "clipboard",
+    id: "command-create-task",
+    meta: "Aksi Cepat",
+    title: "Buat Tugas",
+    type: "Aksi",
+  },
+  {
+    description: "Catat insiden operasional yang perlu penanganan",
     href: "/dashboard/issues?action=create",
     icon: "activity",
     id: "command-create-issue",
     meta: "Aksi Cepat",
-    title: "Tambah Kendala",
+    title: "Buat Tiket Kendala",
     type: "Aksi",
   },
   {
-    description: "Buka form koordinasi antar divisi",
+    description: "Minta handoff resmi antar divisi",
     href: "/dashboard/handoffs?action=create",
     icon: "git-branch",
     id: "command-create-handoff",
     meta: "Aksi Cepat",
-    title: "Buat Koordinasi",
+    title: "Request Koordinasi",
     type: "Aksi",
   },
   {
-    description: "Buka status tempat untuk update kesiapan",
-    href: "/dashboard/venues",
-    icon: "shield",
-    id: "command-update-venue",
-    meta: "Aksi Cepat",
-    title: "Update Tempat",
-    type: "Aksi",
-  },
-  {
-    description: "Buka feed notifikasi kepanitiaan",
-    href: "/dashboard/notifications",
-    icon: "activity",
-    id: "command-notifications",
-    meta: "Aksi Cepat",
-    title: "Pusat Notifikasi",
-    type: "Aksi",
-  },
-  {
-    description: "Tinjau pengumuman, media, dan kendala selesai",
-    href: "/dashboard/approvals",
-    icon: "file-check",
-    id: "command-approvals",
-    meta: "Aksi Cepat",
-    title: "Pusat Persetujuan",
-    type: "Aksi",
-  },
-  {
-    description: "Buka modul lomba untuk input hasil",
-    href: "/dashboard/tournament",
-    icon: "trophy",
-    id: "command-input-results",
-    meta: "Aksi Cepat",
-    title: "Input Hasil",
-    type: "Aksi",
-  },
-  {
-    description: "Buka rekap kendala, koordinasi, dan laporan divisi",
-    href: "/dashboard/operations-report",
+    description: "Buka ringkasan operasional MCS 1",
+    href: "/dashboard/reports",
     icon: "chart",
-    id: "command-operations-report",
+    id: "command-reports",
     meta: "Aksi Cepat",
-    title: "Laporan Kepanitiaan",
+    title: "Lihat Laporan",
     type: "Aksi",
   },
 ]
@@ -218,7 +209,7 @@ export function DashboardShell({ children, homePath, navigation, roleLabel, user
   }, [])
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#F6F7F9] font-sans text-[#111827]">
+    <div className="mcs-dashboard min-h-screen overflow-x-hidden bg-[var(--mcs-dash-bg)] font-sans text-[#111827]">
       <TopNavigation
         homePath={homePath}
         navigation={navigation}
@@ -239,8 +230,8 @@ export function DashboardShell({ children, homePath, navigation, roleLabel, user
           "lg:pl-[280px]",
         )}
       >
-        <main className="min-h-[calc(100vh-68px)] min-w-0 overflow-x-hidden bg-[#F6F7F9]" aria-label={`${pageMeta.title} content`}>
-          <div className="mx-auto min-h-[calc(100vh-68px)] w-full min-w-0 max-w-[1320px] px-4 py-4 sm:px-5 lg:px-6">
+        <main className="min-h-[calc(100vh-68px)] min-w-0 overflow-x-hidden bg-transparent" aria-label={`${pageMeta.title} content`}>
+          <div className="mx-auto min-h-[calc(100vh-68px)] w-full min-w-0 max-w-[1320px] px-4 py-5 sm:px-6 lg:px-8">
             {children}
           </div>
         </main>
@@ -271,8 +262,8 @@ function TopNavigation({
   const ToggleIcon = tabletExpanded ? PanelLeftClose : PanelLeftOpen
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 h-[68px] border-b border-[#E5E7EB] bg-white/95 backdrop-blur">
-      <div className="flex h-full min-w-0 items-center gap-3 px-4 sm:px-5 lg:px-6">
+    <header className="fixed inset-x-0 top-0 z-40 h-[68px] border-b border-[#111827]/12 bg-[#FFFDF8]/95 shadow-[0_1px_0_rgba(17,24,39,0.04)] backdrop-blur">
+      <div className="flex h-full min-w-0 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <div className="md:hidden">
           <MobileSidebarTrigger navigation={navigation} roleLabel={roleLabel} />
         </div>
@@ -281,7 +272,7 @@ function TopNavigation({
           type="button"
           variant="outline"
           size="icon-lg"
-            className="hidden rounded-md border-[#E5E7EB] bg-white text-[#64748B] hover:bg-[#F8F9FB] lg:hidden md:inline-flex"
+          className="hidden rounded-lg border-[#111827]/14 bg-[#FFFDF8] text-[#6B7280] shadow-[2px_2px_0_rgba(17,24,39,0.06)] hover:bg-[#FFF7ED] lg:hidden md:inline-flex"
           aria-label={tabletExpanded ? "Collapse sidebar" : "Expand sidebar"}
           title={tabletExpanded ? "Collapse sidebar" : "Expand sidebar"}
           onClick={onToggleTabletSidebar}
@@ -290,12 +281,12 @@ function TopNavigation({
         </Button>
 
         <div className="min-w-0 shrink basis-[210px] sm:basis-[260px]">
-          <h1 className="truncate text-base font-semibold leading-5 text-[#111827]">{pageMeta.title}</h1>
-          <nav className="flex min-w-0 items-center gap-1 text-xs font-medium text-[#64748B]" aria-label="Breadcrumb">
+          <h1 className="truncate font-heading text-base font-bold leading-5 text-[#111827]">{pageMeta.title}</h1>
+          <nav className="flex min-w-0 items-center gap-1 text-xs font-semibold text-[#6B7280]" aria-label="Breadcrumb">
             <span className="truncate">MCS 1</span>
             {pageMeta.breadcrumb.map((item) => (
               <span key={item} className="flex min-w-0 items-center gap-1">
-                <span className="text-[#CBD5E1]">/</span>
+                <span className="text-[#F97316]">/</span>
                 <span className="truncate">{item}</span>
               </span>
             ))}
@@ -316,10 +307,10 @@ function TopNavigation({
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <Link
             href="/"
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
+            className="mcs-button-secondary inline-flex h-9 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition"
             aria-label="Buka website publik MCS"
           >
-            <Globe className="size-4 text-[#64748B]" aria-hidden="true" />
+            <Globe className="size-4 text-[#0EA5E9]" aria-hidden="true" />
             <span className="hidden sm:inline">Website Publik</span>
           </Link>
 
@@ -478,28 +469,28 @@ function GlobalSearch({ navigation }: { navigation: DashboardNavigationItem[] })
   return (
     <div className="relative hidden min-w-[220px] max-w-[360px] flex-1 xl:block">
       <form
-        className="flex h-9 items-center gap-3 rounded-[10px] border border-[#E5E7EB] bg-[#F8F9FB] px-3"
+        className="flex h-9 items-center gap-3 rounded-lg border border-[#111827]/14 bg-white px-3 shadow-[2px_2px_0_rgba(17,24,39,0.05)] transition focus-within:border-[#F97316] focus-within:ring-2 focus-within:ring-[#F97316]/18"
         onSubmit={handleSubmit}
       >
-        <Search className="size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+        <Search className="size-4 shrink-0 text-[#0EA5E9]" aria-hidden="true" />
         <span className="sr-only">Pencarian dashboard</span>
         <input
           type="search"
           ref={inputRef}
           value={query}
           placeholder={searchPlaceholder}
-          className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
+          className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#9CA3AF]"
           onBlur={() => window.setTimeout(() => setFocused(false), 120)}
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setFocused(true)}
         />
-        <span className="hidden rounded-md border border-[#E5E7EB] bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#94A3B8] 2xl:inline">
+        <span className="hidden rounded-md border border-[#111827]/12 bg-[#FFF7ED] px-1.5 py-0.5 text-[10px] font-bold text-[#6B7280] 2xl:inline">
           Ctrl K
         </span>
       </form>
 
       {focused && (trimmedQuery || recentResults.length > 0 || accessibleCommandActions.length > 0) ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-2xl border border-[#E5E7EB] bg-white p-2 shadow-md ring-1 ring-[#111827]/5">
+        <div className="mcs-surface absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg p-2">
           {!trimmedQuery ? (
             <div className="grid gap-3">
               {actionMatches.length ? (
@@ -512,16 +503,16 @@ function GlobalSearch({ navigation }: { navigation: DashboardNavigationItem[] })
                       <button
                         key={item.id}
                         type="button"
-                        className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-[10px] px-2 py-2 text-left text-sm transition hover:bg-[#F8F9FB]"
+                        className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-[#FFF7ED]"
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => openResult(item)}
                       >
-                        <Icon className="mt-0.5 size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+                        <Icon className="mt-0.5 size-4 shrink-0 text-[#F97316]" aria-hidden="true" />
                         <span className="min-w-0">
                           <span className="block truncate font-semibold text-[#111827]">{item.title}</span>
                           <span className="mt-0.5 block truncate text-xs font-medium text-[#64748B]">{item.description}</span>
                         </span>
-                        <span className="max-w-24 truncate rounded-full bg-[#F8F9FB] px-2 py-0.5 text-[11px] font-semibold text-[#64748B] ring-1 ring-[#E5E7EB]">
+                        <span className="max-w-24 truncate rounded-md bg-[#F0F9FF] px-2 py-0.5 text-[11px] font-bold text-[#0369A1] ring-1 ring-[#BAE6FD]">
                           {item.type}
                         </span>
                       </button>
@@ -539,16 +530,16 @@ function GlobalSearch({ navigation }: { navigation: DashboardNavigationItem[] })
                       <button
                         key={item.id}
                         type="button"
-                        className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-[10px] px-2 py-2 text-left text-sm transition hover:bg-[#F8F9FB]"
+                        className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-[#FFF7ED]"
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => openResult(item)}
                       >
-                        <Icon className="mt-0.5 size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+                        <Icon className="mt-0.5 size-4 shrink-0 text-[#F97316]" aria-hidden="true" />
                         <span className="min-w-0">
                           <span className="block truncate font-semibold text-[#111827]">{item.title}</span>
                           <span className="mt-0.5 block truncate text-xs font-medium text-[#64748B]">{item.description}</span>
                         </span>
-                        <span className="max-w-24 truncate rounded-full bg-[#F8F9FB] px-2 py-0.5 text-[11px] font-semibold text-[#64748B] ring-1 ring-[#E5E7EB]">
+                        <span className="max-w-24 truncate rounded-md bg-[#F0F9FF] px-2 py-0.5 text-[11px] font-bold text-[#0369A1] ring-1 ring-[#BAE6FD]">
                           {item.type}
                         </span>
                       </button>
@@ -566,18 +557,18 @@ function GlobalSearch({ navigation }: { navigation: DashboardNavigationItem[] })
                   <button
                     key={item.id}
                     type="button"
-                    className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-[10px] px-2 py-2 text-left text-sm transition hover:bg-[#F8F9FB]"
+                    className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-lg px-2 py-2 text-left text-sm transition hover:bg-[#FFF7ED]"
                     onMouseDown={(event) => event.preventDefault()}
                     onClick={() => openResult(item)}
                   >
-                    <Icon className="mt-0.5 size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+                    <Icon className="mt-0.5 size-4 shrink-0 text-[#F97316]" aria-hidden="true" />
                     <span className="min-w-0">
                       <span className="block truncate font-semibold text-[#111827]">{item.title}</span>
                       <span className="mt-0.5 block truncate text-xs font-medium text-[#64748B]">
                         {item.description}
                       </span>
                     </span>
-                    <span className="max-w-24 truncate rounded-full bg-[#F8F9FB] px-2 py-0.5 text-[11px] font-semibold text-[#64748B] ring-1 ring-[#E5E7EB]">
+                    <span className="max-w-24 truncate rounded-md bg-[#F0F9FF] px-2 py-0.5 text-[11px] font-bold text-[#0369A1] ring-1 ring-[#BAE6FD]">
                       {item.type}
                     </span>
                   </button>
@@ -585,15 +576,15 @@ function GlobalSearch({ navigation }: { navigation: DashboardNavigationItem[] })
               })}
             </div>
           ) : normalizedQuery.length >= 2 && searching ? (
-            <p className="rounded-[10px] bg-[#F8F9FB] px-3 py-2 text-xs font-semibold text-[#64748B]">
+            <p className="rounded-lg bg-[#FFF7ED] px-3 py-2 text-xs font-semibold text-[#6B7280]">
               Mencari data kepanitiaan...
             </p>
           ) : normalizedQuery.length >= 2 && searchError ? (
-            <p className="rounded-[10px] bg-[#FEF2F2] px-3 py-2 text-xs font-semibold text-[#B91C1C]">
+            <p className="rounded-lg bg-[#FEF2F2] px-3 py-2 text-xs font-semibold text-[#B91C1C]">
               Pencarian belum bisa dimuat
             </p>
           ) : (
-            <p className="rounded-[10px] bg-[#F8F9FB] px-3 py-2 text-xs font-semibold text-[#64748B]">
+            <p className="rounded-lg bg-[#FFF7ED] px-3 py-2 text-xs font-semibold text-[#6B7280]">
               Tidak ada hasil. Coba kata kunci lomba, venue, PIC, atau tugas.
             </p>
           )}
@@ -617,7 +608,7 @@ function SidebarShell({
   return (
     <aside
       className={cn(
-        "fixed bottom-0 left-0 top-[68px] z-30 hidden flex-col border-r border-[#E5E7EB] bg-white transition-[width] duration-200 ease-out md:flex",
+        "fixed bottom-0 left-0 top-[68px] z-30 hidden flex-col border-r border-[#111827]/12 bg-[#FFFDF8]/96 shadow-[4px_0_0_rgba(17,24,39,0.035)] backdrop-blur transition-[width] duration-200 ease-out md:flex",
         expanded ? "w-[280px]" : "w-[88px]",
         "lg:w-[280px]",
       )}
@@ -639,7 +630,7 @@ function MobileSidebarTrigger({ navigation, roleLabel }: { navigation: Dashboard
             type="button"
             variant="outline"
             size="icon-lg"
-            className="rounded-md border-[#E5E7EB] bg-white text-[#64748B] hover:bg-[#F8F9FB]"
+            className="rounded-lg border-[#111827]/14 bg-[#FFFDF8] text-[#6B7280] shadow-[2px_2px_0_rgba(17,24,39,0.06)] hover:bg-[#FFF7ED]"
             aria-label="Buka navigasi"
           />
         }
@@ -647,7 +638,7 @@ function MobileSidebarTrigger({ navigation, roleLabel }: { navigation: Dashboard
         <Menu />
         <span className="sr-only">Buka navigasi</span>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[min(88vw,320px)] gap-0 border-[#E5E7EB] bg-white p-0 text-[#111827]">
+      <SheetContent side="left" className="mcs-dashboard w-[min(88vw,320px)] gap-0 border-[#111827]/14 bg-[#FFFDF8] p-0 text-[#111827]">
         <SheetHeader className="sr-only">
           <SheetTitle>MCS dashboard navigation</SheetTitle>
           <SheetDescription>Bagian dashboard untuk manajemen kepanitiaan Melati Championship Series 1.</SheetDescription>
@@ -659,7 +650,7 @@ function MobileSidebarTrigger({ navigation, roleLabel }: { navigation: Dashboard
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="rounded-md text-[#64748B] hover:bg-[#F8F9FB]"
+                className="rounded-lg text-[#6B7280] hover:bg-[#FFF7ED]"
                 aria-label="Close navigation"
               />
             }
@@ -691,7 +682,7 @@ function SidebarContent({
 
   return (
     <>
-      <div className={cn("border-b border-[#E5E7EB] p-4", !expanded && !mobile && "md:px-3 lg:px-4")}>
+      <div className={cn("mcs-starburst overflow-hidden border-b border-[#111827]/12 p-4 after:-right-6 after:top-5", !expanded && !mobile && "md:px-3 lg:px-4")}>
         <div
           className={cn(
             "flex items-start gap-3",
@@ -701,18 +692,18 @@ function SidebarContent({
           <OfficialLogoStrip compact={!expanded && !mobile} />
 
           <div className={cn("min-w-0", !expanded && !mobile && "md:hidden lg:block")}>
-            <p className="truncate text-lg font-semibold leading-6 text-[#111827]">MCS 1</p>
-            <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-[#64748B]">{event.theme}</p>
+            <p className="truncate font-heading text-lg font-bold leading-6 text-[#111827]">MCS 1</p>
+            <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-[#6B7280]">{event.theme}</p>
           </div>
         </div>
 
         <div
           className={cn(
-            "mt-4 grid gap-1.5 rounded-lg border border-[#E5E7EB] bg-[#F8F9FB] p-3",
+            "mt-4 grid gap-1.5 rounded-lg border border-[#111827]/12 bg-[#FFF7ED] p-3 shadow-[2px_2px_0_rgba(17,24,39,0.07)]",
             !expanded && !mobile && "md:hidden lg:block",
           )}
         >
-          <p className="text-xs font-semibold text-[#111827]">Sistem Kepanitiaan MCS 1</p>
+          <p className="text-xs font-bold text-[#111827]">Sistem Kepanitiaan MCS 1</p>
           <SidebarMeta label="Tanggal" value={displayEventDate} />
           <SidebarMeta label="Sekolah" value="SMKN 20 Jakarta" />
           <SidebarMeta label="Penyelenggara" value="OSIS & MPK" />
@@ -720,8 +711,8 @@ function SidebarContent({
         </div>
       </div>
 
-      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-3" aria-label="Dashboard navigation">
-        <div className="flex flex-col gap-4">
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-4" aria-label="Dashboard navigation">
+        <div className="flex flex-col gap-5">
           {navigationGroups.map((group) => (
             <SidebarNavGroup
               key={group.label}
@@ -752,17 +743,17 @@ function HeaderStatusRail({ roleLabel, status }: { roleLabel: string; status: Sh
         <div
           key={item.label}
           className={cn(
-            "inline-flex h-9 max-w-[150px] items-center gap-1.5 rounded-md border border-[#E5E7EB] bg-white px-2.5 text-xs",
+            "inline-flex h-9 max-w-[150px] items-center gap-1.5 rounded-lg border border-[#111827]/12 bg-white px-2.5 text-xs shadow-[2px_2px_0_rgba(17,24,39,0.04)]",
           )}
           title={`${item.label}: ${item.value}`}
         >
-          <span className="shrink-0 font-medium text-[#94A3B8]">{item.label}</span>
+          <span className="shrink-0 font-semibold text-[#9CA3AF]">{item.label}</span>
           <span
             suppressHydrationWarning
             className={cn(
               "min-w-0 truncate font-semibold text-[#111827]",
-              item.label === "Status" && status.phase === "Live" && "text-[#16A34A]",
-              item.label === "Status" && status.phase === "Preparation" && "text-[#D97706]",
+              item.label === "Status" && status.phase === "Live" && "text-[#22C55E]",
+              item.label === "Status" && status.phase === "Preparation" && "text-[#F97316]",
             )}
           >
             {item.value}
@@ -776,17 +767,17 @@ function HeaderStatusRail({ roleLabel, status }: { roleLabel: string; status: Sh
 function SidebarMeta({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 items-center justify-between gap-2 text-[11px] leading-4">
-      <span className="shrink-0 font-medium text-[#94A3B8]">{label}</span>
-      <span className="truncate font-semibold text-[#64748B]">{value}</span>
+      <span className="shrink-0 font-semibold text-[#9CA3AF]">{label}</span>
+      <span className="truncate font-bold text-[#374151]">{value}</span>
     </div>
   )
 }
 
 function SidebarRoleBadge({ roleLabel }: { roleLabel: string }) {
   return (
-    <div className="mt-1 flex min-w-0 items-center justify-between gap-2 rounded-full border border-[#E5E7EB] bg-white px-2.5 py-1.5">
-      <span className="text-[11px] font-medium text-[#94A3B8]">Role</span>
-      <span className="min-w-0 truncate text-[11px] font-semibold text-[#081C3A]">{roleLabel}</span>
+    <div className="mt-1 flex min-w-0 items-center justify-between gap-2 rounded-md border border-[#F97316]/30 bg-white px-2.5 py-1.5">
+      <span className="text-[11px] font-semibold text-[#9CA3AF]">Role</span>
+      <span className="min-w-0 truncate text-[11px] font-bold text-[#F97316]">{roleLabel}</span>
     </div>
   )
 }
@@ -804,7 +795,7 @@ function SidebarNavGroup({
 }) {
   return (
     <div className="grid gap-1">
-      <p className={cn("px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#94A3B8]", !expanded && !mobile && "md:hidden lg:block")}>
+      <p className={cn("px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-[#6B7280]", !expanded && !mobile && "md:hidden lg:block")}>
         {formatNavigationGroupLabel(group.label)}
       </p>
       {group.items.map((item) => (
@@ -833,14 +824,16 @@ function SidebarLink({
     <Link
       href={item.href}
       className={cn(
-        "flex h-10 min-w-0 items-center gap-3 rounded-md px-3 text-sm font-medium transition duration-200",
-        active ? "bg-[#081C3A] text-white" : "text-[#64748B] hover:bg-[#F8F9FB] hover:text-[#111827]",
+        "group relative flex h-10 min-w-0 items-center gap-3 rounded-lg border px-3 text-sm font-semibold transition duration-200",
+        active
+          ? "border-[#F97316] bg-[#F97316] text-white shadow-[3px_3px_0_rgba(17,24,39,0.18)]"
+          : "border-transparent text-[#6B7280] hover:border-[#111827]/10 hover:bg-[#FFF7ED] hover:text-[#111827]",
         !expanded && !mobile && "md:justify-center md:px-0 lg:justify-start lg:px-3",
       )}
       aria-current={active ? "page" : undefined}
       title={!expanded && !mobile ? label : undefined}
     >
-      <Icon className={cn("size-4 shrink-0", active ? "text-white" : "text-[#64748B]")} aria-hidden="true" />
+      <Icon className={cn("size-4 shrink-0", active ? "text-white" : "text-[#6B7280] group-hover:text-[#111827]")} aria-hidden="true" />
       <span className={cn("truncate", !expanded && !mobile && "md:hidden lg:block")}>{label}</span>
     </Link>
   )
@@ -853,7 +846,7 @@ function OfficialLogoStrip({ compact }: { compact: boolean }) {
         <div
           key={asset.name}
           className={cn(
-            "relative grid place-items-center rounded-md border border-[#E5E7EB] bg-white",
+            "relative grid place-items-center rounded-lg border border-[#111827]/12 bg-white shadow-[2px_2px_0_rgba(17,24,39,0.06)]",
             compact ? "size-6 p-0.5" : "size-9 p-1",
           )}
         >
@@ -974,7 +967,7 @@ function NotificationsMenu() {
     <div className="relative" ref={menuRef}>
       <button
         type="button"
-        className="relative grid size-9 place-items-center rounded-[10px] border border-[#E5E7EB] bg-white text-[#64748B] transition hover:bg-[#F8F9FB]"
+        className="relative grid size-9 place-items-center rounded-lg border border-[#111827]/14 bg-white text-[#6B7280] shadow-[2px_2px_0_rgba(17,24,39,0.06)] transition hover:bg-[#FFF7ED]"
         aria-controls="mcs-notifications-menu"
         aria-expanded={menuOpen}
         aria-haspopup="menu"
@@ -984,7 +977,7 @@ function NotificationsMenu() {
       >
         <Bell className="size-4" aria-hidden="true" />
         {unreadCount > 0 ? (
-          <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[#B91C1C] px-1 text-[10px] font-semibold leading-5 text-white">
+          <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-[#F97316] px-1 text-[10px] font-bold leading-5 text-white ring-2 ring-[#FFFDF8]">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
@@ -994,18 +987,18 @@ function NotificationsMenu() {
         <div
           id="mcs-notifications-menu"
           role="menu"
-          className="absolute right-0 top-[calc(100%+8px)] z-50 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-[#E5E7EB] bg-white p-2 text-[#111827] shadow-md ring-1 ring-[#111827]/5"
+          className="mcs-surface absolute right-0 top-[calc(100%+8px)] z-50 w-[min(22rem,calc(100vw-2rem))] rounded-lg p-2 text-[#111827]"
         >
           <div className="px-2 py-2">
             <p className="text-sm font-semibold text-[#111827]">Notifikasi Kepanitiaan</p>
-            <p className="mt-1 text-xs font-medium leading-5 text-[#64748B]">
+            <p className="mt-1 text-xs font-medium leading-5 text-[#6B7280]">
               Update resmi dari sistem komando MCS 1.
             </p>
           </div>
-          <div className="my-2 h-px bg-[#E5E7EB]" />
+          <div className="my-2 h-px bg-[#111827]/10" />
           {loading ? (
-            <div className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-3 py-3 text-center">
-              <p className="text-xs font-semibold text-[#64748B]">Memuat notifikasi...</p>
+            <div className="mcs-inset-panel rounded-lg border-dashed px-3 py-3 text-center">
+              <p className="text-xs font-semibold text-[#6B7280]">Memuat notifikasi...</p>
             </div>
           ) : loadError ? (
             <div className="rounded-xl border border-dashed border-[#FECACA] bg-[#FEF2F2] px-3 py-3 text-center">
@@ -1017,7 +1010,7 @@ function NotificationsMenu() {
                 <Link
                   key={item.id}
                   href={getNotificationHref(item)}
-                  className="grid gap-1 rounded-[10px] px-2 py-2 text-sm transition hover:bg-[#F8F9FB]"
+                  className="grid gap-1 rounded-lg px-2 py-2 text-sm transition hover:bg-[#FFF7ED]"
                   role="menuitem"
                   onClick={() => void markRead(item.id)}
                 >
@@ -1025,14 +1018,14 @@ function NotificationsMenu() {
                     <span className="min-w-0 truncate font-semibold text-[#111827]">{item.title}</span>
                     <PriorityBadge priority={getNotificationPriority(item)} />
                   </span>
-                  <span className="line-clamp-2 text-xs font-medium leading-5 text-[#64748B]">{item.body}</span>
+                  <span className="line-clamp-2 text-xs font-medium leading-5 text-[#6B7280]">{item.body}</span>
                   <span className="text-[11px] font-semibold text-[#94A3B8]">{formatNotificationTime(item.createdAt)}</span>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8F9FB] px-3 py-3 text-center">
-              <p className="text-xs font-semibold text-[#64748B]">Belum ada notifikasi baru</p>
+            <div className="mcs-inset-panel rounded-lg border-dashed px-3 py-3 text-center">
+              <p className="text-xs font-semibold text-[#6B7280]">Belum ada notifikasi baru</p>
             </div>
           )}
         </div>
@@ -1088,20 +1081,20 @@ function ProfileMenu({ homePath, roleLabel, user }: { homePath: string; roleLabe
     <div className="relative" ref={menuRef}>
       <button
         type="button"
-        className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-[#E5E7EB] bg-white px-2 text-[#111827] transition hover:bg-[#F8F9FB]"
+        className="inline-flex h-9 items-center gap-2 rounded-lg border border-[#111827]/14 bg-white px-2 text-[#111827] shadow-[2px_2px_0_rgba(17,24,39,0.06)] transition hover:bg-[#FFF7ED]"
         aria-controls="mcs-profile-menu"
         aria-expanded={menuOpen}
         aria-haspopup="menu"
         aria-label="Buka menu profil"
         onClick={() => setMenuOpen((current) => !current)}
       >
-        <Avatar size="sm" className="size-7 bg-[#0F172A] text-white after:border-[#0F172A]">
-          <AvatarFallback className="bg-[#0F172A] text-xs font-semibold text-white">{initials}</AvatarFallback>
+        <Avatar size="sm" className="size-7 bg-[#111827] text-white after:border-[#111827]">
+          <AvatarFallback className="bg-[#111827] text-xs font-bold text-white">{initials}</AvatarFallback>
         </Avatar>
         <span className="hidden max-w-28 truncate text-sm font-semibold text-[#111827] lg:block">
           {user.displayName}
         </span>
-        <span className="hidden h-6 items-center rounded-full bg-[#F8F9FB] px-2 text-xs font-semibold text-[#0F172A] ring-1 ring-[#E5E7EB] xl:inline-flex">
+        <span className="hidden h-6 items-center rounded-md bg-[#FFF7ED] px-2 text-xs font-bold text-[#F97316] ring-1 ring-[#FED7AA] xl:inline-flex">
           {roleLabel}
         </span>
         <ChevronDown className="hidden size-4 text-[#64748B] sm:block" aria-hidden="true" />
@@ -1111,66 +1104,66 @@ function ProfileMenu({ homePath, roleLabel, user }: { homePath: string; roleLabe
         <div
           id="mcs-profile-menu"
           role="menu"
-          className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 rounded-2xl border border-[#E5E7EB] bg-white p-1 text-[#111827] shadow-md ring-1 ring-[#111827]/5"
+          className="mcs-surface absolute right-0 top-[calc(100%+8px)] z-50 w-64 rounded-lg p-1 text-[#111827]"
         >
           <div className="flex items-start gap-3 px-2 py-2">
-            <Avatar size="sm" className="size-8 bg-[#0F172A] text-white after:border-[#0F172A]">
-              <AvatarFallback className="bg-[#0F172A] text-xs font-semibold text-white">{initials}</AvatarFallback>
+            <Avatar size="sm" className="size-8 bg-[#111827] text-white after:border-[#111827]">
+              <AvatarFallback className="bg-[#111827] text-xs font-bold text-white">{initials}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold text-[#111827]">{user.displayName}</span>
-              <span className="mt-0.5 block truncate text-xs font-medium text-[#64748B]">{user.email}</span>
-              <span className="mt-2 inline-flex h-6 items-center rounded-full bg-[#F8F9FB] px-2 text-xs font-semibold text-[#0F172A] ring-1 ring-[#E5E7EB]">
+              <span className="mt-0.5 block truncate text-xs font-medium text-[#6B7280]">{user.email}</span>
+              <span className="mt-2 inline-flex h-6 items-center rounded-md bg-[#FFF7ED] px-2 text-xs font-bold text-[#F97316] ring-1 ring-[#FED7AA]">
                 {roleLabel}
               </span>
             </div>
           </div>
-          <div className="-mx-1 my-1 h-px bg-[#E5E7EB]" />
+          <div className="-mx-1 my-1 h-px bg-[#111827]/10" />
           <button
             type="button"
             role="menuitem"
-            className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-2 text-left text-sm text-[#111827] outline-none hover:bg-[#F8F9FB] focus:bg-[#F8F9FB]"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-[#111827] outline-none hover:bg-[#FFF7ED] focus:bg-[#FFF7ED]"
             onClick={() => {
               setMenuOpen(false)
               router.push(homePath)
             }}
           >
-            <UserRound className="size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+            <UserRound className="size-4 shrink-0 text-[#0EA5E9]" aria-hidden="true" />
             Profile
           </button>
           <div
             role="menuitem"
             aria-disabled="true"
-            className="flex items-center gap-2 rounded-[10px] px-2 py-2 text-sm text-[#111827]"
+            className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-[#111827]"
           >
-            <Building2 className="size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+            <Building2 className="size-4 shrink-0 text-[#6B7280]" aria-hidden="true" />
             <span className="min-w-0 flex-1 truncate">Divisi: {divisionLabel}</span>
           </div>
           <button
             type="button"
             role="menuitem"
-            className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-2 text-left text-sm text-[#111827] outline-none hover:bg-[#F8F9FB] focus:bg-[#F8F9FB]"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-[#111827] outline-none hover:bg-[#FFF7ED] focus:bg-[#FFF7ED]"
             onClick={() => {
               setMenuOpen(false)
               router.push("/dashboard/settings")
             }}
           >
-            <Settings className="size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+            <Settings className="size-4 shrink-0 text-[#0EA5E9]" aria-hidden="true" />
             Settings
           </button>
           <div
             role="menuitem"
             aria-disabled="true"
-            className="flex items-center gap-2 rounded-[10px] px-2 py-2 text-sm text-[#111827]"
+            className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-[#111827]"
           >
-            <ShieldCheck className="size-4 shrink-0 text-[#64748B]" aria-hidden="true" />
+            <ShieldCheck className="size-4 shrink-0 text-[#6B7280]" aria-hidden="true" />
             <span className="min-w-0 flex-1 truncate">Role: {roleLabel}</span>
           </div>
-          <div className="-mx-1 my-1 h-px bg-[#E5E7EB]" />
+          <div className="-mx-1 my-1 h-px bg-[#111827]/10" />
           <button
             type="button"
             role="menuitem"
-            className="flex w-full cursor-pointer items-center gap-2 rounded-[10px] px-2 py-2 text-left text-sm text-[#B91C1C] outline-none hover:bg-[#FEF2F2] focus:bg-[#FEF2F2]"
+            className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-[#B91C1C] outline-none hover:bg-[#FEF2F2] focus:bg-[#FEF2F2]"
             disabled={loggingOut}
             onClick={() => {
               setMenuOpen(false)

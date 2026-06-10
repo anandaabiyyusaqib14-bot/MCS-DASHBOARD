@@ -360,7 +360,7 @@ export const gallery = [
 
 export const dashboardFootage = [
   { id: "basket-live", label: "Basket Live Match", type: "Live", meta: "MCS court footage", src: "/images/mcs-gallery/basket-04.jpg", crop: "object-[42%_50%]" },
-  { id: "futsal-live", label: "Futsal Court", type: "Photo", meta: "Lapangan utama", src: "/images/mcs-gallery/futsal-02.jpg", crop: "object-[45%_50%]" },
+  { id: "mcs-team-photo", label: "MCS Team Photo", type: "Photo", meta: "Peserta MCS 1", src: "/images/mcs/foto-ospk.jpeg", crop: "object-[50%_58%]" },
   { id: "volley-court", label: "Volley Match", type: "Photo", meta: "School court atmosphere", src: "/images/mcs-gallery/volley-01.jpg", crop: "object-[50%_50%]" },
   { id: "mlbb-room", label: "E-Sport Room", type: "Video", meta: "Mobile Legends competition", src: "/images/mcs-gallery/mlbb-01.jpg", crop: "object-[48%_46%]" },
   { id: "art-stage", label: "Art Performance", type: "Photo", meta: "Cultural stage", src: "/images/mcs-gallery/tari-01.jpg", crop: "object-[50%_45%]" },
