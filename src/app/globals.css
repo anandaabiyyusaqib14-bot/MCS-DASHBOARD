@@ -70,8 +70,8 @@
   --mcs-dash-muted: #6b7280;
   --mcs-dash-line: rgba(17, 24, 39, 0.12);
   --mcs-dash-line-strong: rgba(17, 24, 39, 0.2);
-  --mcs-dash-shadow: 4px 4px 0 rgba(17, 24, 39, 0.1), 0 14px 34px rgba(17, 24, 39, 0.06);
-  --mcs-dash-shadow-soft: 2px 2px 0 rgba(17, 24, 39, 0.07), 0 10px 24px rgba(17, 24, 39, 0.045);
+  --mcs-dash-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
+  --mcs-dash-shadow-soft: 0 4px 12px rgba(17, 24, 39, 0.06);
 
   --background: #081c3a;
   --foreground: #f6f7f9;
@@ -203,30 +203,17 @@
 
   .mcs-dashboard::before {
     content: "";
-    position: fixed;
+    position: absolute;
     inset: 68px 0 0 0;
     z-index: 0;
     pointer-events: none;
-    background-image:
-      radial-gradient(circle at 1px 1px, rgba(17, 24, 39, 0.08) 1px, transparent 0),
-      linear-gradient(135deg, rgba(249, 115, 22, 0.055) 0 1px, transparent 1px 28px),
-      linear-gradient(45deg, rgba(14, 165, 233, 0.045) 0 1px, transparent 1px 36px);
-    background-size: 28px 28px, 56px 56px, 72px 72px;
+    background-image: radial-gradient(circle at 1px 1px, rgba(17, 24, 39, 0.055) 1px, transparent 0);
+    background-size: 32px 32px;
     mask-image: linear-gradient(180deg, black, transparent 86%);
   }
 
   .mcs-dashboard::after {
-    content: "";
-    position: fixed;
-    top: 112px;
-    right: max(24px, 4vw);
-    z-index: 0;
-    width: 260px;
-    height: 260px;
-    pointer-events: none;
-    opacity: 0.16;
-    background: repeating-conic-gradient(from 0deg, var(--mcs-dash-primary) 0deg 8deg, transparent 8deg 22deg);
-    clip-path: polygon(50% 0, 56% 38%, 92% 18%, 62% 50%, 100% 56%, 62% 62%, 82% 94%, 50% 68%, 18% 94%, 38% 62%, 0 56%, 38% 50%, 8% 18%, 44% 38%);
+    content: none;
   }
 
   .mcs-dashboard > :not(header):not(aside) {
@@ -242,10 +229,7 @@
 
   .mcs-soft-surface {
     border: 1px solid var(--mcs-dash-line);
-    background:
-      linear-gradient(135deg, rgba(249, 115, 22, 0.08), transparent 42%),
-      linear-gradient(315deg, rgba(14, 165, 233, 0.07), transparent 45%),
-      var(--mcs-dash-surface);
+    background: var(--mcs-dash-surface);
     box-shadow: var(--mcs-dash-shadow);
   }
 
@@ -327,7 +311,7 @@
     border: 1px solid rgba(17, 24, 39, 0.14);
     background: #fffdf8;
     color: #111827;
-    box-shadow: 5px 5px 0 rgba(249, 115, 22, 0.18), 0 24px 60px rgba(17, 24, 39, 0.18);
+    box-shadow: 0 16px 36px rgba(17, 24, 39, 0.16);
   }
 
   .mcs-dialog-footer {
@@ -409,6 +393,52 @@
   .mcs-dashboard select,
   .mcs-dashboard textarea {
     min-height: 40px;
+    border-color: rgba(17, 24, 39, 0.12);
+    background-color: #ffffff;
+    color: #111827;
+    color-scheme: light;
+  }
+
+  .mcs-dashboard main input:not([type="checkbox"]):not([type="radio"]),
+  .mcs-dashboard main select,
+  .mcs-dashboard main textarea,
+  .mcs-dialog-panel input:not([type="checkbox"]):not([type="radio"]),
+  .mcs-dialog-panel select,
+  .mcs-dialog-panel textarea,
+  main[aria-label$=" content"] input:not([type="checkbox"]):not([type="radio"]),
+  main[aria-label$=" content"] select,
+  main[aria-label$=" content"] textarea {
+    border-color: rgba(17, 24, 39, 0.2);
+    background-color: #f8fafc;
+    box-shadow: inset 0 1px 0 rgba(17, 24, 39, 0.04);
+  }
+
+  .mcs-dashboard main input:disabled,
+  .mcs-dashboard main select:disabled,
+  .mcs-dashboard main textarea:disabled,
+  .mcs-dashboard main input[readonly],
+  .mcs-dashboard main textarea[readonly],
+  .mcs-dialog-panel input:disabled,
+  .mcs-dialog-panel select:disabled,
+  .mcs-dialog-panel textarea:disabled,
+  .mcs-dialog-panel input[readonly],
+  .mcs-dialog-panel textarea[readonly] {
+    border-color: rgba(100, 116, 139, 0.2);
+    background-color: #f1f5f9;
+    color: #64748b;
+  }
+
+  .mcs-dashboard input::placeholder,
+  .mcs-dashboard textarea::placeholder {
+    color: #94a3b8;
+  }
+
+  .mcs-dashboard input:focus,
+  .mcs-dashboard select:focus,
+  .mcs-dashboard textarea:focus {
+    background-color: #ffffff;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
   }
 
   .mcs-dashboard [class*="bg-[#F8F9FB]"] {

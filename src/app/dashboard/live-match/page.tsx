@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 
-import { DashboardModuleScreen } from "@/components/dashboard/internal-dashboard-screens"
-import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
+import { LiveScoreControlRoom } from "@/components/dashboard/live-score-control-room"
 
 export const metadata: Metadata = {
   title: "Pantauan Pertandingan - MCS 1",
@@ -11,8 +10,6 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic"
 
-export default async function LiveMatchPage() {
-  const { summary } = await getDashboardOverviewContext("/dashboard/live-match")
-
-  return <DashboardModuleScreen moduleKey="live-match" summary={summary} />
+export default function LiveMatchPage() {
+  return <LiveScoreControlRoom />
 }

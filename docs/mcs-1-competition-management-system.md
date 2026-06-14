@@ -46,7 +46,7 @@ The in-memory state mirrors database tables that can later be moved to SQL or Fi
 | `judge_scores` | Manually provided judge score submissions |
 | `competition_results` | Official published results |
 | `competition_logs` | Audit trail with previous and new values |
-| `competition_notifications` | Operational notifications generated from real actions |
+| `competition_notifications` | Operational notifications from real actions |
 
 ## API Endpoint Structure
 
@@ -100,12 +100,12 @@ Base route: `/api/mcs/competition-center`
 - PJ Lomba can manage only assigned competition IDs.
 - The backend rejects competitions outside the official MCS 1 list.
 - The backend never generates schedules, entrants, scores, standings, winners, or announcements.
-- Brackets can be generated only after at least two approved real entrants exist.
+- Brackets can be created only after at least two approved real entrants exist.
 - Match scores can be updated only for existing real matches.
 - Results require official winner, runner-up, and third-place input before publication.
 - Completed and archived competitions are read-only.
 - All mutations create audit log entries.
-- Notifications are generated only from real actions such as registration approval, score update, result publication, and competition completion.
+- Notifications are created only from real actions such as registration approval, score update, result publication, and competition completion.
 
 ## UI Behavior
 
@@ -116,4 +116,4 @@ The `/dashboard/tournament` route renders the Competition Management Center with
 - Real project gallery images when available
 - Image placeholders when no official image exists
 - Empty states for unpublished participants, teams, matches, brackets, criteria, results, and activity
-- No invented supporter category, sample teams, fake scores, fake winners, or generated event photos
+- No invented supporter category, sample teams, fake scores, fake winners, or synthetic event photos

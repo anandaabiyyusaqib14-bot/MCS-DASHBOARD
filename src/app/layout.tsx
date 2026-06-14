@@ -41,7 +41,7 @@ export default function RootLayout({
       lang="id"
       className={`${inter.variable} ${sora.variable} ${bebas.variable} ${geistMono.variable} dark h-full`}
     >
-      <body className="min-h-full antialiased">
+      <body className="min-h-full antialiased" suppressHydrationWarning>
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>

@@ -1,10 +1,12 @@
 import type { NextRequest } from "next/server"
-import { readJson, withAuth } from "@/server/mcs/http"
+import { getPaginationOptions, paginated, readJson, withAuth } from "@/server/mcs/http"
 import {
   archiveCompetitionCenterCompetition,
+  createCompetitionMatch,
   createCompetitionCenterCompetition,
   createCompetitionParticipant,
   createCompetitionTeam,
+  deleteCompetitionParticipant,
   createJudgingCriteria,
   generateCompetitionBracket,
   getCompetitionReports,
@@ -25,6 +27,7 @@ import {
   updateCompetitionParticipant,
   updateCompetitionScore,
   updateCompetitionTeam,
+  ensureCompetitionSystemReady,
 } from "@/server/mcs/competition-system"
 import { McsError } from "@/server/mcs/service"
 
@@ -35,13 +38,32 @@ type Params = {
 }
 
 export async function GET(request: NextRequest, context: Params) {
+  await ensureCompetitionSystemReady()
   const path = await getPath(context)
   const competitionId = request.nextUrl.searchParams.get("competitionId") ?? undefined
+  const pagination = getPaginationOptions(request)
 
   return withAuth(request, "competitions.read", (auth) => {
     if (path.length === 0) return getCompetitionSystemOverview(auth)
     if (path[0] === "competitions") return listCompetitionCenterCompetitions(auth)
-    if (path[0] === "participants") return listCompetitionParticipants(auth, competitionId)
+    if (path[0] === "participants") {
+      return paginated(
+        listCompetitionParticipants(auth, competitionId),
+        pagination,
+        (participant) =>
+          [
+            participant.name,
+            participant.countryName,
+            participant.className,
+            participant.major,
+            participant.competitionId,
+            participant.status,
+            participant.attendanceStatus,
+            participant.teamName,
+          ].join(" "),
+        (participant) => [participant.competitionId, participant.status, participant.attendanceStatus, participant.major].join(" "),
+      )
+    }
     if (path[0] === "teams") return listCompetitionTeams(auth, competitionId)
     if (path[0] === "brackets") return listCompetitionBrackets(auth, competitionId)
     if (path[0] === "matches") return listCompetitionMatches(auth, competitionId)
@@ -56,11 +78,13 @@ export async function GET(request: NextRequest, context: Params) {
 }
 
 export async function POST(request: NextRequest, context: Params) {
+  await ensureCompetitionSystemReady()
   const path = await getPath(context)
   const body = await readJson(request)
 
   return withAuth(request, undefined, (auth) => {
     if (path[0] === "competitions") return createCompetitionCenterCompetition(auth, body)
+    if (path[0] === "matches") return createCompetitionMatch(auth, body)
     if (path[0] === "participants") return createCompetitionParticipant(auth, body)
     if (path[0] === "teams") return createCompetitionTeam(auth, body)
     if (path[0] === "brackets" && path[1] === "generate") return generateCompetitionBracket(auth, getRequiredPathValue(body.competitionId, "competitionId"))
@@ -73,6 +97,7 @@ export async function POST(request: NextRequest, context: Params) {
 }
 
 export async function PATCH(request: NextRequest, context: Params) {
+  await ensureCompetitionSystemReady()
   const path = await getPath(context)
   const body = await readJson(request)
   const id = path[1]
@@ -90,12 +115,14 @@ export async function PATCH(request: NextRequest, context: Params) {
 }
 
 export async function DELETE(request: NextRequest, context: Params) {
+  await ensureCompetitionSystemReady()
   const path = await getPath(context)
   const id = path[1]
 
-  return withAuth(request, "competitions.delete", (auth) => {
+  return withAuth(request, undefined, (auth) => {
     if (!id) throw new McsError(400, "missing_id", "Resource id is required.")
     if (path[0] === "competitions") return archiveCompetitionCenterCompetition(auth, id)
+    if (path[0] === "participants") return deleteCompetitionParticipant(auth, id)
 
     throw new McsError(404, "route_not_found", "Competition Center endpoint not found.")
   })

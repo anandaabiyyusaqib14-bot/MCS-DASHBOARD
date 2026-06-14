@@ -346,9 +346,23 @@ export function getPermissions(auth: AuthContext) {
   }
 }
 
+const dashboardSummaryCache = new Map<string, DashboardSummary>()
+
 export function getDashboard(auth: AuthContext): DashboardSummary {
   assertAllowed(auth, "dashboard.read")
   const repo = getMcsRepository()
+  const cacheKey = [
+    auth.user.id,
+    auth.user.role,
+    auth.permissions.join(","),
+    getRepositorySignature(repo),
+  ].join("|")
+  const cachedSummary = dashboardSummaryCache.get(cacheKey)
+
+  if (cachedSummary) {
+    return cachedSummary
+  }
+
   const competitions = [...repo.competitions.values()]
   const matches = visibleMatches(auth, [...repo.matches.values()])
   const schedules = [...repo.schedules.values()]
@@ -380,7 +394,7 @@ export function getDashboard(auth: AuthContext): DashboardSummary {
   const totalMembers = committees.reduce((total, division) => total + division.members, 0)
   const totalParticipants = competitions.reduce((total, competition) => total + competition.participantCount, 0)
 
-  return {
+  const summary: DashboardSummary = {
     event: {
       id: MCS_TOURNAMENT_ID,
       name: "Melati Championship Series 1",
@@ -420,11 +434,48 @@ export function getDashboard(auth: AuthContext): DashboardSummary {
     venueStatuses: [...repo.venueStatuses.values()],
     auditPreview: listAuditLogs(auth).slice(0, 8),
   }
+
+  dashboardSummaryCache.clear()
+  dashboardSummaryCache.set(cacheKey, summary)
+
+  return summary
 }
 
 export function listUsers(auth: AuthContext) {
   assertAllowed(auth, "users.read")
   return [...getMcsRepository().users.values()].map(toUserDTO)
+}
+
+function getRepositorySignature(repo: ReturnType<typeof getMcsRepository>) {
+  const updatedAtValues = [
+    ...[...repo.competitions.values()].map((item) => item.updatedAt),
+    ...[...repo.schedules.values()].map((item) => item.updatedAt),
+    ...[...repo.announcements.values()].map((item) => item.updatedAt),
+    ...[...repo.media.values()].map((item) => item.updatedAt),
+    ...[...repo.tasks.values()].map((item) => item.updatedAt),
+    ...[...repo.issues.values()].map((item) => item.updatedAt),
+    ...[...repo.handoffs.values()].map((item) => item.updatedAt),
+    ...[...repo.venueStatuses.values()].map((item) => item.updatedAt),
+    ...repo.auditLogs.map((item) => item.timestamp),
+    ...repo.notifications.map((item) => item.createdAt),
+  ]
+  const latestUpdate = updatedAtValues.reduce((latest, value) => Math.max(latest, Date.parse(value) || 0), 0)
+
+  return [
+    repo.competitions.size,
+    repo.schedules.size,
+    repo.matches.size,
+    repo.announcements.size,
+    repo.media.size,
+    repo.committees.size,
+    repo.tasks.size,
+    repo.issues.size,
+    repo.handoffs.size,
+    repo.venueStatuses.size,
+    repo.auditLogs.length,
+    repo.notifications.length,
+    latestUpdate,
+  ].join(":")
 }
 
 export function createUser(auth: AuthContext, input: JsonObject) {
@@ -459,6 +510,49 @@ export function createUser(auth: AuthContext, input: JsonObject) {
 
   repo.users.set(user.id, user)
   writeAudit(auth.user, "users.create", "users", user.id, { role })
+
+  return toUserDTO(user)
+}
+
+export function bootstrapInitialAdmin(input: JsonObject, providedSecret?: string | null) {
+  const expectedSecret = process.env.MCS_BOOTSTRAP_SECRET
+
+  if (!expectedSecret) {
+    throw new McsError(403, "bootstrap_disabled", "Bootstrap is disabled. Set MCS_BOOTSTRAP_SECRET first.")
+  }
+
+  if (!providedSecret || providedSecret !== expectedSecret) {
+    throw new McsError(403, "invalid_bootstrap_secret", "Bootstrap secret is invalid.")
+  }
+
+  const repo = getMcsRepository()
+
+  if (repo.users.size > 0) {
+    throw new McsError(409, "users_already_exist", "Bootstrap is only available before the first user is created.")
+  }
+
+  const now = new Date().toISOString()
+  const password = getRequiredString(input, "password")
+  const credential = hashPassword(password)
+  const user: UserAccount = {
+    id: createId("user"),
+    displayName: getRequiredString(input, "displayName"),
+    email: getRequiredString(input, "email").toLowerCase(),
+    role: "super_admin",
+    status: "active",
+    tournamentIds: [MCS_TOURNAMENT_ID],
+    divisionIds: ["system"],
+    assignedCompetitionIds: [...officialCompetitionIds],
+    phone: getOptionalString(input.phone),
+    passwordHash: credential.hash,
+    passwordSalt: credential.salt,
+    passwordIterations: credential.iterations,
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  repo.users.set(user.id, user)
+  writeAudit(user, "users.bootstrap", "users", user.id, { role: user.role })
 
   return toUserDTO(user)
 }
@@ -577,13 +671,14 @@ export function deleteCompetition(auth: AuthContext, id: string) {
 
 export function listSchedules(auth: AuthContext) {
   assertAllowed(auth, "schedules.read")
-  return [...getMcsRepository().schedules.values()]
+  return [...getMcsRepository().schedules.values()].sort(sortSchedules)
 }
 
 export function createSchedule(auth: AuthContext, input: JsonObject) {
   assertAllowed(auth, "schedules.create")
   const now = new Date().toISOString()
-  const record = {
+  const status = getScheduleStatus(input.status) ?? "scheduled"
+  const record: ScheduleRecord = {
     id: createId("schedule"),
     tournamentId: MCS_TOURNAMENT_ID,
     date: getRequiredString(input, "date"),
@@ -595,14 +690,19 @@ export function createSchedule(auth: AuthContext, input: JsonObject) {
     venue: getRequiredString(input, "venue"),
     pic: getRequiredString(input, "pic"),
     type: getScheduleType(input.type),
-    status: getScheduleStatus(input.status) ?? "scheduled",
+    status,
     competitionId: getOptionalString(input.competitionId),
+    notes: getOptionalString(input.notes),
+    publishedAt: status === "scheduled" ? now : undefined,
+    publishedBy: status === "scheduled" ? auth.user.displayName : undefined,
     createdAt: now,
     updatedAt: now,
   }
 
   getMcsRepository().schedules.set(record.id, record)
-  writeAudit(auth.user, "schedules.create", "schedules", record.id)
+  writeAudit(auth.user, getOptionalString(input.auditAction) === "schedules.duplicate" ? "schedules.duplicate" : "schedules.create", "schedules", record.id, {
+    status: record.status,
+  })
   createRoleNotifications(scheduleNotificationRoles, {
     type: "schedule_update",
     title: "New schedule added",
@@ -624,8 +724,14 @@ export function updateSchedule(auth: AuthContext, id: string, input: JsonObject)
   schedule.title = getOptionalString(input.title) ?? schedule.title
   schedule.venue = getOptionalString(input.venue) ?? schedule.venue
   schedule.pic = getOptionalString(input.pic) ?? schedule.pic
+  schedule.type = input.type ? getScheduleType(input.type) : schedule.type
   schedule.status = getScheduleStatus(input.status) ?? schedule.status
   schedule.competitionId = getOptionalString(input.competitionId) ?? schedule.competitionId
+  schedule.notes = getOptionalString(input.notes) ?? schedule.notes
+  if (schedule.status === "scheduled" && !schedule.publishedAt) {
+    schedule.publishedAt = new Date().toISOString()
+    schedule.publishedBy = auth.user.displayName
+  }
   schedule.updatedAt = new Date().toISOString()
 
   writeAudit(auth.user, "schedules.update", "schedules", schedule.id, {
@@ -653,6 +759,75 @@ export function deleteSchedule(auth: AuthContext, id: string) {
   return { id, deleted: true }
 }
 
+export function publishRundown(auth: AuthContext) {
+  assertAllowed(auth, "schedules.update")
+  const repo = getMcsRepository()
+  const now = new Date().toISOString()
+  let updated = 0
+
+  repo.schedules.forEach((schedule) => {
+    if (schedule.status === "draft") {
+      schedule.status = "scheduled"
+      schedule.publishedAt = now
+      schedule.publishedBy = auth.user.displayName
+      schedule.updatedAt = now
+      updated += 1
+    }
+  })
+
+  writeAudit(auth.user, "schedules.publish", "schedules", undefined, {
+    publishedCount: updated,
+  })
+  createRoleNotifications(scheduleNotificationRoles, {
+    type: "schedule_update",
+    title: "Rundown published",
+    body: `${auth.user.displayName} published the MCS 1 rundown.`,
+    resource: "schedules",
+  })
+
+  return {
+    publishedAt: now,
+    publishedBy: auth.user.displayName,
+    updated,
+  }
+}
+
+export function unpublishRundown(auth: AuthContext) {
+  if (auth.user.role !== "super_admin") {
+    throw new McsError(403, "super_admin_required", "Only Super Admin can unpublish the rundown.")
+  }
+
+  const repo = getMcsRepository()
+  const now = new Date().toISOString()
+  let updated = 0
+
+  repo.schedules.forEach((schedule) => {
+    if (schedule.status === "scheduled") {
+      schedule.status = "draft"
+      schedule.publishedAt = undefined
+      schedule.publishedBy = undefined
+      schedule.updatedAt = now
+      updated += 1
+    }
+  })
+
+  writeAudit(auth.user, "schedules.unpublish", "schedules", undefined, {
+    unpublishedCount: updated,
+  })
+  createRoleNotifications(["ketua_pelaksana", "wakil_ketua", "acara", "pj_lomba"], {
+    type: "schedule_update",
+    title: "Rundown unpublished",
+    body: "The MCS 1 rundown has been pulled back to draft.",
+    resource: "schedules",
+  })
+
+  return {
+    unpublishedAt: now,
+    unpublishedBy: auth.user.displayName,
+    updated,
+  }
+}
+
 export function listMatches(auth: AuthContext) {
   assertAllowed(auth, "competitions.read")
   return visibleMatches(auth, [...getMcsRepository().matches.values()])
@@ -663,8 +838,8 @@ export function updateScore(auth: AuthContext, id: string, input: JsonObject) {
   const match = mustFind(getMcsRepository().matches, id, "match")
   ensureCompetitionScope(auth, match.competitionId)
 
-  match.scoreA = getNumber(input.scoreA, match.scoreA)
-  match.scoreB = getNumber(input.scoreB, match.scoreB)
+  match.scoreA = getScoreNumber(input.scoreA, match.scoreA, "scoreA")
+  match.scoreB = getScoreNumber(input.scoreB, match.scoreB, "scoreB")
   match.clock = getOptionalString(input.clock) ?? match.clock
   match.status = getMatchStatus(input.status) ?? match.status
   match.updatedBy = auth.user.id
@@ -673,6 +848,9 @@ export function updateScore(auth: AuthContext, id: string, input: JsonObject) {
   if (match.status === "final" || Boolean(input.final)) {
     match.status = "final"
     match.winner = match.scoreA === match.scoreB ? undefined : match.scoreA > match.scoreB ? match.teamA : match.teamB
+    if (!match.winner) {
+      throw new McsError(400, "winner_required", "Final score cannot be tied without a winner.")
+    }
     updateCompetitionProgress(match.competitionId)
   }
 
@@ -1365,6 +1543,22 @@ export function listAuditLogs(auth: AuthContext): AuditLogRecord[] {
   return [...getMcsRepository().auditLogs].sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp))
 }
 
+export function recordAuditActivity(auth: AuthContext, input: JsonObject) {
+  assertAllowed(auth, "dashboard.read")
+  const action = getRequiredString(input, "action")
+  const resource = getOptionalString(input.resource) ?? "dashboard"
+  const resourceId = getOptionalString(input.resourceId)
+  const detail = getOptionalString(input.detail)
+
+  writeAudit(auth.user, action, resource, resourceId, detail ? { detail } : undefined)
+
+  return {
+    action,
+    resource,
+    recorded: true,
+  }
+}
+
 export function listNotifications(auth: AuthContext): NotificationRecord[] {
   assertAllowed(auth, "notifications.read")
 
@@ -1728,6 +1922,13 @@ function selectTodaySchedule(schedules: ScheduleRecord[]) {
   return schedules.filter((schedule) => schedule.date === "2026-06-22").slice(0, 8)
 }
 
+function sortSchedules(first: ScheduleRecord, second: ScheduleRecord) {
+  const firstTime = `${first.date}T${first.time.replace(".", ":")}:00`
+  const secondTime = `${second.date}T${second.time.replace(".", ":")}:00`
+
+  return Date.parse(firstTime) - Date.parse(secondTime)
+}
+
 function updateCompetitionProgress(competitionId: string) {
   const repo = getMcsRepository()
   const competition = repo.competitions.get(competitionId)
@@ -1823,6 +2024,16 @@ function getNumber(value: unknown, fallback: number) {
   return fallback
 }
 
+function getScoreNumber(value: unknown, fallback: number, key: string) {
+  const score = getNumber(value, fallback)
+
+  if (!Number.isInteger(score) || score < 0) {
+    throw new McsError(400, "invalid_score", `${key} must be a non-negative integer.`)
+  }
+
+  return score
+}
+
 function getUserStatus(value: unknown) {
   if (value === "active" || value === "inactive" || value === "suspended") {
     return value
@@ -1847,8 +2058,19 @@ function getCompetitionStatus(value: unknown): CompetitionStatus | undefined {
   return undefined
 }
 
-function getScheduleType(value: unknown): "ceremony" | "match" | "break" | "operation" {
-  if (value === "ceremony" || value === "match" || value === "break" || value === "operation") {
+function getScheduleType(value: unknown): ScheduleRecord["type"] {
+  if (
+    value === "match" ||
+    value === "ceremony" ||
+    value === "operation" ||
+    value === "briefing" ||
+    value === "technical_meeting" ||
+    value === "awarding" ||
+    value === "opening" ||
+    value === "closing" ||
+    value === "break" ||
+    value === "other"
+  ) {
     return value
   }
 
@@ -1856,7 +2078,7 @@ function getScheduleType(value: unknown): "ceremony" | "match" | "break" | "oper
 }
 
 function getScheduleStatus(value: unknown): ScheduleStatus | undefined {
-  if (value === "scheduled" || value === "live" || value === "delayed" || value === "completed" || value === "cancelled") {
+  if (value === "draft" || value === "scheduled" || value === "live" || value === "delayed" || value === "completed" || value === "cancelled") {
     return value
   }
 

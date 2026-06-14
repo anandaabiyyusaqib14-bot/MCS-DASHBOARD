@@ -350,21 +350,21 @@ export const budgetSummary = {
 }
 
 export const gallery = [
-  { src: "/images/mcs-gallery/basket-01.jpg", alt: "Pertandingan basket MCS 1" },
-  { src: "/images/mcs-gallery/futsal-01.jpg", alt: "Pertandingan futsal MCS 1" },
-  { src: "/images/mcs-gallery/tari-01.jpg", alt: "Penampilan seni tari MCS 1" },
-  { src: "/images/mcs-gallery/volley-01.jpg", alt: "Pertandingan voli MCS 1" },
-  { src: "/images/mcs-gallery/mlbb-01.jpg", alt: "Kompetisi e-sport MCS 1" },
-  { src: "/images/mcs-gallery/supporter-01.jpg", alt: "Supporter MCS 1" },
+  { src: "/images/mcs-gallery/optimized/basket-01-800.webp", alt: "Pertandingan basket MCS 1" },
+  { src: "/images/mcs-gallery/optimized/futsal-01-800.webp", alt: "Pertandingan futsal MCS 1" },
+  { src: "/images/mcs-gallery/optimized/tari-800.webp", alt: "Penampilan seni tari MCS 1" },
+  { src: "/images/mcs-gallery/optimized/volley-01-800.webp", alt: "Pertandingan voli MCS 1" },
+  { src: "/images/mcs-gallery/optimized/mlbb-01-800.webp", alt: "Kompetisi e-sport MCS 1" },
+  { src: "/images/mcs-gallery/optimized/suporteer-1-800.webp", alt: "Supporter MCS 1" },
 ]
 
 export const dashboardFootage = [
-  { id: "basket-live", label: "Basket Live Match", type: "Live", meta: "MCS court footage", src: "/images/mcs-gallery/basket-04.jpg", crop: "object-[42%_50%]" },
-  { id: "mcs-team-photo", label: "MCS Team Photo", type: "Photo", meta: "Peserta MCS 1", src: "/images/mcs/foto-ospk.jpeg", crop: "object-[50%_58%]" },
-  { id: "volley-court", label: "Volley Match", type: "Photo", meta: "School court atmosphere", src: "/images/mcs-gallery/volley-01.jpg", crop: "object-[50%_50%]" },
-  { id: "mlbb-room", label: "E-Sport Room", type: "Video", meta: "Mobile Legends competition", src: "/images/mcs-gallery/mlbb-01.jpg", crop: "object-[48%_46%]" },
-  { id: "art-stage", label: "Art Performance", type: "Photo", meta: "Cultural stage", src: "/images/mcs-gallery/tari-01.jpg", crop: "object-[50%_45%]" },
-  { id: "supporter", label: "Supporter Crowd", type: "Photo", meta: "Student energy", src: "/images/mcs-gallery/supporter-01.jpg", crop: "object-[50%_50%]" },
+  { id: "basket-live", label: "Basket Live Match", type: "Live", meta: "MCS court footage", src: "/images/mcs-gallery/optimized/basket-04-1200.webp", crop: "object-[42%_50%]" },
+  { id: "mcs-team-photo", label: "MCS Team Photo", type: "Photo", meta: "Peserta MCS 1", src: "/images/mcs/optimized/foto-ospk-1200.webp", crop: "object-[50%_58%]" },
+  { id: "volley-court", label: "Volley Match", type: "Photo", meta: "School court atmosphere", src: "/images/mcs-gallery/optimized/volley-01-1200.webp", crop: "object-[50%_50%]" },
+  { id: "mlbb-room", label: "E-Sport Room", type: "Video", meta: "Mobile Legends competition", src: "/images/mcs-gallery/optimized/mlbb-01-1200.webp", crop: "object-[48%_46%]" },
+  { id: "art-stage", label: "Art Performance", type: "Photo", meta: "Cultural stage", src: "/images/mcs-gallery/optimized/tari-1200.webp", crop: "object-[50%_45%]" },
+  { id: "supporter", label: "Supporter Crowd", type: "Photo", meta: "Student energy", src: "/images/mcs-gallery/optimized/suporteer-1-1200.webp", crop: "object-[50%_50%]" },
 ]
 
 export const majors = [
@@ -492,6 +492,70 @@ export const majors = [
     ],
   },
 ]
+
+export type McsNation = {
+  className: string
+  countryName: string
+  countryFlag: string
+}
+
+export const mcsNations: McsNation[] = [
+  { className: "X MP 1", countryName: "Portugal", countryFlag: "🇵🇹" },
+  { className: "X MP 2", countryName: "Argentina", countryFlag: "🇦🇷" },
+  { className: "X AK 1", countryName: "France", countryFlag: "🇫🇷" },
+  { className: "X AK 2", countryName: "Mexico", countryFlag: "🇲🇽" },
+  { className: "X BR", countryName: "Spain", countryFlag: "🇪🇸" },
+  { className: "X BD", countryName: "Croatia", countryFlag: "🇭🇷" },
+  { className: "X LPS", countryName: "Brazil", countryFlag: "🇧🇷" },
+  { className: "X RPL", countryName: "Japan", countryFlag: "🇯🇵" },
+  { className: "XI MP 1", countryName: "Switzerland", countryFlag: "🇨🇭" },
+  { className: "XI MP 2", countryName: "Morocco", countryFlag: "🇲🇦" },
+  { className: "XI AK 1", countryName: "Germany", countryFlag: "🇩🇪" },
+  { className: "XI AK 2", countryName: "Netherlands", countryFlag: "🇳🇱" },
+  { className: "XI LPS", countryName: "Belgium", countryFlag: "🇧🇪" },
+  { className: "XI RPL", countryName: "Uruguay", countryFlag: "🇺🇾" },
+  { className: "XI BD", countryName: "England", countryFlag: "🇬🇧" },
+  { className: "XI BR", countryName: "Senegal", countryFlag: "🇸🇳" },
+]
+
+export const mcsNationBracketSeeds = [
+  "Portugal",
+  "England",
+  "Switzerland",
+  "Argentina",
+  "France",
+  "Senegal",
+  "Morocco",
+  "Mexico",
+  "Spain",
+  "Uruguay",
+  "Germany",
+  "Croatia",
+  "Brazil",
+  "Belgium",
+  "Netherlands",
+  "Japan",
+]
+
+export function getNationByClassName(className: string) {
+  const normalizedClassName = normalizeClassName(className)
+
+  return mcsNations.find((nation) => normalizeClassName(nation.className) === normalizedClassName)
+}
+
+export function getNationByCountryName(countryName: string) {
+  const normalizedCountryName = countryName.trim().toLowerCase()
+
+  return mcsNations.find((nation) => nation.countryName.toLowerCase() === normalizedCountryName)
+}
+
+export function getNationDisplayName(className: string, fallback = className) {
+  return getNationByClassName(className)?.countryName ?? fallback
+}
+
+export function getNationDisplayFlag(className: string) {
+  return getNationByClassName(className)?.countryFlag ?? ""
+}
 
 export const objectives = [
   "Meningkatkan standar kompetisi sekolah menjadi ajang olahraga prestisius dengan atmosfer liga profesional.",
@@ -963,7 +1027,7 @@ export const competitionJuknis: JuknisDocument[] = [
         title: "Teknis Perlombaan",
         items: [
           "Peserta memasuki ruang 201 dengan membawa peralatan lukis dan duduk sesuai tempat yang ditentukan PJ lomba.",
-          "Peserta tidak diperkenankan melihat referensi melalui Google maupun AI selama perlombaan berlangsung.",
+          "Peserta tidak diperkenankan melihat referensi melalui Google maupun alat bantu otomatis selama perlombaan berlangsung.",
           "Peserta mulai melukis pada media talenan setelah diberi aba-aba oleh PJ lomba.",
           "Setelah 1 jam 30 menit, peserta harus mengumpulkan hasil karya tanpa tambahan waktu.",
         ],
@@ -1492,7 +1556,7 @@ export const announcements: Announcement[] = []
 export const mediaItems: MediaItem[] = []
 
 export const committee = [
-  { role: "Penanggung Jawab", names: ["Drs. Indah Sri W, M.P", "Arsudin, S.E", "Anggara Elsa Bakhtiar, S.Pd"] },
+  { role: "Penanggung Jawab", names: ["Drs. Indah Sri W., M.Pd", "Arsudin, S.E", "Anggara Elsa Bakhtiar, S.Pd"] },
   { role: "Ketua Pelaksana", names: ["Fadhlan Dzilikram"] },
   { role: "Wakil Pelaksana", names: ["Elmaliq Safatoriq Akbar"] },
   { role: "Sekretaris", names: ["Ahmad Farhan", "Grace Angela"] },
@@ -1501,3 +1565,7 @@ export const committee = [
   { role: "Sie. Humas", names: ["Ilham Nur Rifai", "Keisha Farras Naurasyifa", "Ananda Abiyyu Saqib"] },
   { role: "Sie. Dokumentasi", names: ["Devina Sahrani", "Ahmad Aliffansyah", "Bagas Pratama", "Lakeisha Ariana"] },
 ]
+
+function normalizeClassName(value: string) {
+  return value.trim().replace(/\s+/g, " ").toUpperCase()
+}

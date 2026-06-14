@@ -10,7 +10,7 @@ import type {
   CompetitionParticipantRow,
   CompetitionUiStatus,
 } from "@/components/dashboard/competition-management-screen"
-import { event } from "@/data/mcs"
+import { event, getNationByClassName, getNationByCountryName } from "@/data/mcs"
 import { canRole } from "@/lib/mcs-rbac"
 import {
   listCompetitionBrackets,
@@ -19,7 +19,9 @@ import {
   listCompetitionMatches,
   listCompetitionParticipants,
   listCompetitionTeams,
+  ensureCompetitionSystemReady,
 } from "@/server/mcs/competition-system"
+import { ensureMcsRepositoryReady } from "@/server/mcs/repository"
 import {
   getAuthContextFromSessionToken,
   listAuditLogs,
@@ -43,6 +45,7 @@ type CompetitionManagementContext = CompetitionManagementScreenProps & {
 
 export async function getCompetitionManagementContext(fromPath: string): Promise<CompetitionManagementContext> {
   const cookieStore = await cookies()
+  await Promise.all([ensureMcsRepositoryReady(), ensureCompetitionSystemReady()])
 
   try {
     const auth = getAuthContextFromSessionToken(cookieStore.get(SESSION_COOKIE_NAME)?.value)
@@ -132,7 +135,7 @@ export async function getCompetitionManagementContext(fromPath: string): Promise
         centerCompetition?.currentRound && centerCompetition.currentRound !== EMPTY
           ? centerCompetition.currentRound
           : roundMatches.length > 0
-            ? "Generated Round"
+            ? "Competition Round"
             : BRACKET_UNAVAILABLE
 
       return {
@@ -150,20 +153,28 @@ export async function getCompetitionManagementContext(fromPath: string): Promise
         .filter((match) => ["check_in", "live", "paused"].includes(match.status))
         .map((match) => ({
           competition: match.sport,
-          match: `${match.teamA} vs ${match.teamB}`,
+          match: formatNationVersus(match.teamA, match.teamB),
           pic: competitionRows.find((competition) => competition.id === match.competitionId)?.pic ?? EMPTY,
           score: `${match.scoreA} - ${match.scoreB}`,
           status: match.status === "live" ? "Live" : match.status === "paused" ? "Delayed" : "Upcoming",
+          teamAFlag: getCountryFlag(match.teamA),
+          teamAName: getCountryName(match.teamA),
+          teamBFlag: getCountryFlag(match.teamB),
+          teamBName: getCountryName(match.teamB),
           venue: match.venue,
         })),
       ...centerMatches
         .filter((match) => ["Ready", "Live", "Paused"].includes(match.status))
         .map((match) => ({
           competition: competitionRows.find((competition) => competition.id === match.competitionId)?.shortName ?? match.competitionId,
-          match: `${match.teamA} vs ${match.teamB}`,
+          match: formatNationVersus(match.teamA, match.teamB),
           pic: competitionRows.find((competition) => competition.id === match.competitionId)?.pic ?? EMPTY,
           score: `${match.scoreA} - ${match.scoreB}`,
           status: match.status === "Live" ? "Live" : match.status === "Paused" ? "Delayed" : "Upcoming",
+          teamAFlag: getCountryFlag(match.teamA),
+          teamAName: getCountryName(match.teamA),
+          teamBFlag: getCountryFlag(match.teamB),
+          teamBName: getCountryName(match.teamB),
           venue: match.venue,
         })),
     ]
@@ -217,9 +228,11 @@ export async function getCompetitionManagementContext(fromPath: string): Promise
           competitionRows.find((competition) => competition.id === participant.competitionId)?.shortName ??
           participant.competitionId,
         competitionId: participant.competitionId,
+        countryFlag: participant.countryFlag || getCountryFlag(participant.className),
+        countryName: participant.countryName || getCountryName(participant.className),
         department: participant.major,
         id: participant.id,
-        name: participant.name,
+        name: participant.countryName || getCountryName(participant.className),
         status: participant.status,
       })),
       ...teams.map((team) => ({
@@ -227,9 +240,11 @@ export async function getCompetitionManagementContext(fromPath: string): Promise
         className: team.className,
         competition: competitionRows.find((competition) => competition.id === team.competitionId)?.shortName ?? team.competitionId,
         competitionId: team.competitionId,
+        countryFlag: team.countryFlag || getCountryFlag(team.className),
+        countryName: team.countryName || getCountryName(team.className),
         department: EMPTY,
         id: team.id,
-        name: team.name,
+        name: team.countryName || getCountryName(team.className),
         status: team.status,
       })),
     ]
@@ -327,13 +342,13 @@ function getNextMatch(
   const centerMatch = centerMatches.find((match) => ["Scheduled", "Ready", "Live", "Paused"].includes(match.status))
 
   if (centerMatch) {
-    return `${centerMatch.teamA} vs ${centerMatch.teamB}`
+    return formatNationVersus(centerMatch.teamA, centerMatch.teamB)
   }
 
   const serviceMatch = serviceMatches.find((match) => ["scheduled", "check_in", "live", "paused"].includes(match.status))
 
   if (serviceMatch) {
-    return `${serviceMatch.teamA} vs ${serviceMatch.teamB}`
+    return formatNationVersus(serviceMatch.teamA, serviceMatch.teamB)
   }
 
   return MATCH_UNAVAILABLE
@@ -399,6 +414,18 @@ function normalizeTime(value: string) {
 
 function formatScheduleTime(value: string) {
   return `${value.replace(".", ":")} WIB`
+}
+
+function formatNationVersus(teamA: string, teamB: string) {
+  return `${getCountryName(teamA)} vs ${getCountryName(teamB)}`
+}
+
+function getCountryName(value: string) {
+  return getNationByClassName(value)?.countryName ?? getNationByCountryName(value)?.countryName ?? value
+}
+
+function getCountryFlag(value: string) {
+  return getNationByClassName(value)?.countryFlag ?? getNationByCountryName(value)?.countryFlag ?? ""
 }
 
 function getDateKeyInTimezone(date: Date, timeZone: string) {

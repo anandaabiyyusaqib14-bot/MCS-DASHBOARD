@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server"
 
+import { getNationByClassName } from "@/data/mcs"
 import { withAuth } from "@/server/mcs/http"
 import {
   listAnnouncements,
@@ -14,7 +15,7 @@ import {
   listUsers,
   listVenueStatuses,
 } from "@/server/mcs/service"
-import { listCompetitionParticipants, listCompetitionTeams } from "@/server/mcs/competition-system"
+import { ensureCompetitionSystemReady, listCompetitionParticipants, listCompetitionTeams } from "@/server/mcs/competition-system"
 import type { AuthContext, Permission } from "@/server/mcs/types"
 
 export const dynamic = "force-dynamic"
@@ -35,6 +36,7 @@ type SearchCandidate = DashboardSearchResult & {
 const MAX_RESULTS = 12
 
 export async function GET(request: NextRequest) {
+  await ensureCompetitionSystemReady()
   const query = request.nextUrl.searchParams.get("q") ?? ""
 
   return withAuth(request, "dashboard.read", (auth) => searchDashboard(auth, query))
@@ -261,28 +263,29 @@ function searchDashboard(auth: AuthContext, rawQuery: string): DashboardSearchRe
 
   appendIfAllowed(auth, "participants.read", candidates, () => [
     ...listCompetitionParticipants(auth).map((participant) => ({
-      description: `${participant.className} / ${participant.major}`,
+      description: `${participant.countryName || getNationByClassName(participant.className)?.countryName || participant.className} / ${participant.className}`,
       href: "/dashboard/participants",
       id: `participant-${participant.id}`,
       keywords: [
         participant.id,
         participant.name,
+        participant.countryName,
         participant.className,
         participant.major,
         participant.competitionId,
         participant.status,
       ],
       meta: formatParticipantStatus(participant.status),
-      title: participant.name,
+      title: participant.countryName || getNationByClassName(participant.className)?.countryName || participant.name,
       type: "Peserta",
     })),
     ...listCompetitionTeams(auth).map((team) => ({
-      description: `${team.className} / ${team.members.length} anggota`,
+      description: `${team.countryName || getNationByClassName(team.className)?.countryName || team.className} / ${team.className} / ${team.members.length} anggota`,
       href: "/dashboard/participants",
       id: `team-${team.id}`,
-      keywords: [team.id, team.name, team.captain, team.className, team.competitionId, team.status, ...team.members],
+      keywords: [team.id, team.name, team.countryName, team.captain, team.className, team.competitionId, team.status, ...team.members],
       meta: `Kapten: ${team.captain}`,
-      title: team.name,
+      title: team.countryName || getNationByClassName(team.className)?.countryName || team.name,
       type: "Tim",
     })),
   ])

@@ -923,7 +923,7 @@ function IssueDialog({
         <WorkflowStatus status={status} />
         <form className="grid gap-4" onSubmit={submit}>
           <FormField label="Judul Kendala">
-            <Input name="title" required placeholder="Contoh: Sound Lapangan A belum siap" />
+            <Input name="title" required placeholder="Judul kendala resmi" />
           </FormField>
           <FormField label="Deskripsi">
             <Textarea name="description" required placeholder="Tuliskan kondisi singkat dan dampaknya." />
@@ -946,10 +946,10 @@ function IssueDialog({
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="Tempat">
-              <Input name="venue" placeholder="Lapangan A" />
+              <Input name="venue" placeholder="Tempat terkait" />
             </FormField>
             <FormField label="Batas Waktu">
-              <Input name="deadline" required placeholder="Hari ini, 30 menit sebelum match" />
+              <Input name="deadline" required placeholder="Batas waktu tindak lanjut" />
             </FormField>
           </div>
           <FormField label="Divisi PIC">
@@ -1029,7 +1029,7 @@ function HandoffDialog({
         <WorkflowStatus status={status} />
         <form className="grid gap-4" onSubmit={submit}>
           <FormField label="Aktivitas">
-            <Input name="activity" required placeholder="Contoh: Opening Ceremony siap masuk sesi dokumentasi" />
+            <Input name="activity" required placeholder="Aktivitas yang perlu dikoordinasikan" />
           </FormField>
           <div className="grid gap-3 sm:grid-cols-2">
             <FormField label="Dari Divisi">
@@ -1052,7 +1052,7 @@ function HandoffDialog({
               <Input name="ownerName" required placeholder="Nama PIC target" />
             </FormField>
             <FormField label="Batas Waktu">
-              <Input name="deadline" required placeholder="Hari ini, sebelum sesi berikutnya" />
+              <Input name="deadline" required placeholder="Batas waktu koordinasi" />
             </FormField>
           </div>
           <FormField label="Catatan">

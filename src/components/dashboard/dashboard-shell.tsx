@@ -10,28 +10,37 @@ import {
   Archive,
   BarChart3,
   Bell,
+  BellRing,
+  BriefcaseBusiness,
   Building2,
   CalendarDays,
   ChevronDown,
+  ClipboardCheck,
   ClipboardList,
   FileCheck,
   FileText,
   GitBranch,
+  GitBranchPlus,
   Globe,
   Handshake,
   Image as ImageIcon,
+  Images,
   ImageUp,
   LayoutDashboard,
   LogOut,
+  MapPinned,
   Megaphone,
   Menu,
   Monitor,
+  MonitorPlay,
   Newspaper,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
   Settings,
   ShieldCheck,
+  Store,
+  TriangleAlert,
   Trophy,
   Upload,
   UserRound,
@@ -88,11 +97,20 @@ const iconMap: Record<DashboardNavigationIcon, LucideIcon> = {
   gallery: ImageIcon,
   video: Video,
   archive: Archive,
+  "bell-ring": BellRing,
+  "briefcase-business": BriefcaseBusiness,
+  "clipboard-check": ClipboardCheck,
   wallet: Wallet,
   monitor: Monitor,
+  "monitor-play": MonitorPlay,
   activity: Activity,
   "file-check": FileCheck,
+  "git-branch-plus": GitBranchPlus,
   handshake: Handshake,
+  images: Images,
+  "map-pinned": MapPinned,
+  store: Store,
+  "triangle-alert": TriangleAlert,
 }
 
 const searchPlaceholder = "Search participants, competitions, schedules, announcements, panitia"
@@ -361,14 +379,18 @@ function SidebarLink({
     <Link
       href={item.href}
       className={cn(
-        "flex h-11 min-w-0 items-center gap-3 rounded-md px-3 text-sm font-medium transition",
-        active ? "bg-[#0F172A] text-white" : "text-[#64748B] hover:bg-[#F8F9FB] hover:text-[#111827]",
+        "group flex h-11 min-w-0 items-center gap-3 rounded-md px-3 text-sm font-medium transition",
+        active ? "bg-[#F97316] text-white" : "text-slate-500 hover:bg-[#F8F9FB] hover:text-orange-500",
         !expanded && !mobile && "md:justify-center md:px-0 lg:justify-start lg:px-3",
       )}
       aria-current={active ? "page" : undefined}
       title={!expanded && !mobile ? item.label : undefined}
     >
-      <Icon className={cn("size-4 shrink-0", active ? "text-white" : "text-[#64748B]")} aria-hidden="true" />
+      <Icon
+        className={cn("h-[18px] w-[18px] shrink-0", active ? "text-white" : "text-slate-500 group-hover:text-orange-500")}
+        strokeWidth={2}
+        aria-hidden="true"
+      />
       <span className={cn("truncate", !expanded && !mobile && "md:hidden lg:block")}>{item.label}</span>
     </Link>
   )

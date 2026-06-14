@@ -20,9 +20,9 @@ Brand identity:
 - MCS 1 does not have its own standalone logo. Do not create, generate, or fake an "MCS" logo; show "MCS 1" only as event text beside the official school/OSIS/MPK logos.
 
 Media rules:
-- Do not generate AI images for MCS pages, dashboards, login screens, posters, or previews unless the user explicitly asks for AI-generated artwork.
+- Do not create synthetic images for MCS pages, dashboards, login screens, posters, or previews unless the user explicitly asks for custom artwork.
 - Prefer real MCS footage from `public/images/mcs-gallery/` and the `gallery` / `dashboardFootage` arrays in `src/data/mcs.ts`.
-- Do not reintroduce old generated assets such as `mcs-hero-court.png` or `mcs-badminton-header.png`.
+- Do not reintroduce old synthetic assets such as `mcs-hero-court.png` or `mcs-badminton-header.png`.
 - If a new visual is needed, first reuse, crop, arrange, or restyle the real provided photos and logos.
 
 Content rules:

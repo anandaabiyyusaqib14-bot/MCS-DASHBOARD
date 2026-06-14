@@ -10,28 +10,37 @@ import {
   Archive,
   BarChart3,
   Bell,
+  BellRing,
+  BriefcaseBusiness,
   Building2,
   CalendarDays,
   ChevronDown,
+  ClipboardCheck,
   ClipboardList,
   FileCheck,
   FileText,
   GitBranch,
+  GitBranchPlus,
   Globe,
   Handshake,
   Image as ImageIcon,
+  Images,
   ImageUp,
   LayoutDashboard,
   LogOut,
+  MapPinned,
   Megaphone,
   Menu,
   Monitor,
+  MonitorPlay,
   Newspaper,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
   Settings,
   ShieldCheck,
+  Store,
+  TriangleAlert,
   Trophy,
   Upload,
   UserRound,
@@ -123,11 +132,20 @@ const iconMap: Record<DashboardNavigationIcon, LucideIcon> = {
   gallery: ImageIcon,
   video: Video,
   archive: Archive,
+  "bell-ring": BellRing,
+  "briefcase-business": BriefcaseBusiness,
+  "clipboard-check": ClipboardCheck,
   wallet: Wallet,
   monitor: Monitor,
+  "monitor-play": MonitorPlay,
   activity: Activity,
   "file-check": FileCheck,
+  "git-branch-plus": GitBranchPlus,
   handshake: Handshake,
+  images: Images,
+  "map-pinned": MapPinned,
+  store: Store,
+  "triangle-alert": TriangleAlert,
 }
 
 const searchPlaceholder = "Cari jadwal, lomba, tugas, dokumen, laporan"
@@ -300,7 +318,7 @@ function TopNavigation({
           </p>
         </div>
 
-        <GlobalSearch navigation={navigation} />
+        <SearchIsland navigation={navigation} />
 
         <HeaderStatusRail roleLabel={roleLabel} status={shellStatus} />
 
@@ -314,16 +332,16 @@ function TopNavigation({
             <span className="hidden sm:inline">Website Publik</span>
           </Link>
 
-          <NotificationsMenu />
+          <NotificationIsland />
 
-          <ProfileMenu homePath={homePath} roleLabel={roleLabel} user={user} />
+          <ProfileIsland homePath={homePath} roleLabel={roleLabel} user={user} />
         </div>
       </div>
     </header>
   )
 }
 
-function GlobalSearch({ navigation }: { navigation: DashboardNavigationItem[] }) {
+function SearchIsland({ navigation }: { navigation: DashboardNavigationItem[] }) {
   const router = useRouter()
   const [focused, setFocused] = useState(false)
   const [query, setQuery] = useState("")
@@ -827,13 +845,17 @@ function SidebarLink({
         "group relative flex h-10 min-w-0 items-center gap-3 rounded-lg border px-3 text-sm font-semibold transition duration-200",
         active
           ? "border-[#F97316] bg-[#F97316] text-white shadow-[3px_3px_0_rgba(17,24,39,0.18)]"
-          : "border-transparent text-[#6B7280] hover:border-[#111827]/10 hover:bg-[#FFF7ED] hover:text-[#111827]",
+          : "border-transparent text-slate-500 hover:border-[#111827]/10 hover:bg-[#FFF7ED] hover:text-orange-500",
         !expanded && !mobile && "md:justify-center md:px-0 lg:justify-start lg:px-3",
       )}
       aria-current={active ? "page" : undefined}
       title={!expanded && !mobile ? label : undefined}
     >
-      <Icon className={cn("size-4 shrink-0", active ? "text-white" : "text-[#6B7280] group-hover:text-[#111827]")} aria-hidden="true" />
+      <Icon
+        className={cn("h-[18px] w-[18px] shrink-0", active ? "text-white" : "text-slate-500 group-hover:text-orange-500")}
+        strokeWidth={2}
+        aria-hidden="true"
+      />
       <span className={cn("truncate", !expanded && !mobile && "md:hidden lg:block")}>{label}</span>
     </Link>
   )
@@ -863,16 +885,18 @@ function OfficialLogoStrip({ compact }: { compact: boolean }) {
   )
 }
 
-function NotificationsMenu() {
+function NotificationIsland() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [notifications, setNotifications] = useState<ShellNotification[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const [refreshTick, setRefreshTick] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
   const unreadCount = notifications.filter((notification) => notification.status === "unread").length
 
   useEffect(() => {
+    if (!menuOpen) return
+
     let active = true
 
     async function loadNotifications() {
@@ -909,7 +933,7 @@ function NotificationsMenu() {
     return () => {
       active = false
     }
-  }, [refreshTick])
+  }, [menuOpen, refreshTick])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -1034,7 +1058,7 @@ function NotificationsMenu() {
   )
 }
 
-function ProfileMenu({ homePath, roleLabel, user }: { homePath: string; roleLabel: string; user: UserDTO }) {
+function ProfileIsland({ homePath, roleLabel, user }: { homePath: string; roleLabel: string; user: UserDTO }) {
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -1275,13 +1299,26 @@ function getNavigationGroups(navigation: DashboardNavigationItem[]): NavigationG
     },
     {
       keys: [
+        "event-day",
+        "live-score",
+        "live-match",
+        "schedule-management",
+        "schedule-monitoring",
+        "schedules",
+        "active-issues",
+        "venue-status",
+        "division-handoffs",
+        "notification-center",
+        "approval-center",
+      ],
+      label: "Hari-H",
+    },
+    {
+      keys: [
         "competition-management",
         "competition-monitoring",
         "my-competitions",
         "competition-operations",
-        "schedule-management",
-        "schedule-monitoring",
-        "schedules",
         "participant-management",
         "participants",
         "panitia-management",
@@ -1296,12 +1333,6 @@ function getNavigationGroups(navigation: DashboardNavigationItem[]): NavigationG
         "equipment-inventory",
         "security-operations",
         "business-operations",
-        "event-day",
-        "active-issues",
-        "division-handoffs",
-        "venue-status",
-        "notification-center",
-        "approval-center",
         "operations-report",
       ],
       label: "Kepanitiaan",
@@ -1396,6 +1427,8 @@ function getNavigationDisplayLabel(item: DashboardNavigationItem) {
     "highlight-videos": "Video Highlight",
     "humas-sponsorship": "Humas & Sponsor",
     "juknis-management": "Juknis",
+    "live-match": "Live Score Control Room",
+    "live-score": "Live Score Control Room",
     "match-results": "Hasil Match",
     "media-archive": "Arsip Media",
     "media-center": "Media",

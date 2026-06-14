@@ -1,4 +1,5 @@
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import type { ReactNode } from "react"
 import type { LucideIcon } from "lucide-react"
 import {
@@ -21,10 +22,8 @@ import {
   Monitor,
   Radio,
   Search,
-  Settings,
   ShieldCheck,
   Trophy,
-  Upload,
   UserCheck,
   Users,
   Wallet,
@@ -33,18 +32,53 @@ import {
 import {
   budgetLineItems,
   budgetSummary,
-  committee,
   competitionJuknis,
   competitions,
   event,
-  majors,
+  getNationByClassName,
+  getNationByCountryName,
   scheduleDays,
   sponsorProspects,
-  sponsorshipPipelineStatuses,
 } from "@/data/mcs"
-import { ExecutiveDashboardScreen } from "@/components/dashboard/executive-dashboard-screen"
 import { cn } from "@/lib/utils"
-import { roleLabels, type DashboardSummary, type UserDTO, type UserRole } from "@/server/mcs/types"
+import { roleLabels, type DashboardSummary, type Permission, type UserDTO, type UserRole } from "@/server/mcs/types"
+
+const ExecutiveDashboardScreen = dynamic(() =>
+  import("@/components/dashboard/executive-dashboard-screen").then((module) => module.ExecutiveDashboardScreen),
+)
+const HumasSponsorshipCenter = dynamic(() =>
+  import("@/components/dashboard/humas-sponsorship-center").then((module) => module.HumasSponsorshipCenter),
+)
+const EntrepreneurshipManagementModule = dynamic(() =>
+  import("@/components/dashboard/entrepreneurship-management-module").then((module) => module.EntrepreneurshipManagementModule),
+)
+const JuknisManagementModule = dynamic(() =>
+  import("@/components/dashboard/juknis-management-module").then((module) => module.JuknisManagementModule),
+)
+const PanitiaManagementModule = dynamic(() =>
+  import("@/components/dashboard/panitia-management-module").then((module) => module.PanitiaManagementModule),
+)
+const PddCenterScreen = dynamic(() =>
+  import("@/components/dashboard/pdd-center-screen").then((module) => module.PddCenterScreen),
+)
+const ParticipantRegistrationCenter = dynamic(() =>
+  import("@/components/dashboard/participant-registration-center").then((module) => module.ParticipantRegistrationCenter),
+)
+const ScheduleManagementControlRoom = dynamic(() =>
+  import("@/components/dashboard/schedule-management-control-room").then((module) => module.ScheduleManagementControlRoom),
+)
+const SettingsCenter = dynamic(() =>
+  import("@/components/dashboard/settings-center").then((module) => module.SettingsCenter),
+)
+const AdministrationControlCenter = dynamic(() =>
+  import("@/components/dashboard/administration-control-center").then((module) => module.AdministrationControlCenter),
+)
+const AnalyticsCenterScreen = dynamic(() =>
+  import("@/components/dashboard/analytics-center-screen").then((module) => module.AnalyticsCenterScreen),
+)
+const AnnouncementCommandCenter = dynamic(() =>
+  import("@/components/dashboard/announcement-command-center").then((module) => module.AnnouncementCommandCenter),
+)
 
 export type DashboardModuleKey =
   | "administration"
@@ -201,7 +235,7 @@ export function RoleDashboardScreen({
   }
 
   if (role === "dokumentasi") {
-    return <DocumentationDashboardScreen summary={summary} user={user} />
+    return <DocumentationDashboardScreen />
   }
 
   if (isFieldOperationsRole(role)) {
@@ -385,118 +419,7 @@ export function HumasSponsorshipScreen({
   user: UserDTO
   variant?: "module" | "role-dashboard"
 }) {
-  const publishedAnnouncements = summary.announcements.filter((item) => item.status === "published").length
-  const draftAnnouncements = summary.announcements.filter((item) => item.status === "draft").length
-  const pendingApprovals = summary.announcements.filter((item) => item.status === "pending_approval").length
-  const scheduledPublications = summary.announcements.filter(
-    (item) => item.status === "approved" && item.visibility === "public",
-  )
-  const ongoingSponsors = sponsorProspects.filter((sponsor) => sponsor.proposalStatus === "On Going")
-
-  return (
-    <div className="grid gap-5">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/announcements", icon: Megaphone, label: "Buat Pengumuman" },
-          { href: "/dashboard/announcements", icon: Bell, label: "Buat Broadcast" },
-          { href: "/dashboard/humas-sponsorship", icon: Upload, label: "Unggah Proposal" },
-          { href: "/dashboard/humas-sponsorship", icon: Handshake, label: "Tambah Sponsor" },
-          { href: "/dashboard/news", icon: Globe, label: "Tambah Mitra Media" },
-        ]}
-        icon={Handshake}
-        subtitle={
-          variant === "role-dashboard"
-            ? "Pusat komunikasi, antrean publikasi, dan ruang kerja kemitraan MCS 1."
-            : "Kelola alur publikasi, follow-up sponsor, proposal, dan relasi media."
-        }
-        title={variant === "role-dashboard" ? `Humas & Sponsorship, ${user.displayName}` : "Humas & Sponsorship"}
-      />
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <InfoPanel
-          icon={Megaphone}
-          title="Antrean Publikasi"
-          description="Draft, persetujuan, jadwal, dan konten terbit untuk komunikasi MCS."
-        >
-          <div className="mb-4">
-            <StatMiniList
-              items={[
-                { label: "Pengumuman Terbit", value: publishedAnnouncements || NOT_PUBLISHED },
-                { label: "Posting Terjadwal", value: scheduledPublications.length || "Belum Ada Publikasi Terjadwal" },
-                { label: "Draft Publikasi", value: draftAnnouncements },
-                { label: "Menunggu Persetujuan", value: pendingApprovals },
-                { label: "Permintaan Media", value: NO_DATA },
-              ]}
-            />
-          </div>
-          <PublicationQueue summary={summary} />
-        </InfoPanel>
-
-        <InfoPanel icon={Handshake} title="Ikhtisar Sponsor" description="Ringkasan singkat kemitraan.">
-          <StatMiniList
-            items={[
-              { label: "Total Sponsor", value: sponsorProspects.length },
-              { label: "Sponsor Terkonfirmasi", value: sponsorProspects.filter((sponsor) => sponsor.proposalStatus === "Confirmed").length },
-              { label: "Sponsor Berjalan", value: ongoingSponsors.length },
-              { label: "Mitra Media", value: NO_DATA },
-              { label: "Konten Terbit", value: publishedAnnouncements || NOT_PUBLISHED },
-              { label: "Menunggu Persetujuan", value: pendingApprovals },
-            ]}
-          />
-        </InfoPanel>
-      </section>
-
-      <InfoPanel
-        icon={Handshake}
-        title="Alur Sponsor"
-        description="Alur prospek sampai sponsor terkonfirmasi. Kosong sampai catatan sponsor resmi diisi."
-      >
-        <SponsorPipelineBoard />
-      </InfoPanel>
-
-      <InfoPanel icon={Users} title="Daftar Sponsor" description="Brand, PIC, kontak, status proposal, follow-up, dan jenis kerja sama.">
-        <SponsorListTable />
-      </InfoPanel>
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={ClipboardList} title="Tugas Follow-Up" description="Tugas sponsor dan tindak lanjut berikutnya.">
-          <EmptyState title="Belum Ada Tugas Follow-Up" description="Catatan follow-up sponsor belum dipublikasikan." />
-        </InfoPanel>
-
-        <InfoPanel icon={ClipboardList} title="Aksi Cepat" description="Aksi utama komunikasi Humas.">
-          <ActionGrid
-            actions={[
-              { href: "/dashboard/announcements", icon: Megaphone, label: "Buat Pengumuman" },
-              { href: "/dashboard/announcements", icon: Bell, label: "Buat Broadcast" },
-              { href: "/dashboard/humas-sponsorship", icon: Upload, label: "Unggah Proposal" },
-              { href: "/dashboard/humas-sponsorship", icon: Handshake, label: "Tambah Sponsor" },
-              { href: "/dashboard/news", icon: Globe, label: "Tambah Mitra Media" },
-            ]}
-          />
-        </InfoPanel>
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-2">
-        <InfoPanel icon={CalendarDays} title="Jadwal Media Sosial" description="Kalender Instagram, TikTok, website, dan broadcast.">
-          <SocialScheduleTable publications={scheduledPublications} />
-        </InfoPanel>
-
-        <InfoPanel icon={Users} title="Mitra Media" description="Nama mitra, platform, status, PIC, dan kesepakatan publikasi.">
-          <EmptyState title={NO_DATA} description="Catatan mitra media resmi belum dipublikasikan." />
-        </InfoPanel>
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={FileText} title="Pantauan Proposal" description="Status proposal, update terakhir, dan batas waktu.">
-          <SponsorProposalTracker />
-        </InfoPanel>
-
-        <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Update proposal, pengumuman, sponsor, broadcast, dan mitra media.">
-          <HumasRecentActivities summary={summary} />
-        </InfoPanel>
-      </section>
-    </div>
-  )
+  return <HumasSponsorshipCenter summary={summary} user={user} variant={variant} />
 }
 
 function BusinessDashboardSystemScreen({
@@ -514,143 +437,15 @@ function BusinessDashboardSystemScreen({
   const title = moduleTitle ?? getBusinessDashboardTitle(focus, user)
 
   return (
-    <div className="grid gap-5">
-      <BusinessDashboardHeader
-        generatedAt={generatedAt}
-        notificationCount={summary.metrics.unreadNotifications}
-        operator={user.displayName}
-        title={title}
-      />
-
-      <FilterBar
-        fields={["Product", "Category", "Date", "Stock Status", "Recorded By"]}
-        searchPlaceholder="Cari produk, transaksi, pengeluaran, laporan"
-      />
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="grid gap-5">
-          <InfoPanel
-            icon={Wallet}
-            title="Ringkasan Penjualan Hari Ini"
-            description="Ringkasan penjualan, stok, dan target Kewirausahaan hari ini."
-          >
-            <EntrepreneurshipSalesOverview />
-          </InfoPanel>
-
-          <InfoPanel
-            icon={ClipboardList}
-            title="Sales Transactions"
-            description="Transaction time, product, quantity, unit price, total, and recording officer."
-          >
-            <EntrepreneurshipTransactionsTable />
-          </InfoPanel>
-
-          <InfoPanel
-            icon={Archive}
-            title="Manajemen Produk"
-            description="Product catalog, category, price, initial stock, remaining stock, and sales status."
-          >
-            <EntrepreneurshipProductTable />
-          </InfoPanel>
-
-          <InfoPanel
-            icon={Activity}
-            title="Inventory Monitoring"
-            description="Stock movement overview for safe, low, critical, and out-of-stock conditions."
-          >
-            <EntrepreneurshipInventoryTable />
-          </InfoPanel>
-
-          <InfoPanel icon={BarChart3} title="Best Selling Products" description="Simple ranking without oversized charts or fake analytics.">
-            <EntrepreneurshipBestSellers />
-          </InfoPanel>
-
-          <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.7fr)]">
-            <InfoPanel icon={Wallet} title="Ringkasan Kas" description="Modal awal, pemasukan, pengeluaran, dan estimasi laba.">
-              <EntrepreneurshipCashSummary />
-            </InfoPanel>
-
-            <InfoPanel icon={CalendarDays} title="Laporan Harian" description="Laporan penjualan, stok, pemasukan, pengeluaran, dan laba dari hari 1 sampai hari 4.">
-              <EntrepreneurshipDailyReports />
-            </InfoPanel>
-          </section>
-
-          <section className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.7fr)]">
-            <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Aktivitas produk, stok, penjualan, pengeluaran, target, dan laporan.">
-              <EntrepreneurshipRecentActivities summary={summary} />
-            </InfoPanel>
-
-            <InfoPanel icon={Wallet} title="Aksi Cepat" description="Aksi utama Kewirausahaan.">
-              <ActionGrid actions={getBusinessQuickActions(focus)} />
-            </InfoPanel>
-          </section>
-        </div>
-
-        <EntrepreneurshipSidePanel />
-      </section>
-    </div>
-  )
-}
-
-function BusinessDashboardHeader({
-  generatedAt,
-  notificationCount,
-  operator,
-  title,
-}: {
-  generatedAt: Date
-  notificationCount: number
-  operator: string
-  title: string
-}) {
-  const status = getBusinessEventStatus(generatedAt)
-
-  return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#64748B]">{getBusinessGreeting(generatedAt)}, Entrepreneurship Team</p>
-          <h2 className="mt-1 text-2xl font-semibold tracking-normal text-[#111827]">{title}</h2>
-          <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-[#64748B]">
-            {event.name} - {event.theme} - {event.organizer}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href="/"
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
-          >
-            <Globe className="size-4 text-[#64748B]" aria-hidden="true" />
-            Public Website
-          </Link>
-          <Link
-            href="/dashboard/announcements"
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
-          >
-            <Bell className="size-4 text-[#64748B]" aria-hidden="true" />
-            Notifications {notificationCount > 0 ? `(${notificationCount})` : ""}
-          </Link>
-          <Link
-            href="/dashboard/settings"
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F8F9FB]"
-          >
-            <UserCheck className="size-4 text-[#64748B]" aria-hidden="true" />
-            Profile
-          </Link>
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-        <FactTile label="Event Date" value={event.dateRange} />
-        <FactTile label="Current Date" value={formatBusinessDate(generatedAt)} />
-        <FactTile label="Current Time" value={formatBusinessTime(generatedAt)} />
-        <FactTile label="Current Event Day" value={status.dayLabel} />
-        <FactTile label="Event Status" value={status.statusLabel} />
-      </div>
-
-      <p className="mt-3 text-xs font-medium text-[#64748B]">Operator: {operator}</p>
-    </section>
+    <EntrepreneurshipManagementModule
+      eventName={event.name}
+      eventOrganizer={event.organizer}
+      eventTheme={event.theme}
+      generatedAt={generatedAt.toISOString()}
+      notificationCount={summary.metrics.unreadNotifications}
+      operator={user.displayName}
+      title={title}
+    />
   )
 }
 
@@ -766,44 +561,8 @@ function PjLombaDashboardScreen({ summary, user }: { summary: DashboardSummary; 
   )
 }
 
-export function DocumentationDashboardScreen({ summary, user }: { summary: DashboardSummary; user: UserDTO }) {
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/media/upload", icon: Upload, label: "Unggah Foto" },
-          { href: "/dashboard/media/upload", icon: Camera, label: "Unggah Video" },
-          { href: "/dashboard/media/highlights", icon: ImageUp, label: "Buat Highlight" },
-          { href: "/dashboard/media/gallery", icon: Globe, label: "Buka Galeri" },
-        ]}
-        icon={Camera}
-        subtitle="Ruang kerja Dokumentasi untuk unggahan, status galeri, dan permintaan highlight."
-        title={`Dokumentasi, ${user.displayName}`}
-      />
-
-      <StatStrip
-        items={[
-          { label: "Liputan Hari Ini", value: NO_DATA },
-          { label: "Unggahan Tertunda", value: NO_DATA },
-          { label: "Unggahan Terbaru", value: NO_DATA },
-          { label: "Status Galeri", value: NOT_PUBLISHED },
-        ]}
-      />
-
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <InfoPanel icon={Upload} title="Unggah Media" description="Foto, video, poster, dan dokumen.">
-          <UploadDropzone title="Belum ada media dipilih" />
-        </InfoPanel>
-        <InfoPanel icon={FileCheck} title="Permintaan Highlight" description="Permintaan muncul setelah ada pengajuan resmi.">
-          <EmptyState title={NO_DATA} description="Permintaan highlight belum dipublikasikan." />
-        </InfoPanel>
-      </section>
-
-      <InfoPanel icon={Activity} title="Aktivitas Terbaru" description="Aktivitas Dokumentasi muncul setelah ada input resmi.">
-        <RecentActivityList summary={summary} />
-      </InfoPanel>
-    </div>
-  )
+export function DocumentationDashboardScreen() {
+  return <PddCenterScreen />
 }
 
 function DivisionOperationsDashboardScreen({
@@ -1002,162 +761,17 @@ function OperationsDashboardSystemScreen({
 }
 
 function AdministrationDashboardScreen({ summary, user }: { summary: DashboardSummary; user: UserDTO }) {
-  const canManageFinance = user.role === "bendahara" || user.role === "super_admin"
-  const canManageDocuments = user.role === "sekretaris" || user.role === "super_admin"
-  const roleActionSet = canManageFinance
-    ? [
-        { href: "/dashboard/budgeting", icon: Wallet, label: "Tambah Transaksi" },
-        { href: "/dashboard/budgeting", icon: Handshake, label: "Kelola Dana Sponsor" },
-        { href: "/dashboard/financial-reports", icon: FileCheck, label: "Buat Laporan Keuangan" },
-        { href: "/dashboard/financial-reports", icon: Download, label: "Ekspor Data Keuangan" },
-      ]
-    : [
-        { href: "/dashboard/documents", icon: FileText, label: "Buat Dokumen" },
-        { href: "/dashboard/announcements", icon: Megaphone, label: "Publikasikan Pengumuman" },
-        { href: "/dashboard/schedules", icon: CalendarDays, label: "Update Rundown" },
-        { href: "/dashboard/reports", icon: FileCheck, label: "Buat Laporan" },
-      ]
-
-  return (
-    <div className="grid gap-5">
-      <OperationsHeader
-        actions={roleActionSet}
-        icon={FileCheck}
-        subtitle="Ruang kerja administrasi untuk dokumen, surat, laporan, arsip, persetujuan, dan catatan keuangan."
-        title={`Administrasi, ${user.displayName}`}
-      />
-
-      <StatStrip
-        items={[
-          { label: "Dokumen", value: NO_DATA },
-          { label: "Pengumuman", value: summary.announcements.length || NOT_PUBLISHED, tone: "info" },
-          { label: "Laporan", value: "Belum Ada Laporan" },
-          { label: "Catatan Keuangan", value: canManageFinance ? "Belum Ada Catatan Keuangan" : "Khusus Bendahara", tone: canManageFinance ? "neutral" : "warning" },
-        ]}
-      />
-
-      <FilterBar
-        fields={["Tanggal", "Status", "Kategori", "Penulis", "Divisi", "Jenis Dokumen"]}
-        searchPlaceholder="Cari dokumen, pengumuman, laporan, arsip, sponsor"
-      />
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <InfoPanel icon={ShieldCheck} title="Akses Peran" description="Permission administrasi sesuai role saat ini.">
-          <StatusGrid
-            items={[
-              { label: "Buat Dokumen", status: canManageDocuments ? "Diizinkan" : "Terbatas", tone: canManageDocuments ? "success" : "neutral" },
-              { label: "Publikasikan Pengumuman", status: canManageDocuments ? "Diizinkan" : "Terbatas", tone: canManageDocuments ? "success" : "neutral" },
-              { label: "Kelola Anggaran", status: canManageFinance ? "Diizinkan" : "Terbatas", tone: canManageFinance ? "success" : "neutral" },
-              { label: "Dana Sponsor", status: canManageFinance ? "Diizinkan" : "Terbatas", tone: canManageFinance ? "success" : "neutral" },
-              { label: "Buat Laporan", status: "Diizinkan", tone: "success" },
-              { label: "Ekspor Data", status: "Diizinkan", tone: "success" },
-            ]}
-          />
-        </InfoPanel>
-
-        <InfoPanel icon={Bell} title="Notifikasi" description="Notifikasi administrasi dan sinyal persetujuan.">
-          <StatusGrid
-            items={[
-              { label: "Dokumen Disetujui", status: WAITING },
-              { label: "Laporan Dibuat", status: WAITING },
-              { label: "Anggaran Diperbarui", status: canManageFinance ? WAITING : "Khusus Bendahara", tone: canManageFinance ? "neutral" : "warning" },
-              { label: "Pengumuman Terbit", status: summary.announcements.length ? "Tersedia" : NOT_PUBLISHED, tone: summary.announcements.length ? "success" : "neutral" },
-            ]}
-          />
-        </InfoPanel>
-      </section>
-
-      <InfoPanel icon={FileText} title="Manajemen Dokumen" description="Proposal, surat resmi, notulen, laporan, Juknis, dan template sertifikat.">
-        <EmptyDataTable
-          columns={["ID Dokumen", "Nama Dokumen", "Kategori", "Dibuat Oleh", "Tanggal Dibuat", "Tanggal Update", "Status", "Versi", "Lampiran File"]}
-          emptyTitle="Belum Ada Dokumen"
-          emptyDescription="Dokumen administrasi resmi belum diunggah."
-        />
-      </InfoPanel>
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={Megaphone} title="Manajemen Pengumuman" description="Pengumuman draft, terjadwal, terbit, dan arsip.">
-          <AnnouncementTable summary={summary} />
-        </InfoPanel>
-
-        <InfoPanel icon={CalendarDays} title="Administrasi Rundown" description="Rundown utama event dengan persetujuan, publikasi, ekspor, dan catatan perubahan.">
-          <ScheduleTable schedules={summary.todaySchedule.slice(0, 5)} emptyTitle="Belum Ada Rundown" />
-        </InfoPanel>
-      </section>
-
-      <InfoPanel icon={FileCheck} title="Manajemen Laporan" description="Laporan kehadiran, panitia, lomba, sponsor, media, keuangan, dan laporan akhir event.">
-        <EmptyDataTable
-          columns={["ID Laporan", "Jenis Laporan", "Dibuat Oleh", "Tanggal Dibuat", "Format Ekspor", "Status"]}
-          emptyTitle="Belum Ada Laporan"
-          emptyDescription="Laporan administrasi akan muncul setelah laporan resmi dibuat."
-        />
-      </InfoPanel>
-
-      {canManageFinance ? (
-        <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <InfoPanel icon={Wallet} title="Manajemen Keuangan" description="Pemasukan, pengeluaran, dana sponsor, biaya kegiatan, dan kuitansi.">
-            <div className="grid gap-4">
-              <FinancialSummaryGrid />
-              <EmptyDataTable
-                columns={["ID Transaksi", "Kategori", "Nominal", "Tanggal", "Deskripsi", "Status", "Lampiran", "Dibuat Oleh"]}
-                emptyTitle="Belum Ada Catatan Keuangan"
-                emptyDescription="Transaksi dan kuitansi resmi belum diisi."
-              />
-            </div>
-          </InfoPanel>
-
-          <InfoPanel icon={Handshake} title="Keuangan Sponsor" description="Nilai kontribusi sponsor, kesepakatan, dan status konfirmasi.">
-            <SponsorshipIncomeTable />
-          </InfoPanel>
-        </section>
-      ) : (
-        <InfoPanel icon={Wallet} title="Manajemen Keuangan" description="Akses terbatas untuk Bendahara.">
-          <EmptyState title="Khusus Bendahara" description="Catatan keuangan hanya terlihat oleh Bendahara dan Super Admin." />
-        </InfoPanel>
-      )}
-
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.65fr)]">
-        <InfoPanel icon={Archive} title="Archive Management" description="Documents, reports, announcements, financial records, meeting notes, and sponsor files.">
-          <EmptyDataTable
-            columns={["Archive ID", "Item Type", "Title", "Archived By", "Archived Date", "Restore Status"]}
-            emptyTitle="Archive Empty"
-            emptyDescription="Archived administration records will appear here."
-          />
-        </InfoPanel>
-
-        <InfoPanel icon={Activity} title="Activity Log System" description="Audited actions across documents, reports, announcements, finance, and archives.">
-          <RecentActivityList summary={summary} />
-        </InfoPanel>
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-2">
-        <InfoPanel icon={Search} title="Server-Side Search & Filters" description="Global search fields supported by the administration module.">
-          <DocumentStatusList items={["Documents", "Announcements", "Reports", "Financial Records", "Archives", "Sponsors"]} />
-        </InfoPanel>
-
-        <InfoPanel icon={ShieldCheck} title="Validation & Security" description="RBAC, protected routes, audit logs, permission middleware, and activity tracking.">
-          <DocumentStatusList
-            items={[
-              "Prevent duplicate documents",
-              "Prevent invalid transactions",
-              "Prevent negative budget values",
-              "Prevent duplicate reports",
-              "Validate file uploads",
-              "Track audited activity",
-            ]}
-          />
-        </InfoPanel>
-      </section>
-    </div>
-  )
+  return <AdministrationControlCenter summary={summary} user={user} />
 }
 
 export function DashboardModuleScreen({
   moduleKey,
+  permissions = [],
   summary,
   user,
 }: {
   moduleKey: DashboardModuleKey
+  permissions?: Permission[]
   summary: DashboardSummary
   user?: UserDTO
 }) {
@@ -1165,11 +779,11 @@ export function DashboardModuleScreen({
     case "administration":
       return <AdministrationDashboardScreen summary={summary} user={user ?? summaryUserFallback()} />
     case "schedule-management":
-      return <ScheduleManagementScreen summary={summary} />
+      return <ScheduleManagementControlRoom initialSchedules={summary.todaySchedule} permissions={permissions} user={user ?? summaryUserFallback()} />
     case "participant-management":
-      return <ParticipantManagementScreen />
+      return <ParticipantRegistrationCenter permissions={permissions} user={user ?? summaryUserFallback()} />
     case "panitia-management":
-      return <PanitiaManagementScreen summary={summary} />
+      return <PanitiaManagementScreen user={user ?? summaryUserFallback()} />
     case "event-rundown":
       return <OperationsDashboardSystemScreen divisionId="acara" moduleTitle="Rundown Kegiatan" summary={summary} user={user ?? summaryUserFallback()} />
     case "equipment-inventory":
@@ -1186,7 +800,7 @@ export function DashboardModuleScreen({
     case "media-gallery":
     case "media-highlights":
     case "media-archive":
-      return <MediaCenterScreen moduleKey={moduleKey} />
+      return <MediaCenterScreen />
     case "announcement-center":
       return <AnnouncementCenterScreen summary={summary} />
     case "humas-sponsorship":
@@ -1209,7 +823,7 @@ export function DashboardModuleScreen({
     case "reports":
       return <AnalyticsScreen summary={summary} moduleKey={moduleKey} />
     case "settings":
-      return <SettingsScreen />
+      return <SettingsScreen user={user ?? summaryUserFallback()} />
     case "live-match":
       return <LiveMatchOperationsScreen />
     case "bracket-management":
@@ -1221,383 +835,24 @@ export function DashboardModuleScreen({
   }
 }
 
-function ScheduleManagementScreen({ summary }: { summary: DashboardSummary }) {
-  const schedules = scheduleDays.flatMap((day) =>
-    day.items.map((item, index) => ({
-      ...item,
-      date: day.date,
-      dayName: day.dayName,
-      id: `${day.id}-${index}`,
-      label: day.label,
-      status: "scheduled",
-    })),
-  )
-  const venues = Array.from(new Set(schedules.map((item) => item.venue))).sort()
-
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/schedules", icon: CalendarDays, label: "Tambah Jadwal" },
-          { href: "/dashboard/schedules", icon: Globe, label: "Publikasikan Rundown" },
-          { href: "/dashboard/reports", icon: FileText, label: "Ekspor Jadwal" },
-        ]}
-        icon={CalendarDays}
-        subtitle="Kelola rundown, jadwal lomba, penggunaan tempat, dan linimasa kegiatan."
-        title="Manajemen Jadwal"
-      />
-
-      <StatStrip
-        items={[
-          { label: "Kegiatan Hari Ini", value: summary.todaySchedule.length || NO_DATA, tone: "info" },
-          { label: "Kegiatan Live", value: summary.todaySchedule.filter((item) => item.status === "live").length, tone: "success" },
-          { label: "Match Berikutnya", value: schedules.filter((item) => item.type === "match").length, tone: "gold" },
-          { label: "Tempat Aktif", value: venues.length, tone: "navy" },
-        ]}
-      />
-
-      <FilterBar
-        fields={[
-          "Tanggal",
-          "Kategori",
-          "Tempat",
-          "Status",
-          "PIC",
-        ]}
-        searchPlaceholder="Cari kegiatan"
-      />
-
-      <InfoPanel icon={CalendarDays} title="Tampilan Timeline" description="Jadwal resmi MCS 1 dari data event utama.">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
-            <thead>
-              <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-                {["Tanggal", "Jam", "Kegiatan", "Kategori", "Tempat", "PIC", "Status"].map((heading) => (
-                  <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                    {heading}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {schedules.map((schedule) => (
-                <tr key={schedule.id} className="align-top">
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0">{schedule.label}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827]">{formatScheduleTime(schedule.time)}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 font-medium text-[#111827]">{schedule.title}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 capitalize text-[#64748B]">{schedule.type}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{schedule.venue}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{schedule.pic}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                    <StatusBadge label="Scheduled" tone="neutral" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </InfoPanel>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={Monitor} title="Venue Status Panel" description="Current and next venue usage.">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {venues.map((venue) => {
-              const current = schedules.find((item) => item.venue === venue)
-
-              return (
-                <FactTile
-                  key={venue}
-                  label={venue}
-                  value={current ? `${current.title} - ${formatScheduleTime(current.time)}` : NO_DATA}
-                />
-              )
-            })}
-          </div>
-        </InfoPanel>
-
-        <InfoPanel icon={Activity} title="Perubahan Terbaru" description="Perubahan jadwal muncul setelah ada update resmi.">
-          <RecentActivityList summary={summary} />
-        </InfoPanel>
-      </section>
-    </div>
-  )
+function PanitiaManagementScreen({ user }: { user: UserDTO }) {
+  return <PanitiaManagementModule user={user} />
 }
 
-function ParticipantManagementScreen() {
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/participants", icon: Users, label: "Tambah Peserta" },
-          { href: "/dashboard/participants", icon: Upload, label: "Impor Data" },
-          { href: "/dashboard/reports", icon: FileText, label: "Ekspor Peserta" },
-        ]}
-        icon={Users}
-        subtitle="Kelola peserta, verifikasi, tim, dan kehadiran."
-        title="Data Peserta"
-      />
-
-      <StatStrip
-        items={[
-          { label: "Total Peserta", value: NO_DATA },
-          { label: "Peserta Terverifikasi", value: NO_DATA },
-          { label: "Menunggu Verifikasi", value: NO_DATA },
-          { label: "Diskualifikasi", value: NO_DATA },
-        ]}
-      />
-
-      <FilterBar
-        fields={["Lomba", "Jurusan", "Kelas", "Status Verifikasi", "Status Kehadiran"]}
-        searchPlaceholder="Cari peserta"
-      />
-
-      <InfoPanel icon={Users} title="Tabel Peserta" description="Catatan peserta resmi belum dipublikasikan.">
-        <EmptyState title={NO_DATA} description="Belum ada catatan resmi peserta, tim, atau kehadiran." />
-      </InfoPanel>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={Trophy} title="Lomba Resmi" description="Cakupan lomba yang tersedia untuk pendaftaran peserta.">
-          <SimpleList items={competitions.map((competition) => `${competition.shortName} - ${competition.category}`)} />
-        </InfoPanel>
-        <InfoPanel icon={Users} title="Jurusan Resmi" description="Jurusan SMKN 20 Jakarta yang diperbolehkan.">
-          <SimpleList items={majors.map((major) => major.name)} />
-        </InfoPanel>
-      </section>
-    </div>
-  )
-}
-
-function PanitiaManagementScreen({ summary }: { summary: DashboardSummary }) {
-  const groups = committee.flatMap((group) => group.names.map((name) => ({ name, role: group.role })))
-
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/panitia-management", icon: Users, label: "Tambah Panitia" },
-          { href: "/dashboard/panitia-management", icon: Upload, label: "Impor Data" },
-          { href: "/dashboard/reports", icon: FileText, label: "Ekspor Data" },
-        ]}
-        icon={ShieldCheck}
-        subtitle="Kelola anggota panitia, divisi, peran, kehadiran, dan tugas."
-        title="Data Panitia"
-      />
-
-      <StatStrip
-        items={[
-          { label: "Data Panitia Resmi", value: groups.length, tone: "info" },
-          { label: "Hadir Hari Ini", value: NO_DATA },
-          { label: "Bertugas", value: NO_DATA },
-          { label: "Tugas Tertunda", value: summary.upcomingTasks.length || NO_DATA, tone: "warning" },
-        ]}
-      />
-
-      <InfoPanel icon={ShieldCheck} title="Ikhtisar Divisi" description="Struktur panitia resmi dari data MCS.">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {committee.map((group) => (
-            <FactTile key={group.role} label={group.role} value={`${group.names.length} terdaftar`} />
-          ))}
-        </div>
-      </InfoPanel>
-
-      <InfoPanel icon={Users} title="Tabel Panitia" description="Hanya nama panitia resmi dari data MCS yang ditampilkan.">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm">
-            <thead>
-              <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-                {["Name", "Division / Position", "Role", "Phone", "Attendance", "Status"].map((heading) => (
-                  <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                    {heading}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {groups.map((member) => (
-                <tr key={`${member.role}-${member.name}`}>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{member.name}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{member.role}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{member.role}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{NO_DATA}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{NO_DATA}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                    <StatusBadge label="Official" tone="success" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </InfoPanel>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={ClipboardList} title="Task Assignment Section" description="Task records appear after official task input.">
-          <TaskList summary={summary} />
-        </InfoPanel>
-        <InfoPanel icon={UserCheck} title="Attendance Section" description="Present, absent, late, and on-duty records.">
-          <EmptyState title={NO_DATA} description="Attendance records have not been published yet." />
-        </InfoPanel>
-      </section>
-    </div>
-  )
-}
-
-function MediaCenterScreen({ moduleKey }: { moduleKey: DashboardModuleKey }) {
-  const title = getModuleTitle(moduleKey)
-
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/media/upload", icon: Upload, label: "Upload Media" },
-          { href: "/dashboard/media/gallery", icon: ImageUp, label: "Create Gallery" },
-          { href: "/dashboard/reports", icon: FileText, label: "Export Media" },
-        ]}
-        icon={Camera}
-        subtitle="Manage event documentation, photos, videos, and gallery."
-        title={title}
-      />
-
-      <StatStrip
-        items={[
-          { label: "Total Photos", value: NO_DATA },
-          { label: "Total Videos", value: NO_DATA },
-          { label: "Uploaded Today", value: NO_DATA },
-          { label: "Pending Review", value: NO_DATA },
-        ]}
-      />
-
-      <InfoPanel icon={Upload} title="Upload Area" description="Supported: photos, videos, posters, and documents.">
-        <UploadDropzone title="No file selected" />
-      </InfoPanel>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={ImageUp} title="Media Grid" description="Uploaded media appears after official uploads exist.">
-          <EmptyState title={NO_DATA} description="Official media uploads have not been published yet." />
-        </InfoPanel>
-        <InfoPanel icon={Globe} title="Gallery Management" description="Public website visibility controls.">
-          <DocumentStatusList items={["Publish to public website", "Hide from public website", "Delete media"]} />
-        </InfoPanel>
-      </section>
-    </div>
-  )
+function MediaCenterScreen() {
+  return <PddCenterScreen />
 }
 
 function AnnouncementCenterScreen({ summary }: { summary: DashboardSummary }) {
-  const published = summary.announcements.filter((item) => item.status === "published")
-  const draft = summary.announcements.filter((item) => item.status === "draft")
-  const scheduled = summary.announcements.filter((item) => item.status === "approved")
-  const urgent = summary.announcements.filter((item) => item.priority === "urgent")
+  void summary
 
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/announcements", icon: Megaphone, label: "Create Announcement" },
-          { href: "/dashboard/announcements", icon: Bell, label: "Create Broadcast" },
-          { href: "/dashboard/reports", icon: FileText, label: "Export Announcements" },
-        ]}
-        icon={Megaphone}
-        subtitle="Manage announcements, broadcasts, and public information."
-        title="Announcement Center"
-      />
-
-      <StatStrip
-        items={[
-          { label: "Published", value: published.length || NOT_PUBLISHED, tone: "success" },
-          { label: "Draft", value: draft.length, tone: "warning" },
-          { label: "Scheduled", value: scheduled.length || NO_DATA, tone: "info" },
-          { label: "Urgent", value: urgent.length, tone: urgent.length ? "danger" : "neutral" },
-        ]}
-      />
-
-      <InfoPanel icon={Megaphone} title="Announcement Table" description="Official announcement records.">
-        <AnnouncementTable summary={summary} />
-      </InfoPanel>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={FileText} title="Create Announcement Fields" description="Title, content, priority, audience, status, date, and attachment.">
-          <DocumentStatusList items={["Title", "Content", "Priority", "Audience", "Publish status", "Publish date", "Attachment"]} />
-        </InfoPanel>
-        <InfoPanel icon={Bell} title="Broadcast Section" description="Recent broadcasts, read status, and target audience.">
-          <EmptyState title={NO_DATA} description="Broadcast records have not been published yet." />
-        </InfoPanel>
-      </section>
-    </div>
-  )
+  return <AnnouncementCommandCenter />
 }
 
 function JuknisManagementScreen({ moduleKey }: { moduleKey: DashboardModuleKey }) {
   const isDocuments = moduleKey === "documents"
 
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[
-          { href: "/dashboard/juknis", icon: Upload, label: "Upload Juknis" },
-          { href: "/dashboard/juknis", icon: FileText, label: "Add Rule" },
-          { href: "/dashboard/juknis", icon: Globe, label: "Publish Update" },
-        ]}
-        icon={FileText}
-        subtitle={
-          isDocuments
-            ? "Document workspace for official MCS 1 internal files."
-            : "Manage official competition guidelines and rulebooks."
-        }
-        title={isDocuments ? "Documents" : "Juknis Management"}
-      />
-
-      <InfoPanel icon={FileText} title="Juknis List" description="Official competition guidelines from canonical MCS data.">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
-            <thead>
-              <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-                {["Competition", "Format", "Team Format", "Version", "Publish Status"].map((heading) => (
-                  <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                    {heading}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {competitionJuknis.map((document) => (
-                <tr key={document.id}>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{document.shortName}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{document.format}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{document.teamFormat}</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">Official</td>
-                  <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                    <StatusBadge label={document.status} tone="success" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </InfoPanel>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={ClipboardList} title="Juknis Detail" description="Overview, requirements, rules, technical guidelines, criteria, PJ Lomba, PDF file, version, and status.">
-          <DocumentStatusList
-            items={[
-              "Overview",
-              "Requirements",
-              "Rules",
-              "Technical Guidelines",
-              "Judging Criteria",
-              "PJ Lomba",
-              "PDF File",
-              "Version",
-              "Publish Status",
-            ]}
-          />
-        </InfoPanel>
-        <InfoPanel icon={Activity} title="Version History" description="Version changes appear after official updates exist.">
-          <EmptyState title={NO_DATA} description="Version history has not been published yet." />
-        </InfoPanel>
-      </section>
-    </div>
-  )
+  return <JuknisManagementModule title={isDocuments ? "Documents" : "Juknis Management"} />
 }
 
 function AnalyticsScreen({ moduleKey, summary }: { moduleKey: DashboardModuleKey; summary: DashboardSummary }) {
@@ -1605,35 +860,7 @@ function AnalyticsScreen({ moduleKey, summary }: { moduleKey: DashboardModuleKey
     return <OperationalReportsScreen summary={summary} />
   }
 
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[{ href: "/dashboard/reports", icon: FileText, label: "Ekspor Laporan" }]}
-        icon={BarChart3}
-        subtitle="Laporan kepanitiaan sederhana tanpa analitik yang dikarang."
-        title="Analitik"
-      />
-
-      <StatStrip
-        items={[
-          { label: "Ringkasan Lomba", value: competitions.length, tone: "navy" },
-          { label: "Ringkasan Peserta", value: NO_DATA },
-          { label: "Ringkasan Kehadiran", value: NO_DATA },
-          { label: "Ringkasan Media", value: NO_DATA },
-          { label: "Ringkasan Pengumuman", value: summary.announcements.length || NOT_PUBLISHED },
-          { label: "Aktivitas Website", value: NO_DATA },
-        ]}
-      />
-
-      <InfoPanel icon={BarChart3} title="Laporan Kepanitiaan" description="Chart sengaja tidak ditampilkan sampai data laporan nyata tersedia.">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {["Ringkasan Lomba", "Ringkasan Peserta", "Ringkasan Kehadiran", "Ringkasan Media", "Ringkasan Pengumuman", "Aktivitas Website"].map((item) => (
-            <FactTile key={item} label={item} value={item === "Ringkasan Lomba" ? `${competitions.length} lomba resmi` : NO_DATA} />
-          ))}
-        </div>
-      </InfoPanel>
-    </div>
-  )
+  return <AnalyticsCenterScreen summary={summary} />
 }
 
 function OperationalReportsScreen({ summary }: { summary: DashboardSummary }) {
@@ -1767,49 +994,8 @@ function isPastDeadline(value: string) {
   return Number.isFinite(timestamp) && timestamp < Date.now()
 }
 
-function SettingsScreen() {
-  return (
-    <div className="grid gap-6">
-      <OperationsHeader
-        actions={[{ href: "/dashboard/settings", icon: Settings, label: "Simpan Pengaturan" }]}
-        icon={Settings}
-        subtitle="Konfigurasi sistem untuk dashboard internal."
-        title="Pengaturan"
-      />
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <InfoPanel icon={Globe} title="Pengaturan Umum" description="Informasi event utama.">
-          <SettingsRows
-            rows={[
-              ["Nama event", event.name],
-              ["Theme", event.theme],
-              ["Tanggal", event.dateRange],
-              ["Informasi sekolah", event.school],
-            ]}
-          />
-        </InfoPanel>
-        <InfoPanel icon={Trophy} title="Pengaturan Brand" description="Input brand resmi MCS 1.">
-          <SettingsRows
-            rows={[
-              ["Logo", "Logo resmi SMKN 20, OSIS, dan MPK"],
-              ["Warna", "Navy, merah, emas, putih"],
-              ["Media sosial", "Gunakan data kontak MCS utama"],
-              ["Informasi kontak", "Gunakan data kontak MCS utama"],
-            ]}
-          />
-        </InfoPanel>
-        <InfoPanel icon={ShieldCheck} title="Manajemen Role" description="Pengguna, role, dan permission.">
-          <DocumentStatusList items={["Pengguna", "Role", "Permission"]} />
-        </InfoPanel>
-        <InfoPanel icon={Bell} title="Pengaturan Notifikasi" description="Email, notifikasi dashboard, dan pengaturan broadcast.">
-          <DocumentStatusList items={["Email", "Notifikasi dashboard", "Pengaturan broadcast"]} />
-        </InfoPanel>
-        <InfoPanel icon={UserCheck} title="Pengaturan Akun" description="Profil, password, dan logout.">
-          <DocumentStatusList items={["Profil", "Password", "Logout"]} />
-        </InfoPanel>
-      </section>
-    </div>
-  )
+function SettingsScreen({ user }: { user: UserDTO }) {
+  return <SettingsCenter user={user} />
 }
 
 function LiveMatchOperationsScreen() {
@@ -2119,44 +1305,6 @@ function ScheduleTable({
   )
 }
 
-function AnnouncementTable({ summary }: { summary: DashboardSummary }) {
-  if (summary.announcements.length === 0) {
-    return <EmptyState title={NOT_PUBLISHED} description="Official announcements have not been published yet." />
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Title", "Priority", "Audience", "Status", "Author", "Published Date"].map((heading) => (
-              <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {summary.announcements.map((announcement) => (
-            <tr key={announcement.id}>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{announcement.title}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4">
-                <StatusBadge label={formatStatus(announcement.priority)} tone={getPriorityTone(announcement.priority)} />
-              </td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{announcement.audience.map((role) => roleLabels[role]).join(", ")}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4">
-                <StatusBadge label={formatStatus(announcement.status)} tone={getAnnouncementTone(announcement.status)} />
-              </td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{announcement.createdBy}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0 text-[#64748B]">{announcement.publishedAt ? formatDate(announcement.publishedAt) : NOT_PUBLISHED}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 function AnnouncementList({ summary }: { summary: DashboardSummary }) {
   if (summary.announcements.length === 0) {
     return <EmptyState title={NOT_PUBLISHED} description="No official announcement is visible for this role yet." />
@@ -2437,321 +1585,6 @@ function CompactEmptyState({ description, title }: { description: string; title:
   )
 }
 
-function EntrepreneurshipSalesOverview() {
-  const items = [
-    { label: "Pemasukan Hari Ini", value: "Belum Ada Pemasukan", tone: "neutral" as StatusTone },
-    { label: "Total Transaksi", value: "Belum Ada Transaksi", tone: "neutral" as StatusTone },
-    { label: "Produk Terjual", value: "Belum Ada Penjualan", tone: "neutral" as StatusTone },
-    { label: "Sisa Inventaris", value: "Belum Ada Produk", tone: "neutral" as StatusTone },
-    { label: "Progress Target", value: "Menunggu Aktivitas Penjualan", tone: "gold" as StatusTone },
-  ]
-
-  return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
-      {items.map((item) => (
-        <article key={item.label} className="mcs-list-row rounded-lg p-4">
-          <div className="flex items-start justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{item.label}</p>
-            <span className={cn("mt-1 size-2 shrink-0 rounded-full", getStatDotClass(item.tone))} />
-          </div>
-          <p className="mt-3 text-sm font-semibold leading-6 text-[#111827]">{item.value}</p>
-        </article>
-      ))}
-    </div>
-  )
-}
-
-function EntrepreneurshipTransactionsTable() {
-  return (
-    <div className="grid gap-4">
-      <ActionGrid
-        compact
-        actions={[
-          { href: "/dashboard/business", icon: Search, label: "Cari Transaksi" },
-          { href: "/dashboard/business", icon: ClipboardList, label: "Filter Produk" },
-          { href: "/dashboard/business", icon: CalendarDays, label: "Filter Tanggal" },
-          { href: "/dashboard/reports", icon: Download, label: "Ekspor Transaksi" },
-        ]}
-      />
-      <FinanceEmptyTable
-        columns={["Waktu", "Produk", "Jumlah", "Harga Satuan", "Total", "Dicatat Oleh"]}
-        emptyTitle="Belum Ada Transaksi"
-        emptyDescription="Transaksi penjualan resmi belum dicatat."
-      />
-    </div>
-  )
-}
-
-function EntrepreneurshipProductTable() {
-  return (
-    <div className="grid gap-4">
-      <div className="flex flex-wrap gap-2">
-        {["Tersedia", "Stok Rendah", "Stok Habis", "Diarsipkan"].map((status) => (
-          <StatusBadge key={status} label={status} tone={getProductStatusTone(status)} />
-        ))}
-      </div>
-      <FinanceEmptyTable
-        columns={["Nama Produk", "Kategori", "Harga", "Stok Awal", "Sisa Stok", "Status"]}
-        emptyTitle="Belum Ada Produk"
-        emptyDescription="Data makanan, minuman, snack, merchandise, atau produk lain belum dipublikasikan."
-      />
-    </div>
-  )
-}
-
-function EntrepreneurshipInventoryTable() {
-  return (
-    <div className="grid gap-4">
-      <div className="flex flex-wrap gap-2">
-        {["Aman", "Stok Rendah", "Kritis", "Stok Habis"].map((status) => (
-          <StatusBadge key={status} label={status} tone={getInventoryStatusTone(status)} />
-        ))}
-      </div>
-      <FinanceEmptyTable
-        columns={["Produk", "Stok Awal", "Terjual", "Sisa", "Status"]}
-        emptyTitle="Belum Ada Produk"
-        emptyDescription="Pergerakan inventaris muncul setelah data produk dan penjualan resmi tersedia."
-      />
-    </div>
-  )
-}
-
-function EntrepreneurshipBestSellers() {
-  return (
-    <div className="grid gap-2">
-      {["#1", "#2", "#3", "#4", "#5"].map((rank) => (
-        <div key={rank} className="mcs-list-row flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
-          <span className="text-sm font-semibold text-[#111827]">{rank}</span>
-          <span className="text-sm font-medium text-[#64748B]">Menunggu Aktivitas Penjualan</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function EntrepreneurshipCashSummary() {
-  const items = [
-    ["Modal Awal", "Belum Ada Pemasukan"],
-    ["Pemasukan", "Belum Ada Pemasukan"],
-    ["Pengeluaran", "Belum Ada Pengeluaran"],
-    ["Estimasi Laba", "Belum Ada Pemasukan"],
-  ]
-
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {items.map(([label, value]) => (
-        <div key={label} className="mcs-list-row min-w-0 rounded-lg p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">{label}</p>
-          <p className="mt-2 text-sm font-semibold leading-6 text-[#111827]">{value}</p>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function EntrepreneurshipDailyReports() {
-  const reports = [
-    ["Hari 1", "22 Jun 2026"],
-    ["Hari 2", "23 Jun 2026"],
-    ["Hari 3", "24 Jun 2026"],
-    ["Hari 4", "25 Jun 2026"],
-  ]
-
-  return (
-    <div className="grid gap-3">
-      {reports.map(([day, date]) => (
-        <div key={day} className="mcs-list-row grid gap-3 rounded-lg p-3 sm:grid-cols-[1fr_auto] sm:items-center">
-          <div>
-            <p className="text-sm font-semibold text-[#111827]">{day}</p>
-            <p className="mt-1 text-xs font-medium text-[#64748B]">{date}</p>
-          </div>
-          <StatusBadge label="Belum Ada Laporan" tone="neutral" />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function EntrepreneurshipRecentActivities({ summary }: { summary: DashboardSummary }) {
-  const items = summary.auditPreview.filter((item) =>
-    ["expense", "inventory", "product", "report", "sale", "sales", "stock", "target"].some((keyword) =>
-      `${item.action} ${item.resource}`.toLowerCase().includes(keyword),
-    ),
-  )
-
-  if (items.length === 0) {
-    return <EmptyState title="Menunggu Aktivitas Penjualan" description="Produk, stok, penjualan, pengeluaran, target, dan laporan akan muncul setelah ada input resmi." />
-  }
-
-  return <ActivityRows items={items} />
-}
-
-function EntrepreneurshipSidePanel() {
-  return (
-    <aside className="grid content-start gap-5">
-      <InfoPanel icon={Activity} title="Peringatan Stok Rendah" description="Produk yang perlu ditambah stoknya.">
-        <CompactEmptyState title="Belum Ada Produk" description="Peringatan stok muncul setelah inventaris produk resmi diisi." />
-      </InfoPanel>
-
-      <InfoPanel icon={BarChart3} title="Produk Terlaris" description="Ringkasan produk dengan penjualan tertinggi.">
-        <CompactEmptyState title="Menunggu Aktivitas Penjualan" description="Produk terlaris muncul setelah penjualan dicatat." />
-      </InfoPanel>
-
-      <InfoPanel icon={Wallet} title="Progress Target Penjualan" description="Perbandingan pemasukan dengan target.">
-        <CompactEmptyState title="Menunggu Aktivitas Penjualan" description="Target penjualan belum dipublikasikan." />
-      </InfoPanel>
-
-      <InfoPanel icon={ClipboardList} title="Transaksi Terbaru" description="Catatan penjualan terakhir.">
-        <CompactEmptyState title="Belum Ada Transaksi" description="Transaksi terbaru muncul setelah input penjualan resmi." />
-      </InfoPanel>
-
-      <InfoPanel icon={Wallet} title="Ringkasan Keuangan Hari Ini" description="Pemasukan, pengeluaran, dan estimasi laba.">
-        <StatMiniList
-          items={[
-            { label: "Pemasukan", value: "Belum Ada Pemasukan" },
-            { label: "Pengeluaran", value: "Belum Ada Pengeluaran" },
-            { label: "Estimasi Laba", value: "Belum Ada Pemasukan" },
-          ]}
-        />
-      </InfoPanel>
-    </aside>
-  )
-}
-
-function SponsorPipelineBoard() {
-  if (sponsorProspects.length === 0) {
-    return <PipelineBoard emptyTitle="Belum Ada Sponsor Aktif" statuses={sponsorshipPipelineStatuses} />
-  }
-
-  return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-      {sponsorshipPipelineStatuses.map((status) => {
-        const sponsors = sponsorProspects.filter((sponsor) => sponsor.pipelineStatus === status)
-
-        return (
-          <div key={status} className="min-h-36 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-[#111827]">{status}</p>
-              <StatusBadge label={String(sponsors.length)} tone={sponsors.length ? "warning" : "neutral"} />
-            </div>
-            {sponsors.length > 0 ? (
-              <div className="mt-4 grid gap-2">
-                {sponsors.map((sponsor) => (
-                  <div key={sponsor.id} className="rounded-md border border-[#E5E7EB] bg-white px-3 py-2">
-                    <p className="truncate text-sm font-semibold text-[#111827]">{sponsor.name}</p>
-                    <p className="mt-1 text-xs font-medium text-[#64748B]">{sponsor.proposalStatus}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="mt-4">
-                <CompactEmptyState title="Belum Ada Sponsor Aktif" description="Belum ada sponsor pada tahap ini." />
-              </div>
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-function SponsorListTable() {
-  if (sponsorProspects.length === 0) {
-    return <EmptyState title="Belum Ada Sponsor Aktif" description="Data sponsor resmi belum dipublikasikan." />
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[860px] border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Brand Name", "PIC", "Contact", "Proposal Status", "Follow Up Date", "Partnership Type"].map((heading) => (
-              <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {sponsorProspects.map((sponsor) => (
-            <tr key={sponsor.id}>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">{sponsor.name}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{sponsor.pic}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{sponsor.contact}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4">
-                <StatusBadge label={sponsor.proposalStatus} tone={getSponsorTone(sponsor.proposalStatus)} />
-              </td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{sponsor.followUpDate}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0 text-[#64748B]">{sponsor.partnershipType}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function SponsorProposalTracker() {
-  if (sponsorProspects.length === 0) {
-    return <EmptyState title={WAITING} description="No official proposal tracker records are available yet." />
-  }
-
-  return (
-    <div className="grid gap-2">
-      {sponsorProspects.map((sponsor) => (
-        <div key={sponsor.id} className="flex items-center justify-between gap-3 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] px-3 py-2.5">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-[#111827]">{sponsor.name}</p>
-            <p className="mt-1 text-xs font-medium text-[#64748B]">Follow up: {sponsor.followUpDate}</p>
-          </div>
-          <StatusBadge label={sponsor.proposalStatus} tone={getSponsorTone(sponsor.proposalStatus)} />
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function PublicationQueue({ summary }: { summary: DashboardSummary }) {
-  if (summary.announcements.length === 0) {
-    return <EmptyState title="No Publications Scheduled" description="Draft, approval, scheduled, and published content will appear here." />
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Title", "Type", "Platform", "Publish Time", "Status"].map((heading) => (
-              <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {summary.announcements.map((publication) => (
-            <tr key={publication.id}>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 font-semibold text-[#111827]">
-                {publication.title}
-              </td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">Announcement</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">
-                {publication.visibility === "public" ? "Public Website" : "Internal Dashboard"}
-              </td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">
-                {publication.publishedAt ? formatDate(publication.publishedAt) : NOT_PUBLISHED}
-              </td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                <StatusBadge label={formatStatus(publication.status)} tone={getAnnouncementTone(publication.status)} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 function StatMiniList({ items }: { items: Array<{ label: string; value: ReactNode }> }) {
   return (
     <div className="grid gap-2">
@@ -2763,54 +1596,6 @@ function StatMiniList({ items }: { items: Array<{ label: string; value: ReactNod
       ))}
     </div>
   )
-}
-
-function SocialScheduleTable({ publications }: { publications: DashboardSummary["announcements"] }) {
-  if (publications.length === 0) {
-    return <EmptyState title="No Publications Scheduled" description="Instagram, TikTok, website, and broadcast schedules are waiting for updates." />
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[520px] border-separate border-spacing-0 text-left text-sm">
-        <thead>
-          <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-            {["Time", "Content", "Platform", "Status"].map((heading) => (
-              <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                {heading}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {publications.map((publication) => (
-            <tr key={publication.id}>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 first:pl-0 text-[#64748B]">{NOT_PUBLISHED}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827]">{publication.title}</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">Website Publications</td>
-              <td className="border-b border-[#F1F5F9] px-4 py-4 last:pr-0">
-                <StatusBadge label={formatStatus(publication.status)} tone={getAnnouncementTone(publication.status)} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function HumasRecentActivities({ summary }: { summary: DashboardSummary }) {
-  const activity = summary.auditPreview.filter((item) =>
-    ["announcement", "proposal", "sponsor", "broadcast", "media", "publication", "partner"].some((keyword) =>
-      `${item.action} ${item.resource}`.toLowerCase().includes(keyword),
-    ),
-  )
-
-  if (activity.length === 0) {
-    return <EmptyState title={WAITING} description="Aktivitas proposal, sponsor, broadcast, dan mitra media akan muncul di sini." />
-  }
-
-  return <ActivityRows items={activity} />
 }
 
 function LiveMatchStatusPanel({ liveMatch }: { liveMatch?: DashboardSummary["liveMatches"][number] }) {
@@ -2827,7 +1612,7 @@ function LiveMatchStatusPanel({ liveMatch }: { liveMatch?: DashboardSummary["liv
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#166534]">Live Match</p>
           </div>
           <h3 className="mt-2 text-lg font-semibold text-[#111827]">{liveMatch.sport}</h3>
-          <p className="mt-1 text-sm font-medium text-[#64748B]">{liveMatch.teamA} vs {liveMatch.teamB}</p>
+          <p className="mt-1 text-sm font-medium text-[#64748B]">{formatNationName(liveMatch.teamA)} vs {formatNationName(liveMatch.teamB)}</p>
         </div>
         <div className="text-left sm:text-right">
           <p className="text-2xl font-semibold text-[#111827]">{liveMatch.scoreA} - {liveMatch.scoreB}</p>
@@ -2842,6 +1627,12 @@ function LiveMatchStatusPanel({ liveMatch }: { liveMatch?: DashboardSummary["liv
       </div>
     </div>
   )
+}
+
+function formatNationName(value: string) {
+  const nation = getNationByClassName(value) ?? getNationByCountryName(value)
+
+  return nation ? `${nation.countryFlag} ${nation.countryName}` : value
 }
 
 function MatchScheduleTable({ schedules }: { schedules: DashboardSummary["todaySchedule"] }) {
@@ -2953,24 +1744,6 @@ function ActivityRows({ items }: { items: DashboardSummary["auditPreview"] }) {
   )
 }
 
-function PipelineBoard({ emptyTitle = NO_DATA, statuses }: { emptyTitle?: string; statuses: string[] }) {
-  return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-      {statuses.map((status) => (
-        <div key={status} className="min-h-36 rounded-md border border-[#E5E7EB] bg-[#F8F9FB] p-3">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-[#111827]">{status}</p>
-            <StatusBadge label="0" tone="neutral" />
-          </div>
-          <div className="mt-4">
-            <EmptyState title={emptyTitle} description="No official sponsor record." />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function DocumentStatusList({ items }: { items: string[] }) {
   return (
     <div className="grid gap-2">
@@ -2979,40 +1752,6 @@ function DocumentStatusList({ items }: { items: string[] }) {
           <span className="text-sm font-medium text-[#111827]">{item}</span>
           <StatusBadge label={NO_DATA} tone="neutral" />
         </div>
-      ))}
-    </div>
-  )
-}
-
-function UploadDropzone({ title }: { title: string }) {
-  return (
-    <div className="mcs-inset-panel grid min-h-56 place-items-center rounded-lg border-dashed px-4 py-10 text-center">
-      <div className="max-w-sm">
-        <Upload className="mx-auto size-8 text-[#F97316]" aria-hidden="true" />
-        <p className="mt-3 text-sm font-semibold text-[#111827]">{title}</p>
-        <p className="mt-1 text-sm font-medium leading-6 text-[#64748B]">Official files can be uploaded when the backend workflow is connected.</p>
-      </div>
-    </div>
-  )
-}
-
-function SimpleList({ items }: { items: string[] }) {
-  return (
-    <div className="grid gap-2">
-      {items.map((item) => (
-        <div key={item} className="mcs-list-row rounded-lg px-3 py-2 text-sm font-medium text-[#111827]">
-          {item}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function SettingsRows({ rows }: { rows: Array<[string, string]> }) {
-  return (
-    <div className="grid gap-3">
-      {rows.map(([label, value]) => (
-        <FactTile key={label} label={label} value={value} />
       ))}
     </div>
   )
@@ -3187,7 +1926,7 @@ const officialOperationsVenues = [
   "Lapangan B",
   "Connecting Room",
   "R. Avis",
-  "Media Center",
+  "Ruang PDD",
   "Area Sekolah",
 ]
 
@@ -3796,12 +2535,12 @@ function getModuleTitle(moduleKey: DashboardModuleKey) {
     "juknis-management": "Manajemen Juknis",
     "live-match": "Pantauan Pertandingan",
     "match-results": "Input Hasil",
-    "media-archive": "Arsip Media",
-    "media-center": "Pusat Media",
-    "media-gallery": "Kelola Galeri",
-    "media-highlights": "Video Highlight",
+    "media-archive": "Pusat PDD",
+    "media-center": "Pusat PDD",
+    "media-gallery": "Pusat PDD",
+    "media-highlights": "Pusat PDD",
     "media-posts": "Posting Media",
-    "media-upload": "Unggah Media",
+    "media-upload": "Pusat PDD",
     "news-center": "Pusat Berita",
     "panitia-management": "Data Panitia",
     "participant-management": "Data Peserta",
@@ -3959,99 +2698,6 @@ function getBusinessDashboardTitle(focus: BusinessDashboardFocus, user: UserDTO)
   return "Kewirausahaan MCS 1"
 }
 
-function getBusinessQuickActions(focus: BusinessDashboardFocus): ActionLink[] {
-  const actions: ActionLink[] = [
-    { href: "/dashboard/business", icon: Archive, label: "Tambah Produk" },
-    { href: "/dashboard/business", icon: Wallet, label: "Catat Penjualan" },
-    { href: "/dashboard/business", icon: ClipboardList, label: "Update Stok" },
-    { href: "/dashboard/business", icon: FileText, label: "Tambah Pengeluaran" },
-    { href: "/dashboard/reports", icon: Download, label: "Buat Laporan" },
-  ]
-
-  if (focus === "finance") {
-    return [
-      actions[4],
-      actions[3],
-      actions[1],
-      actions[2],
-      actions[0],
-    ]
-  }
-
-  return actions
-}
-
-function getBusinessEventStatus(date: Date) {
-  const start = new Date(`${event.startDate}T00:00:00.000+07:00`)
-  const end = new Date(`${event.endDate}T23:59:59.999+07:00`)
-
-  if (date < start) {
-    return {
-      dayLabel: "Persiapan Pra-Event",
-      statusLabel: "Pra-Event",
-    }
-  }
-
-  if (date > end) {
-    return {
-      dayLabel: "Pasca-Event",
-      statusLabel: "Selesai",
-    }
-  }
-
-  const dayNumber = Math.floor((date.getTime() - start.getTime()) / 86_400_000) + 1
-
-  return {
-    dayLabel: `Hari Kegiatan ${dayNumber}`,
-    statusLabel: "Kegiatan Berjalan",
-  }
-}
-
-function getBusinessGreeting(date: Date) {
-  const hour = Number(
-    new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Jakarta",
-    }).format(date),
-  )
-
-  if (hour < 12) return "Selamat Pagi"
-  if (hour < 17) return "Selamat Siang"
-  return "Selamat Sore"
-}
-
-function formatBusinessDate(date: Date) {
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "short",
-    timeZone: "Asia/Jakarta",
-    year: "numeric",
-  }).format(date)
-}
-
-function formatBusinessTime(date: Date) {
-  return `${new Intl.DateTimeFormat("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Asia/Jakarta",
-  }).format(date)} WIB`
-}
-
-function getProductStatusTone(status: string): StatusTone {
-  if (status === "Available" || status === "Tersedia") return "success"
-  if (status === "Low Stock" || status === "Stok Rendah") return "warning"
-  if (status === "Out Of Stock" || status === "Stok Habis") return "danger"
-  return "neutral"
-}
-
-function getInventoryStatusTone(status: string): StatusTone {
-  if (status === "Safe" || status === "Aman") return "success"
-  if (status === "Low Stock" || status === "Stok Rendah") return "warning"
-  if (status === "Critical" || status === "Kritis" || status === "Out Of Stock" || status === "Stok Habis") return "danger"
-  return "neutral"
-}
-
 function isFinanceRelated(value: string) {
   const lowerValue = value.toLowerCase()
 
@@ -4140,11 +2786,4 @@ function getPriorityTone(priority: string): StatusTone {
   if (priority === "urgent") return "danger"
   if (priority === "important") return "warning"
   return "neutral"
-}
-
-function getAnnouncementTone(status: string): StatusTone {
-  if (status === "published") return "success"
-  if (status === "pending_approval") return "warning"
-  if (status === "archived") return "neutral"
-  return "info"
 }

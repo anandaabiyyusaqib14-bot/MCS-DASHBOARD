@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import { competitionBracketRounds } from "@/data/competition-center"
 import { brandAssets, dashboardFootage, event } from "@/data/mcs"
 import { cn } from "@/lib/utils"
 
@@ -75,6 +76,28 @@ export function LiveMatchScreen() {
         <EmptyState title={NO_DATA} body="Official score data has not been published yet." />
         <EmptyState title={NO_DATA} body="Official bracket data has not been published yet." />
         <EmptyState title={NO_DATA} body="Official match media has not been published yet." />
+      </section>
+
+      <section className="mx-auto max-w-[1500px] px-5 pb-16 sm:px-8 lg:px-10">
+        <div className="border-y border-white/12 bg-white/[0.025] p-5">
+          <p className="font-sport text-xs font-black uppercase tracking-[0.18em] text-[color:var(--mcs-gold-soft)]">Scoreboard</p>
+          <h2 className="mt-3 font-display text-6xl leading-none text-white">Nations Scoreboard</h2>
+          <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {competitionBracketRounds[0]?.matches.slice(0, 8).map((match) => (
+              <article key={match.id} className="border-y border-white/12 bg-[#071421] p-4">
+                {match.slots.map((slot) => (
+                  <div key={`${match.id}-${slot.seed}`} className="flex items-center justify-between gap-3 border-b border-white/8 py-3 last:border-b-0">
+                    <span className="min-w-0 truncate text-lg font-black text-white">
+                      <span className="mr-2" aria-hidden="true">{slot.flag}</span>
+                      {slot.name}
+                    </span>
+                    <span className="font-mono text-2xl font-black text-[color:var(--mcs-gold-soft)]">{slot.score ?? "-"}</span>
+                  </div>
+                ))}
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
     </main>
   )

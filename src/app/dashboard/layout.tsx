@@ -4,6 +4,7 @@ import { cookies, headers } from "next/headers"
 
 import { DashboardShell } from "@/components/dashboard/dashboard-shell-refined"
 import { canAccessDashboardPath, getRoleHomePath, getRoleNavigation } from "@/lib/mcs-rbac"
+import { ensureMcsRepositoryReady } from "@/server/mcs/repository"
 import { getAuthContextFromSessionToken } from "@/server/mcs/service"
 import { SESSION_COOKIE_NAME, roleLabels } from "@/server/mcs/types"
 
@@ -11,6 +12,7 @@ export const dynamic = "force-dynamic"
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()])
+  await ensureMcsRepositoryReady()
   const pathname = headerStore.get("x-mcs-pathname") ?? "/dashboard"
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value
   let auth: ReturnType<typeof getAuthContextFromSessionToken>

@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server"
 import { ok, toErrorResponse } from "@/server/mcs/http"
+import { ensureMcsRepositoryReady } from "@/server/mcs/repository"
 import { logoutRequest } from "@/server/mcs/service"
 import { SESSION_COOKIE_NAME } from "@/server/mcs/types"
 
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
   try {
+    await ensureMcsRepositoryReady()
     logoutRequest(request)
     const response = ok({ loggedOut: true })
     response.cookies.delete(SESSION_COOKIE_NAME)

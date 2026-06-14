@@ -30,7 +30,7 @@ Core promise:
 
 Main style: modern sports event operating system.
 
-The visual design should borrow from tournament dashboards, esports broadcast control rooms, and sports scoreboard systems. It should avoid AI-tool visuals, crypto dashboards, fintech cards, cyberpunk neon, random glass panels, and excessive gradients.
+The visual design should borrow from tournament dashboards, esports broadcast control rooms, and sports scoreboard systems. It should avoid synthetic-tool visuals, crypto dashboards, fintech cards, cyberpunk neon, random glass panels, and excessive gradients.
 
 Design keywords:
 
@@ -696,7 +696,7 @@ Scalability:
 
 ### 10. `certificates`
 
-Purpose: generated certificate records, PDF file paths, and verification QR codes.
+Purpose: certificate records, PDF file paths, and verification QR codes.
 
 Example:
 
@@ -711,9 +711,9 @@ certificates/{certificateId} = {
   achievement: "Juara 1",
   verificationCode: "MCS1-BDM-9X2A7C",
   pdfStoragePath: "mcs-1/certificates/MCS1-BDM-9X2A7C.pdf",
-  status: "generated",
-  generatedBy: "uid",
-  generatedAt: Timestamp,
+  status: "ready",
+  exportedBy: "uid",
+  exportedAt: Timestamp,
   createdAt: Timestamp,
   updatedAt: Timestamp
 }
@@ -845,7 +845,7 @@ notifications/{notificationId} = {
 
 Relationships:
 
-- Generated from tasks, announcements, matches, certificates, and attendance.
+- Built from tasks, announcements, matches, certificates, and attendance.
 
 Realtime:
 
@@ -942,7 +942,7 @@ Use check-in and check-out state transitions:
 Upload flow:
 
 1. Client requests an upload target or uses restricted Firebase Storage path.
-2. File uploads to `mcs-1/media/{category}/{generatedId}`.
+2. File uploads to `mcs-1/media/{category}/{fileId}`.
 3. Metadata document is created in `media`.
 4. Optional thumbnail job creates `thumbnailPath`.
 5. Humas or Super Admin approves public visibility.

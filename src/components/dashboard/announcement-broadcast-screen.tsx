@@ -96,79 +96,23 @@ const categories: Category[] = ["General", "Tournament", "Operational", "Emergen
 const priorities: Priority[] = ["Critical", "Important", "Normal"]
 
 const audienceGroups = [
-  { label: "All Panitia", count: 55 },
-  { label: "All Jurusan", count: majors.length },
-  ...majors.map((major) => ({ label: major.name, count: 1 })),
-  { label: "Humas", count: 12 },
-  { label: "Dokumentasi", count: 18 },
-  { label: "Acara", count: 32 },
-  { label: "Keamanan", count: 26 },
-  { label: "PJ Lomba", count: 41 },
-  { label: "Participants", count: 328 },
+  { label: "All Panitia", count: 0 },
+  { label: "All Jurusan", count: 0 },
+  ...majors.map((major) => ({ label: major.name, count: 0 })),
+  { label: "Humas", count: 0 },
+  { label: "Dokumentasi", count: 0 },
+  { label: "Acara", count: 0 },
+  { label: "Keamanan", count: 0 },
+  { label: "PJ Lomba", count: 0 },
+  { label: "Participants", count: 0 },
   { label: "Specific Division", count: 0 },
 ]
 
-const seedAnnouncements: AnnouncementItem[] = [
-  {
-    id: "critical-badminton",
-    title: "PJ Badminton standby at Court B",
-    message: "Mohon PJ Badminton segera standby di Court B untuk persiapan pertandingan semifinal.",
-    category: "Operational",
-    author: contact.whatsappOfficial.label,
-    timestamp: "10 minutes ago",
-    audience: ["All Panitia", "PJ Lomba"],
-    priority: "Critical",
-    reads: 124,
-    pinned: true,
-  },
-  {
-    id: "futsal-final-call",
-    title: "Futsal Quarter Final is starting soon",
-    message: "Teams are requested to warm up and be ready at the court.",
-    category: "Tournament",
-    author: contact.whatsappOfficial.label,
-    timestamp: "25 minutes ago",
-    audience: ["Participants"],
-    priority: "Important",
-    reads: 86,
-  },
-  {
-    id: "media-upload",
-    title: "Media Team: Submit Photos & Videos",
-    message: "Upload footage pertandingan dan pentas seni ke Media Center setelah setiap sesi selesai.",
-    category: "Media",
-    author: "Sie. Dokumentasi",
-    timestamp: "1 hour ago",
-    audience: ["Dokumentasi"],
-    priority: "Normal",
-    reads: 72,
-  },
-  {
-    id: "hydration",
-    title: "Hydration Reminder",
-    message: `Tetap jaga kondisi selama ${event.name}.`,
-    category: "General",
-    author: contact.chairperson.label,
-    timestamp: "2 hours ago",
-    audience: ["All Panitia", "Participants"],
-    priority: "Normal",
-    reads: 196,
-  },
-]
+const initialAnnouncements: AnnouncementItem[] = []
 
-const seedScheduled: ScheduledBroadcast[] = [
-  { id: "open", time: "07:00", title: "Opening Ceremony Reminder", audience: "All Panitia", priority: "Normal" },
-  { id: "futsal-call", time: "09:00", title: "Futsal Quarter Final Call", audience: "Participants", priority: "Important" },
-  { id: "lunch", time: "12:00", title: "Lunch Break Information", audience: "All Participants", priority: "Normal" },
-  { id: "semi", time: "14:00", title: "Semifinal Preparation Notice", audience: "PJ Lomba", priority: "Important" },
-]
+const initialScheduledBroadcasts: ScheduledBroadcast[] = []
 
-const communicationTimeline = [
-  { time: "08:00", title: "Opening Ceremony Announcement", meta: "General - All Panitia", status: "Read", tone: "green" },
-  { time: "08:15", title: "Badminton Schedule Update", meta: "Tournament - Participants", status: "Read", tone: "green" },
-  { time: "08:20", title: "Venue Change Notification", meta: "Operational - All Panitia", status: "Partial", tone: "gold" },
-  { time: "08:45", title: "Media Team Briefing", meta: "Media - Dokumentasi", status: "Read", tone: "red" },
-]
+const communicationTimeline: Array<{ time: string; title: string; meta: string; status: string; tone: string }> = []
 
 const priorityStyle = {
   Critical: {
@@ -189,8 +133,8 @@ const priorityStyle = {
 } satisfies Record<Priority, { badge: string; rail: string; icon: string }>
 
 export function AnnouncementBroadcastScreen() {
-  const [announcements, setAnnouncements] = useState(seedAnnouncements)
-  const [scheduled, setScheduled] = useState(seedScheduled)
+  const [announcements, setAnnouncements] = useState(initialAnnouncements)
+  const [scheduled, setScheduled] = useState(initialScheduledBroadcasts)
   const [selectedAudience, setSelectedAudience] = useState(["All Panitia"])
   const [title, setTitle] = useState("")
   const [message, setMessage] = useState("")
@@ -216,12 +160,12 @@ export function AnnouncementBroadcastScreen() {
 
   const overview = useMemo(
     () => [
-      { label: "Total Announcements", value: String(announcements.length + 64), helper: "All time", icon: Megaphone, tone: "blue" },
-      { label: "Active Broadcasts", value: String(announcements.filter((item) => item.priority !== "Normal").length + 3), helper: "Currently active", icon: Radio, tone: "red" },
-      { label: "Scheduled Messages", value: String(scheduled.length + 8), helper: "Upcoming", icon: CalendarDays, tone: "gray" },
-      { label: "Read Rate", value: "87.3%", helper: "This week", icon: Eye, tone: "green" },
-      { label: "Unread Alerts", value: "7", helper: "Require attention", icon: Bell, tone: "gold" },
-      { label: "Critical Notices", value: String(announcements.filter((item) => item.priority === "Critical").length + 1), helper: "High priority", icon: AlertTriangle, tone: "red" },
+      { label: "Total Announcements", value: String(announcements.length), helper: "All time", icon: Megaphone, tone: "blue" },
+      { label: "Active Broadcasts", value: String(announcements.filter((item) => item.priority !== "Normal").length), helper: "Currently active", icon: Radio, tone: "red" },
+      { label: "Scheduled Messages", value: String(scheduled.length), helper: "Upcoming", icon: CalendarDays, tone: "gray" },
+      { label: "Read Rate", value: "Data Not Published Yet", helper: "This week", icon: Eye, tone: "green" },
+      { label: "Unread Alerts", value: "No Data Available", helper: "Require attention", icon: Bell, tone: "gold" },
+      { label: "Critical Notices", value: String(announcements.filter((item) => item.priority === "Critical").length), helper: "High priority", icon: AlertTriangle, tone: "red" },
     ],
     [announcements, scheduled]
   )
@@ -240,7 +184,7 @@ export function AnnouncementBroadcastScreen() {
   }
 
   function publishAnnouncement() {
-    const finalTitle = title.trim() || (priority === "Critical" ? "PJ Badminton standby at Court B" : "Operational Broadcast")
+    const finalTitle = title.trim() || "Official Broadcast"
     const finalMessage =
       message.trim() || "Mohon seluruh target audiens memperhatikan update operasional dari Command Center."
 
@@ -268,7 +212,7 @@ export function AnnouncementBroadcastScreen() {
       {
         id: `scheduled-${Date.now()}`,
         time: scheduleTime,
-        title: title.trim() || "Operational Broadcast",
+        title: title.trim() || "Official Broadcast",
         audience: selectedAudience.join(", ") || "All Panitia",
         priority,
       },
@@ -414,7 +358,7 @@ function TopBar() {
           <Sheet>
             <SheetTrigger
               render={
-                <Button variant="outline" size="icon" className="border-white/15 bg-white/5 text-white hover:bg-white/10 lg:hidden" />
+                <Button variant="outline" size="icon" className="border-white/15 !bg-white/5 !text-white hover:!bg-white/10 lg:hidden" />
               }
             >
               <Menu />
@@ -453,12 +397,12 @@ function TopBar() {
             <span className="size-2 rounded-full bg-[#48c78e]" />
             <div>
               <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-white/52">Delivery Health</p>
-              <p className="font-sport text-sm font-black uppercase text-[#7de39b]">Operational</p>
+              <p className="font-sport text-sm font-black uppercase text-[#7de39b]">Data Not Published Yet</p>
             </div>
           </div>
           <div className="flex items-center gap-4 px-5">
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-white/52">Read Rate</p>
-            <p className="font-mono text-2xl font-black text-white">87.3%</p>
+            <p className="font-mono text-2xl font-black text-white">No Data</p>
           </div>
         </div>
 
@@ -473,7 +417,7 @@ function TopBar() {
           <Button variant="ghost" size="icon" className="relative text-white/72 hover:bg-white/10 hover:text-white">
             <Bell />
             <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-[color:var(--mcs-red)] text-[0.62rem] font-black text-white">
-              7
+              0
             </span>
             <span className="sr-only">Notifications</span>
           </Button>
@@ -511,12 +455,12 @@ function MobileHeading({ onPublish }: { onPublish: () => void }) {
             <p className="font-sport text-xs font-black uppercase tracking-[0.14em] text-white/48">Communication Health</p>
             <p className="mt-1 flex items-center gap-2 text-sm font-bold uppercase text-[#7de39b]">
               <span className="size-2 rounded-full bg-[#48c78e]" />
-              All systems operational
+              Data Not Published Yet
             </p>
           </div>
           <div className="border-l border-white/10 pl-3 text-right">
             <p className="font-sport text-[0.62rem] font-black uppercase text-white/46">Read Rate</p>
-            <p className="font-mono text-lg font-black text-[color:var(--mcs-gold-soft)]">87.3%</p>
+            <p className="font-mono text-lg font-black text-[color:var(--mcs-gold-soft)]">No Data</p>
           </div>
           <ChevronRight className="size-4 text-white/34" />
         </div>
@@ -666,11 +610,11 @@ function CreateAnnouncement({
         </div>
 
         <div className="grid gap-2 sm:grid-cols-3">
-          <Button variant="outline" className="h-10 rounded-md border-white/12 bg-white/5 font-sport font-black uppercase text-white/76 hover:bg-white/10">
+          <Button variant="outline" className="h-10 rounded-md border-white/12 !bg-white/5 font-sport font-black uppercase !text-white/76 hover:!bg-white/10 hover:!text-white">
             <Save data-icon="inline-start" />
             Save Draft
           </Button>
-          <Button variant="outline" className="h-10 rounded-md border-white/12 bg-white/5 font-sport font-black uppercase text-white/76 hover:bg-white/10" onClick={onSchedule}>
+          <Button variant="outline" className="h-10 rounded-md border-white/12 !bg-white/5 font-sport font-black uppercase !text-white/76 hover:!bg-white/10 hover:!text-white" onClick={onSchedule}>
             <Clock data-icon="inline-start" />
             Schedule
           </Button>
@@ -798,7 +742,7 @@ function ScheduledBroadcasts({
         ))}
       </div>
       <div className="p-3">
-        <Button variant="outline" className="h-10 w-full rounded-md border-white/12 bg-white/5 font-sport font-black uppercase text-white/76 hover:bg-white/10" onClick={onSchedule}>
+        <Button variant="outline" className="h-10 w-full rounded-md border-white/12 !bg-white/5 font-sport font-black uppercase !text-white/76 hover:!bg-white/10 hover:!text-white" onClick={onSchedule}>
           <Plus data-icon="inline-start" />
           Create Scheduled Message
         </Button>
@@ -845,7 +789,7 @@ function AudienceTargeting({
           <p className="text-xs font-bold uppercase tracking-[0.1em] text-[color:var(--mcs-gold-soft)]">
             Selected Audience: {selectedAudience.join(", ") || "None"}
           </p>
-          <Button variant="outline" size="sm" className="rounded-md border-white/12 bg-white/5 font-sport font-black uppercase text-white/70">
+          <Button variant="outline" size="sm" className="rounded-md border-white/12 !bg-white/5 font-sport font-black uppercase !text-white/70 hover:!bg-white/10 hover:!text-white">
             Manage Groups
           </Button>
         </div>
@@ -859,17 +803,17 @@ function DeliveryAnalytics() {
     <section className="rounded-lg border border-white/10 bg-[#08121f]">
       <PanelHeader number="6" title="Delivery Analytics" />
       <div className="grid gap-4 p-4 lg:grid-cols-[170px_1fr]">
-        <div className="mx-auto grid size-36 place-items-center rounded-full border-[18px] border-[#48c78e] bg-[#050c15] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]">
+        <div className="mx-auto grid size-36 place-items-center rounded-full border-[18px] border-white/10 bg-[#050c15] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]">
           <div className="text-center">
             <p className="text-xs text-white/48">Total Sent</p>
-            <p className="font-display text-5xl leading-none text-white">55</p>
+            <p className="font-display text-5xl leading-none text-white">0</p>
           </div>
         </div>
         <div className="grid gap-3">
           {[
-            ["Delivered", "55", "100%", "#48c78e"],
-            ["Read", "48", "87.3%", "#64b5f6"],
-            ["Unread", "7", "12.7%", "#e1b451"],
+            ["Delivered", "0", "No Data", "#48c78e"],
+            ["Read", "0", "No Data", "#64b5f6"],
+            ["Unread", "0", "No Data", "#e1b451"],
           ].map(([label, value, percent, color]) => (
             <div key={label} className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-md border border-white/10 bg-white/5 px-3 py-2">
               <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.1em] text-white/56">
@@ -883,9 +827,9 @@ function DeliveryAnalytics() {
           <div>
             <div className="mb-2 flex items-center justify-between text-sm">
               <span className="font-bold uppercase tracking-[0.1em] text-white/48">Engagement Rate</span>
-              <span className="font-mono font-black text-[#7de39b]">76.4%</span>
+              <span className="font-mono font-black text-[#7de39b]">No Data</span>
             </div>
-            <Progress value={76.4} className="h-2 bg-white/10" />
+            <Progress value={0} className="h-2 bg-white/10" />
           </div>
         </div>
       </div>
@@ -900,7 +844,11 @@ function CommunicationTimeline() {
       <div className="p-4">
         <div className="relative grid gap-0">
           <span className="absolute bottom-6 left-[50px] top-6 w-px bg-[linear-gradient(180deg,rgba(72,199,142,0.8),rgba(225,180,81,0.84),rgba(195,38,45,0.72))]" />
-          {communicationTimeline.map((item) => (
+          {communicationTimeline.length === 0 ? (
+            <div className="rounded-md border border-white/10 bg-white/5 px-3 py-4 text-sm font-semibold text-white/56">
+              Data Not Published Yet
+            </div>
+          ) : communicationTimeline.map((item) => (
             <div key={`${item.time}-${item.title}`} className="relative grid grid-cols-[42px_20px_minmax(0,1fr)_auto] items-center gap-3 border-b border-white/8 py-3 last:border-b-0">
               <p className="font-mono text-sm text-white/74">{item.time}</p>
               <span

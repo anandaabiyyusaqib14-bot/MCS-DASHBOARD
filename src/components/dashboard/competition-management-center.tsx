@@ -30,7 +30,7 @@ import {
   type CompetitionCenterCategory,
   type CompetitionCenterItem,
 } from "@/data/competition-center"
-import { brandAssets, event } from "@/data/mcs"
+import { brandAssets, event, getNationByClassName, getNationByCountryName } from "@/data/mcs"
 import { cn } from "@/lib/utils"
 
 const navItems = ["Overview", "Sports", "Arts & Media", "Schedule", "Results"]
@@ -170,8 +170,8 @@ export function CompetitionManagementCenter() {
         <section id="brackets" className="mt-20">
           <SectionHeader
             label="Tournament Brackets"
-            title={DATA_NOT_PUBLISHED}
-            body="Official bracket data has not been published yet."
+            title="Nations Bracket"
+            body="Official bracket data will appear after it is published by the competition team."
           />
           <div className="mt-8 overflow-x-auto border-y border-white/12 bg-white/[0.025] p-5">
             {competitionBracketRounds.length > 0 ? (
@@ -185,7 +185,10 @@ export function CompetitionManagementCenter() {
                       <div key={match.id} className="border-l-2 border-[color:var(--mcs-red)] bg-[#071421] p-3">
                         {match.slots.map((slot) => (
                           <div key={`${match.id}-${slot.seed}`} className="flex min-h-10 items-center justify-between gap-3 border-b border-white/8 py-2 last:border-b-0">
-                            <span className="truncate text-sm font-bold text-white/78">{slot.name}</span>
+                            <span className="truncate text-sm font-bold text-white/78">
+                              <span className="mr-2" aria-hidden="true">{slot.flag}</span>
+                              {slot.name}
+                            </span>
                             <span className="font-mono text-sm font-black text-[color:var(--mcs-gold-soft)]">{slot.score ?? "-"}</span>
                           </div>
                         ))}
@@ -528,14 +531,14 @@ function LiveCompetitions({ matches }: { matches: typeof competitionMatches }) {
               <p className="font-sport text-xs font-black uppercase tracking-[0.16em] text-[color:var(--mcs-gold-soft)]">
                 {competitionCenterItems.find((competition) => competition.id === match.competitionId)?.name}
               </p>
-              <p className="mt-2 font-display text-4xl leading-none text-white">{match.teamA}</p>
+              <p className="mt-2 font-display text-4xl leading-none text-white">{formatNationName(match.teamA)}</p>
             </div>
             <div className="border-y border-white/12 px-6 py-3 text-center sm:border-x sm:border-y-0">
               <p className="font-mono text-3xl font-black text-white">{match.scoreA} - {match.scoreB}</p>
               <p className="mt-1 font-sport text-[0.62rem] font-black uppercase tracking-[0.14em] text-[color:var(--mcs-red)]">{match.round}</p>
             </div>
             <div className="sm:text-right">
-              <p className="font-display text-4xl leading-none text-white">{match.teamB}</p>
+              <p className="font-display text-4xl leading-none text-white">{formatNationName(match.teamB)}</p>
               <p className="mt-2 text-sm font-bold text-white/46">{match.venue}</p>
             </div>
           </div>
@@ -580,7 +583,7 @@ function EmptyState({ title, body }: { title: string; body: string }) {
 function ImagePlaceholder() {
   return (
     <div className="absolute inset-0 grid place-items-center bg-[#071421]">
-      <p className="font-sport text-xs font-black uppercase tracking-[0.16em] text-white/42">Image placeholder</p>
+      <p className="font-sport text-xs font-black uppercase tracking-[0.16em] text-white/42">No image available</p>
     </div>
   )
 }
@@ -607,19 +610,27 @@ function DetailPanel({
 
 function RosterRow({ entry }: { entry: (typeof competitionParticipants)[number] | (typeof competitionTeams)[number] }) {
   const isTeam = "members" in entry
+  const countryName = entry.countryName || getNationByClassName(entry.className)?.countryName || entry.name
+  const countryFlag = entry.countryFlag || getNationByClassName(entry.className)?.countryFlag || ""
 
   return (
     <div className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 border-b border-white/8 pb-3">
       <div className="grid size-11 place-items-center bg-[rgba(225,180,81,0.14)] font-sport text-xs font-black text-[color:var(--mcs-gold-soft)]">
-        {isTeam ? entry.name.slice(0, 2).toUpperCase() : entry.avatar}
+        {countryFlag || (isTeam ? countryName.slice(0, 2).toUpperCase() : entry.avatar)}
       </div>
       <div className="min-w-0">
-        <p className="truncate text-sm font-black text-white">{entry.name}</p>
-        <p className="truncate text-xs font-semibold text-white/46">{isTeam ? `${entry.members.length} members` : `${entry.className} - ${entry.major}`}</p>
+        <p className="truncate text-sm font-black text-white">{countryName}</p>
+        <p className="truncate text-xs font-semibold text-white/46">{isTeam ? `${entry.members.length} members / ${entry.className}` : `${entry.className} / ${entry.major}`}</p>
       </div>
       <span className="font-sport text-[0.62rem] font-black uppercase text-[color:var(--mcs-gold-soft)]">{entry.status}</span>
     </div>
   )
+}
+
+function formatNationName(value: string) {
+  const nation = getNationByClassName(value) ?? getNationByCountryName(value)
+
+  return nation ? `${nation.countryFlag} ${nation.countryName}` : value
 }
 
 function SectionHeader({ label, title, body }: { label: string; title: string; body: string }) {

@@ -18,11 +18,20 @@ export type DashboardNavigationIcon =
   | "gallery"
   | "video"
   | "archive"
+  | "bell-ring"
+  | "briefcase-business"
+  | "clipboard-check"
   | "wallet"
   | "monitor"
+  | "monitor-play"
   | "activity"
   | "file-check"
+  | "git-branch-plus"
   | "handshake"
+  | "images"
+  | "map-pinned"
+  | "store"
+  | "triangle-alert"
 
 export type DashboardNavigationItem = {
   key: string
@@ -68,42 +77,50 @@ const operatingCenterNavigation: DashboardNavigationItem[] = [
     key: "event-day",
     label: "Hari Kegiatan",
     href: "/dashboard/event-day",
-    icon: "monitor",
+    icon: "monitor-play",
     requiredPermission: "event_day.read",
+  },
+  {
+    key: "live-score",
+    label: "Live Score Control Room",
+    href: "/dashboard/live-score",
+    icon: "activity",
+    requiredPermission: "competitions.read",
+    aliases: ["/dashboard/live-match"],
   },
   {
     key: "active-issues",
     label: "Kendala Aktif",
     href: "/dashboard/issues",
-    icon: "activity",
+    icon: "triangle-alert",
     requiredPermission: "issues.read",
   },
   {
     key: "division-handoffs",
     label: "Koordinasi Divisi",
     href: "/dashboard/handoffs",
-    icon: "git-branch",
+    icon: "git-branch-plus",
     requiredPermission: "handoffs.read",
   },
   {
     key: "venue-status",
     label: "Status Tempat",
     href: "/dashboard/venues",
-    icon: "shield",
+    icon: "map-pinned",
     requiredPermission: "venues.read",
   },
   {
     key: "notification-center",
     label: "Pusat Notifikasi",
     href: "/dashboard/notifications",
-    icon: "activity",
+    icon: "bell-ring",
     requiredPermission: "notifications.read",
   },
   {
     key: "approval-center",
     label: "Pusat Persetujuan",
     href: "/dashboard/approvals",
-    icon: "file-check",
+    icon: "clipboard-check",
     requiredPermission: "announcements.approve",
   },
   {
@@ -426,14 +443,14 @@ export const roleNavigation = {
       key: "panitia-management",
       label: "Data Panitia",
       href: "/dashboard/panitia-management",
-      icon: "shield",
+      icon: "briefcase-business",
       requiredPermission: "committees.read",
     },
     {
       key: "media-center",
-      label: "Media Center",
+      label: "Pusat PDD",
       href: "/dashboard/media",
-      icon: "image",
+      icon: "images",
       requiredPermission: "media.read",
     },
     {
@@ -461,7 +478,7 @@ export const roleNavigation = {
       key: "business-operations",
       label: "Kewirausahaan",
       href: "/dashboard/business",
-      icon: "wallet",
+      icon: "store",
       requiredPermission: "dashboard.read",
     },
     {
@@ -520,7 +537,7 @@ export const roleNavigation = {
       key: "panitia-management",
       label: "Data Panitia",
       href: "/dashboard/panitia-management",
-      icon: "shield",
+      icon: "briefcase-business",
       requiredPermission: "committees.read",
     },
     {
@@ -532,9 +549,9 @@ export const roleNavigation = {
     },
     {
       key: "media-center",
-      label: "Media Center",
+      label: "Pusat PDD",
       href: "/dashboard/media",
-      icon: "image",
+      icon: "images",
       requiredPermission: "media.read",
     },
     {
@@ -548,7 +565,7 @@ export const roleNavigation = {
       key: "business-operations",
       label: "Kewirausahaan",
       href: "/dashboard/business",
-      icon: "wallet",
+      icon: "store",
       requiredPermission: "dashboard.read",
     },
     {
@@ -607,7 +624,7 @@ export const roleNavigation = {
       key: "panitia-management",
       label: "Data Panitia",
       href: "/dashboard/panitia-management",
-      icon: "shield",
+      icon: "briefcase-business",
       requiredPermission: "committees.read",
     },
     {
@@ -619,9 +636,9 @@ export const roleNavigation = {
     },
     {
       key: "media-center",
-      label: "Media Center",
+      label: "Pusat PDD",
       href: "/dashboard/media",
-      icon: "image",
+      icon: "images",
       requiredPermission: "media.read",
     },
     {
@@ -635,7 +652,7 @@ export const roleNavigation = {
       key: "business-operations",
       label: "Kewirausahaan",
       href: "/dashboard/business",
-      icon: "wallet",
+      icon: "store",
       requiredPermission: "dashboard.read",
     },
     {
@@ -725,7 +742,7 @@ export const roleNavigation = {
       key: "budgeting",
       label: "Budgeting",
       href: "/dashboard/budgeting",
-      icon: "wallet",
+      icon: "store",
       requiredPermission: "finances.read",
     },
     {
@@ -739,7 +756,7 @@ export const roleNavigation = {
       key: "business-operations",
       label: "Kewirausahaan",
       href: "/dashboard/business",
-      icon: "wallet",
+      icon: "store",
       requiredPermission: "dashboard.read",
     },
     {
@@ -895,31 +912,10 @@ export const roleNavigation = {
       aliases: ["/dashboard/dokumentasi"],
     },
     {
-      key: "upload-media",
-      label: "Unggah Media",
-      href: "/dashboard/media/upload",
-      icon: "upload",
-      requiredPermission: "media.upload",
-    },
-    {
-      key: "gallery-management",
-      label: "Kelola Galeri",
-      href: "/dashboard/media/gallery",
-      icon: "gallery",
-      requiredPermission: "media.update",
-    },
-    {
-      key: "highlight-videos",
-      label: "Video Highlight",
-      href: "/dashboard/media/highlights",
-      icon: "video",
-      requiredPermission: "media.update",
-    },
-    {
-      key: "media-archive",
-      label: "Arsip Media",
-      href: "/dashboard/media/archive",
-      icon: "archive",
+      key: "media-center",
+      label: "Pusat PDD",
+      href: "/dashboard/media",
+      icon: "images",
       requiredPermission: "media.read",
     },
   ],
@@ -1050,7 +1046,7 @@ export const roleNavigation = {
       key: "business-operations",
       label: "Kewirausahaan",
       href: "/dashboard/business",
-      icon: "wallet",
+      icon: "store",
       requiredPermission: "dashboard.read",
     },
     {
@@ -1145,6 +1141,7 @@ export const dashboardRouteAccessRules = dedupeRouteRules([
   { href: "/dashboard/users", roles: ["super_admin"], requiredPermission: "users.read" },
   { href: "/dashboard/audit", roles: ["super_admin"], requiredPermission: "audit.read" },
   { href: "/dashboard/live-match", roles: ["pj_lomba"], requiredPermission: "competitions.read" },
+  { href: "/dashboard/live-score", roles: ["pj_lomba"], requiredPermission: "competitions.read" },
 ]).sort((first, second) => second.href.length - first.href.length)
 
 export const rbacSchemaTables = {

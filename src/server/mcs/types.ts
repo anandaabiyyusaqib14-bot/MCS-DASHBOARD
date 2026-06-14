@@ -195,7 +195,7 @@ export type CompetitionRecord = {
   updatedAt: string
 }
 
-export type ScheduleStatus = "scheduled" | "live" | "delayed" | "completed" | "cancelled"
+export type ScheduleStatus = "draft" | "scheduled" | "live" | "delayed" | "completed" | "cancelled"
 
 export type ScheduleRecord = {
   id: string
@@ -208,9 +208,12 @@ export type ScheduleRecord = {
   title: string
   venue: string
   pic: string
-  type: "ceremony" | "match" | "break" | "operation"
+  type: "match" | "ceremony" | "operation" | "briefing" | "technical_meeting" | "awarding" | "opening" | "closing" | "break" | "other"
   status: ScheduleStatus
   competitionId?: string
+  notes?: string
+  publishedAt?: string
+  publishedBy?: string
   createdAt: string
   updatedAt: string
 }
@@ -428,6 +431,7 @@ export type VenueStatusRecord = {
   ownerName?: string
   blockerIssueId?: string
   lastUpdate: string
+  updatedAt: string
 }
 
 export type AuditLogRecord = {

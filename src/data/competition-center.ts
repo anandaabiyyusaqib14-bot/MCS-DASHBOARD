@@ -2,6 +2,7 @@ import {
   competitionJuknis,
   competitions as mcsCompetitions,
   dashboardFootage,
+  getNationByCountryName,
   scheduleDays,
   type JuknisDocument,
 } from "@/data/mcs"
@@ -35,6 +36,7 @@ export type CompetitionFormat =
   | typeof DATA_NOT_PUBLISHED
 
 export type ParticipantStatus = "Pending" | "Verified" | "Rejected" | "Active" | "Disqualified" | "Withdrawn" | "Completed"
+export type ParticipantAttendanceStatus = "Belum Hadir" | "Hadir" | "Tidak Hadir"
 
 export type TeamStatus = "Pending" | "Verified" | "Active" | "Disqualified" | "Withdrawn" | "Completed"
 
@@ -72,10 +74,17 @@ export type CompetitionParticipant = {
   name: string
   className: string
   major: string
+  countryName: string
+  countryFlag: string
   competitionId: string
   registrationDate: string
   status: ParticipantStatus
   avatar: string
+  attendanceStatus?: ParticipantAttendanceStatus
+  gender?: string
+  notes?: string
+  teamName?: string
+  verificationNotes?: string
 }
 
 export type CompetitionTeam = {
@@ -84,6 +93,8 @@ export type CompetitionTeam = {
   captain: string
   members: string[]
   className: string
+  countryName: string
+  countryFlag: string
   competitionId: string
   status: TeamStatus
 }
@@ -101,13 +112,24 @@ export type CompetitionMatch = {
   scoreA: number
   scoreB: number
   status: CompetitionMatchStatus
+  liveClock?: string
+  matchFormat?: string
+  timeline?: MatchTimelineItem[]
   winner?: string
   notes?: string
+}
+
+export type MatchTimelineItem = {
+  id: string
+  time: string
+  label: string
+  team?: string
 }
 
 export type BracketSlot = {
   seed: number
   name: string
+  flag?: string
   score?: number
   status?: CompetitionMatchStatus
 }
@@ -157,6 +179,43 @@ export type CompetitionActivity = {
   title: string
   detail: string
   type: "match" | "score" | "participant" | "bracket" | "result" | "system"
+}
+
+export type AnnouncementCategory = "Umum" | "Lomba" | "Peserta" | "Panitia" | "Sponsor" | "Media" | "Jadwal" | "Darurat"
+export type AnnouncementAudience = "Semua" | "Peserta" | "Panitia" | "Pembina" | "PJ Lomba" | "PDD" | "Humas" | "Sponsor"
+export type AnnouncementPriority = "Low" | "Normal" | "High" | "Urgent"
+export type AnnouncementStatus = "Draft" | "Scheduled" | "Published"
+
+export type Announcement = {
+  id: string
+  title: string
+  category: AnnouncementCategory
+  audience: AnnouncementAudience
+  priority: AnnouncementPriority
+  body: string
+  attachments: string[]
+  publishDate: string
+  publishTime: string
+  status: AnnouncementStatus
+  author: string
+  createdAt: string
+  updatedAt: string
+  changeHistory: string[]
+}
+
+export type BroadcastChannel = "Dashboard" | "WhatsApp" | "Email" | "Semua Channel"
+export type BroadcastStatus = "Draft" | "Scheduled" | "Sent"
+
+export type Broadcast = {
+  id: string
+  title: string
+  target: AnnouncementAudience
+  channel: BroadcastChannel
+  message: string
+  recipientEstimate: number
+  status: BroadcastStatus
+  deliveryRate: number
+  sentAt: string
 }
 
 const officialCompetitionIds = [
@@ -246,12 +305,166 @@ export const competitionCenterStats = [
 
 export const competitionParticipants: CompetitionParticipant[] = []
 export const competitionTeams: CompetitionTeam[] = []
-export const competitionMatches: CompetitionMatch[] = []
-export const competitionBracketRounds: BracketRound[] = []
+
+export const liveScoreCompetitionIds = ["futsal", "basket", "volly", "badminton", "mobile-legends"] as const
+export type LiveScoreCompetitionId = (typeof liveScoreCompetitionIds)[number]
+
+export const liveScoreCompetitionLabels: Record<LiveScoreCompetitionId, string> = {
+  futsal: "Futsal",
+  basket: "Basket 3x3",
+  volly: "Voli",
+  badminton: "Badminton Ganda Campuran",
+  "mobile-legends": "Mobile Legends",
+}
+
+export const liveScoreCompetitionIcons: Record<LiveScoreCompetitionId, string> = {
+  futsal: "Football",
+  basket: "Basketball",
+  volly: "Volleyball",
+  badminton: "Badminton",
+  "mobile-legends": "Gamepad",
+}
+
+const officialDrawMatches = [
+  {
+    competitionId: "basket",
+    label: "Basket 3x3",
+    pairs: [
+      ["England", "Mexico"],
+      ["Belgium", "Japan"],
+      ["Portugal", "Switzerland"],
+      ["Spain", "Argentina"],
+      ["Croatia", "Uruguay"],
+      ["Morocco", "Senegal"],
+      ["Germany", "France"],
+      ["Brazil", "Netherlands"],
+    ],
+  },
+  {
+    competitionId: "volly",
+    label: "Voli",
+    pairs: [
+      ["Japan", "Morocco"],
+      ["France", "Brazil"],
+      ["Switzerland", "Argentina"],
+      ["England", "Belgium"],
+      ["Germany", "Spain"],
+      ["Netherlands", "Senegal"],
+      ["Mexico", "Croatia"],
+      ["Portugal", "Uruguay"],
+    ],
+  },
+  {
+    competitionId: "badminton",
+    label: "Badminton Ganda Campuran",
+    pairs: [
+      ["Germany", "Argentina"],
+      ["Senegal", "Portugal"],
+      ["England", "Morocco"],
+      ["Belgium", "Croatia"],
+      ["Netherlands", "Brazil"],
+      ["Spain", "Uruguay"],
+      ["Switzerland", "Mexico"],
+      ["France", "Japan"],
+    ],
+  },
+  {
+    competitionId: "futsal",
+    label: "Futsal",
+    pairs: [
+      ["Germany", "Japan"],
+      ["Portugal", "England"],
+      ["Spain", "Morocco"],
+      ["Switzerland", "Brazil"],
+      ["Argentina", "Mexico"],
+      ["Belgium", "Netherlands"],
+      ["Uruguay", "Croatia"],
+      ["France", "Senegal"],
+    ],
+  },
+  {
+    competitionId: "mobile-legends",
+    label: "Mobile Legends",
+    pairs: [
+      ["France", "Belgium"],
+      ["Portugal", "England"],
+      ["Spain", "Switzerland"],
+      ["Mexico", "Japan"],
+      ["Netherlands", "Argentina"],
+      ["Germany", "Uruguay"],
+      ["Brazil", "Croatia"],
+      ["Morocco", "Senegal"],
+    ],
+  },
+] as const
+
+const soloVokalDrawOrder = [
+  "Netherlands",
+  "Uruguay",
+  "Spain",
+  "Switzerland",
+  "Morocco",
+  "France",
+  "Croatia",
+  "Mexico",
+  "Brazil",
+  "Argentina",
+  "Belgium",
+  "England",
+  "Germany",
+  "Senegal",
+  "Japan",
+  "Portugal",
+] as const
+
+export const competitionMatches: CompetitionMatch[] = officialDrawMatches.flatMap((draw) =>
+  draw.pairs.map(([teamA, teamB], index) => ({
+    id: `${draw.competitionId}-draw-r1-${index + 1}`,
+    competitionId: draw.competitionId,
+    round: "Babak 1",
+    venue: NO_DATA,
+    date: DATA_NOT_PUBLISHED,
+    startTime: DATA_NOT_PUBLISHED,
+    teamA,
+    teamB,
+    scoreA: 0,
+    scoreB: 0,
+    status: "Scheduled" as CompetitionMatchStatus,
+    liveClock: DATA_NOT_PUBLISHED,
+    matchFormat: draw.label,
+    timeline: [],
+  })),
+)
+
+export const competitionBracketRounds: BracketRound[] = [
+  ...officialDrawMatches.map((draw) => ({
+    title: `${draw.label} - Babak 1`,
+    matches: draw.pairs.map(([teamA, teamB], index) => ({
+      id: `${draw.competitionId}-bracket-r1-${index + 1}`,
+      competitionId: draw.competitionId,
+      slots: [
+        { seed: index * 2 + 1, name: teamA, flag: getDrawFlag(teamA), status: "Scheduled" as CompetitionMatchStatus },
+        { seed: index * 2 + 2, name: teamB, flag: getDrawFlag(teamB), status: "Scheduled" as CompetitionMatchStatus },
+      ],
+    })),
+  })),
+  {
+    title: "Solo Vokal - Urutan Tampil",
+    matches: soloVokalDrawOrder.map((participant, index) => ({
+      id: `solo-vokal-draw-${index + 1}`,
+      competitionId: "solo-vokal",
+      slots: [
+        { seed: index + 1, name: participant, flag: getDrawFlag(participant), status: "Scheduled" as CompetitionMatchStatus },
+      ],
+    })),
+  },
+]
 export const judgingCriteria: JudgingCriteria[] = []
 export const judgeScores: JudgeScore[] = []
 export const competitionResults: CompetitionResult[] = []
 export const competitionActivities: CompetitionActivity[] = []
+export const announcements: Announcement[] = []
+export const broadcasts: Broadcast[] = []
 
 export const competitionQuickActions = [
   { title: "Create Competition", image: "/images/mcs-gallery/futsal-01.jpg" },
@@ -261,6 +474,10 @@ export const competitionQuickActions = [
   { title: "Publish Results", image: "/images/mcs-gallery/basket-02.jpg" },
   { title: "Competition Reports", image: "/images/mcs-gallery/mlbb-01.jpg" },
 ]
+
+function getDrawFlag(countryName: string) {
+  return getNationByCountryName(countryName)?.countryFlag
+}
 
 function getScheduleSummary(competitionId: OfficialCompetitionId) {
   const keywords: Record<OfficialCompetitionId, string[]> = {

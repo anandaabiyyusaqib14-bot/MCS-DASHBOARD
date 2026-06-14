@@ -73,6 +73,10 @@ export type CompetitionLiveMatchRow = {
   pic: string
   score: string
   status: string
+  teamAFlag?: string
+  teamAName?: string
+  teamBFlag?: string
+  teamBName?: string
   venue: string
 }
 
@@ -101,6 +105,8 @@ export type CompetitionParticipantRow = {
   className: string
   competition: string
   competitionId: string
+  countryFlag: string
+  countryName: string
   department: string
   id: string
   name: string
@@ -958,9 +964,9 @@ function VerifyParticipantModal({
       onClose={onClose}
     >
       <FormGrid>
-        <FormField label="Nama Peserta" placeholder={NO_PARTICIPANTS} />
-        <FormField label="Kelas" placeholder={EMPTY} />
-        <FormField label="Jurusan" placeholder={EMPTY} />
+        <FormField label="Negara" placeholder={NO_PARTICIPANTS} />
+        <FormField label="Kelas Asli" placeholder={EMPTY} />
+        <FormField label="Lomba" placeholder={EMPTY} />
         <FormSelect
           label="Status Validasi"
           options={[
@@ -1075,7 +1081,12 @@ function DrawerParticipants({ participants }: { participants: CompetitionPartici
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-[#111827]">{participant.name}</p>
-              <p className="mt-1 text-xs font-medium text-[#64748B]">{cleanValue(participant.className, EMPTY)} - {cleanValue(participant.department, EMPTY)}</p>
+              <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs font-medium text-[#64748B]">
+                <span className="text-sm" aria-hidden="true">{participant.countryFlag}</span>
+                <span className="font-semibold text-[#111827]">{cleanValue(participant.countryName, participant.name)}</span>
+                <span>({cleanValue(participant.className, EMPTY)})</span>
+                <span>{participant.competition}</span>
+              </p>
             </div>
             <StatusBadge label={formatParticipantStatusLabel(participant.status)} tone={participantStatusTone(participant.status)} />
           </div>
@@ -1186,10 +1197,15 @@ function getControlMatch(
   const liveMatch = scopedLive[0]
 
   if (liveMatch) {
+    const matchLabel =
+      liveMatch.teamAName && liveMatch.teamBName
+        ? `${liveMatch.teamAFlag ? `${liveMatch.teamAFlag} ` : ""}${liveMatch.teamAName} vs ${liveMatch.teamBFlag ? `${liveMatch.teamBFlag} ` : ""}${liveMatch.teamBName}`
+        : liveMatch.match
+
     return {
       competition: liveMatch.competition,
-      id: `${liveMatch.competition}-${liveMatch.match}`,
-      match: liveMatch.match,
+      id: `${liveMatch.competition}-${matchLabel}`,
+      match: matchLabel,
       pic: cleanValue(liveMatch.pic, EMPTY),
       progress: 60,
       score: liveMatch.score,
@@ -1439,7 +1455,7 @@ function isBracketUnavailable(value?: string) {
   if (!value) return true
 
   const normalizedValue = value.toLowerCase()
-  return normalizedValue.includes("belum") || normalizedValue.includes("not generated") || normalizedValue.includes("no data")
+  return normalizedValue.includes("belum") || normalizedValue.includes("not ready") || normalizedValue.includes("no data")
 }
 
 function cleanValue(value: string | undefined, fallback: string) {

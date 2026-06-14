@@ -85,7 +85,7 @@ export default async function DashboardWorkspacePage({
   const moduleKey = moduleRouteMap[route]
 
   if (moduleKey) {
-    return <DashboardModuleScreen moduleKey={moduleKey} summary={summary} user={auth.user} />
+    return <DashboardModuleScreen moduleKey={moduleKey} permissions={auth.permissions} summary={summary} user={auth.user} />
   }
 
   notFound()

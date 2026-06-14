@@ -79,22 +79,12 @@ Errors use:
 | Method | Route | Permission | Purpose |
 | --- | --- | --- | --- |
 | `POST` | `/api/mcs/auth/login` | Public | Login and set HTTP-only session |
+| `POST` | `/api/mcs/auth/bootstrap` | `MCS_BOOTSTRAP_SECRET` | Create the first Super Admin when no user exists |
 | `POST` | `/api/mcs/auth/logout` | Session | Delete session |
 | `GET` | `/api/mcs/auth/me` | Session | Current user, permissions, menus |
 | `GET` | `/api/mcs/permissions` | Session | Current permission set and allowed menus |
 
-Local development operator accounts all use password `mcs12345`:
-
-| Email | Role |
-| --- | --- |
-| `superadmin@mcs1.id` | Super Admin |
-| `ketua@mcs1.id` | Ketua Pelaksana |
-| `wakil@mcs1.id` | Wakil Ketua |
-| `pjlomba@mcs1.id` | PJ Lomba |
-| `humas@mcs1.id` | Humas |
-| `bendahara@mcs1.id` | Bendahara |
-| `dokumentasi@mcs1.id` | Dokumentasi |
-| `panitia@mcs1.id` | Panitia |
+No operator account is created automatically. To start a clean environment, set `MCS_BOOTSTRAP_SECRET` and call `POST /api/mcs/auth/bootstrap` with the secret plus the first Super Admin `displayName`, `email`, and `password`. After that, create real operator accounts from the Users module.
 
 ### Operations
 
@@ -152,10 +142,18 @@ PJ Lomba is additionally scoped by `assignedCompetitionIds`. Panitia task update
 Authentication:
 
 - Passwords are stored as PBKDF2 hashes with salts.
+- There are no hardcoded development credentials or seeded operator accounts.
 - Sessions use signed tokens stored in the `mcs_session` HTTP-only cookie; token hashes are still stored server-side when a route bundle has access to the in-memory repository.
 - `MCS_SESSION_SECRET` or `NEXTAUTH_SECRET` should be set outside local development.
+- `MCS_BOOTSTRAP_SECRET` should be set before creating the first Super Admin.
 - `/dashboard` is protected by `src/proxy.ts` as an optimistic session-cookie guard.
 - API routes still perform authoritative session and permission checks.
+
+Supabase preparation:
+
+- Copy `.env.example` to `.env.local` and fill `SUPABASE_URL` plus `SUPABASE_SERVICE_ROLE_KEY` with server-only credentials.
+- Run `supabase/migrations/001_mcs_snapshot_store.sql` in Supabase SQL editor or through the Supabase CLI.
+- The migration creates empty `operational` and `competition` snapshot rows only; it does not insert dummy users, matches, participants, schedules, announcements, or results.
 
 Content integrity:
 
@@ -198,4 +196,4 @@ Tasks:
 Dashboard:
 
 - Aggregates official competitions, schedule records, matches, announcements, event progress, committee status, recent audit logs, and unread notifications.
-- Missing owner-provided data is surfaced as empty or no-data state, never generated filler.
+- Missing owner-provided data is surfaced as empty or no-data state, never fabricated filler.

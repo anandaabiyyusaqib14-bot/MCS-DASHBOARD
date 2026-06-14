@@ -456,7 +456,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
             <form className="grid gap-5" onSubmit={handleAnnouncementSubmit} onChange={updateAnnouncementPreview}>
               <div className="grid gap-4">
                 <FormField label="Judul Pengumuman">
-                  <Input name="title" required placeholder="Briefing panitia sebelum pembukaan" />
+                  <Input name="title" required placeholder="Judul pengumuman resmi" />
                 </FormField>
                 <FormField label="Isi Pengumuman">
                   <Textarea name="body" required placeholder="Tulis update resmi yang perlu diketahui panitia." />
@@ -518,7 +518,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
             <form className="grid gap-5" onSubmit={handleScheduleSubmit}>
               <div className="grid gap-4">
                 <FormField label="Nama Kegiatan">
-                  <Input name="title" required placeholder="Technical Meeting Futsal" />
+                  <Input name="title" required placeholder="Nama kegiatan resmi" />
                 </FormField>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <FormField label="Tanggal">
@@ -533,7 +533,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormField label="Lokasi">
-                    <Input name="venue" required placeholder="Lapangan A" />
+                    <Input name="venue" required placeholder="Lokasi kegiatan" />
                   </FormField>
                   <FormField label="PIC">
                     <Input name="pic" required placeholder="Acara / PJ Lomba" />
@@ -574,7 +574,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
             <form className="grid gap-5" onSubmit={handleTaskSubmit}>
               <div className="grid gap-4">
                 <FormField label="Judul Tugas">
-                  <Input name="title" required placeholder="Finalisasi kebutuhan sound system" />
+                  <Input name="title" required placeholder="Judul tugas resmi" />
                 </FormField>
                 <FormField label="Deskripsi">
                   <Textarea name="description" placeholder="Tuliskan konteks tugas dan hasil yang diharapkan." />
@@ -597,7 +597,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                     </NativeSelect>
                   </FormField>
                   <FormField label="Deadline">
-                    <Input name="deadline" required placeholder="22 Juni 2026, 08.00 WIB" />
+                    <Input name="deadline" required placeholder="Tanggal dan jam deadline" />
                   </FormField>
                 </div>
                 <FormField label="Kategori">
@@ -631,7 +631,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
             <form className="grid gap-5" onSubmit={handleIssueTicketSubmit}>
               <div className="grid gap-4">
                 <FormField label="Judul Kendala">
-                  <Input name="title" required placeholder="Sound Lapangan A belum siap" />
+                  <Input name="title" required placeholder="Judul kendala resmi" />
                 </FormField>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormField label="Kategori">
@@ -651,7 +651,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                   </FormField>
                 </div>
                 <FormField label="Lokasi">
-                  <Input name="location" placeholder="Lapangan A" />
+                  <Input name="location" placeholder="Lokasi kendala" />
                 </FormField>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormField label="Divisi Penanggung Jawab">
@@ -662,7 +662,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                   </FormField>
                 </div>
                 <FormField label="Deadline Penanganan">
-                  <Input name="deadline" required placeholder="Hari ini, 30 menit sebelum match" />
+                  <Input name="deadline" required placeholder="Batas waktu penanganan" />
                 </FormField>
                 <FormField label="Deskripsi">
                   <Textarea name="description" required placeholder="Tuliskan kondisi, dampak, dan kebutuhan tindak lanjut." />
@@ -691,7 +691,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
             <form className="grid gap-5" onSubmit={handleCoordinationSubmit}>
               <div className="grid gap-4">
                 <FormField label="Judul Permintaan">
-                  <Input name="title" required placeholder="Siapkan sound system untuk opening ceremony" />
+                  <Input name="title" required placeholder="Judul permintaan koordinasi" />
                 </FormField>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormField label="Dari Divisi">
@@ -710,7 +710,7 @@ export function SuperAdminQuickActions({ divisions, permissions, reportSnapshot 
                     </NativeSelect>
                   </FormField>
                   <FormField label="Butuh Sebelum">
-                    <Input name="neededBefore" required placeholder="22 Juni 2026, 07.30 WIB" />
+                    <Input name="neededBefore" required placeholder="Tanggal dan jam kebutuhan" />
                   </FormField>
                 </div>
               </div>

@@ -1,4 +1,15 @@
 import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs"
+import {
+  dirname,
+  join,
+} from "node:path"
+
+import {
   competitionActivities,
   competitionBracketRounds,
   competitionCenterItems,
@@ -15,6 +26,8 @@ import {
   type CompetitionMatch,
   type CompetitionMatchStatus,
   type CompetitionParticipant,
+  type MatchTimelineItem,
+  type ParticipantAttendanceStatus,
   type CompetitionResult,
   type CompetitionTeam,
   type JudgeScore,
@@ -22,8 +35,10 @@ import {
   type ParticipantStatus,
   type TeamStatus,
 } from "@/data/competition-center"
+import { getNationByClassName, getNationByCountryName } from "@/data/mcs"
 import { createId } from "./password"
 import { can } from "./permissions"
+import { isSupabaseSnapshotConfigured, readMcsSnapshot, writeMcsSnapshot } from "./snapshot-store"
 import type { AuthContext, UserRole } from "./types"
 import { McsError } from "./service"
 
@@ -71,9 +86,27 @@ type CompetitionSystemState = {
   notifications: CompetitionSystemNotification[]
 }
 
+type CompetitionSystemSnapshot = {
+  brackets?: BracketRound[]
+  competitions?: CompetitionCenterItem[]
+  criteria?: JudgingCriteria[]
+  judgeScores?: JudgeScore[]
+  logs?: CompetitionSystemLog[]
+  matches?: CompetitionMatch[]
+  notifications?: CompetitionSystemNotification[]
+  participants?: CompetitionParticipant[]
+  results?: CompetitionResult[]
+  teams?: CompetitionTeam[]
+  version: 1
+}
+
 const globalForCompetitionSystem = globalThis as typeof globalThis & {
   __mcsCompetitionSystem?: CompetitionSystemState
+  __mcsCompetitionSystemReady?: Promise<void>
 }
+
+const competitionStorePath =
+  process.env.MCS_COMPETITION_STORE_PATH ?? join(/*turbopackIgnore: true*/ process.cwd(), ".data", "mcs-competition-store.json")
 
 export function getCompetitionSystemOverview(auth: AuthContext) {
   assertAllowed(auth, "competitions.read")
@@ -103,6 +136,21 @@ export function getCompetitionSystemOverview(auth: AuthContext) {
     activities: competitionActivities,
     logs: listCompetitionLogs(auth).slice(0, 12),
     notifications: listCompetitionNotifications(auth).slice(0, 12),
+  }
+}
+
+export function getPublicLiveScoreCenter() {
+  const state = getCompetitionSystemState()
+  const matches = [...state.matches.values()]
+  const results = [...state.results.values()]
+
+  return {
+    generatedAt: new Date().toISOString(),
+    competitions: [...state.competitions.values()],
+    matches,
+    brackets: state.brackets,
+    results,
+    ranking: calculateNationRanking(matches, results),
   }
 }
 
@@ -212,25 +260,39 @@ export function listCompetitionParticipants(auth: AuthContext, competitionId?: s
 }
 
 export function createCompetitionParticipant(auth: AuthContext, input: Record<string, unknown>) {
-  assertAllowed(auth, "competitions.update")
+  assertAllowed(auth, "participants.create")
+  const requestedStatus = getParticipantStatus(input.status)
+  if (requestedStatus === "Verified" || requestedStatus === "Disqualified") {
+    assertAllowed(auth, "participants.verify")
+  }
   const competitionId = getRequiredString(input, "competitionId")
   const competition = mustFind(getCompetitionSystemState().competitions, competitionId, "competition")
   ensureCompetitionScope(auth, competitionId)
   ensureCompetitionWritable(competition)
+  const name = getRequiredString(input, "name")
 
   if (competition.maxParticipants !== null && (competition.participantCount ?? 0) >= competition.maxParticipants) {
     throw new McsError(400, "participant_limit_reached", "Maximum participants reached.")
   }
 
+  const className = getRequiredString(input, "className")
+  const nation = getNationIdentity(className)
   const participant: CompetitionParticipant = {
     id: createId("participant"),
-    name: getRequiredString(input, "name"),
-    className: getRequiredString(input, "className"),
+    name,
+    className,
     major: getRequiredString(input, "major"),
+    countryName: nation.countryName,
+    countryFlag: nation.countryFlag,
     competitionId,
     registrationDate: new Date().toISOString(),
-    status: getParticipantStatus(input.status) ?? "Pending",
-    avatar: createAvatar(getRequiredString(input, "name")),
+    status: requestedStatus ?? "Pending",
+    avatar: createAvatar(name),
+    attendanceStatus: getParticipantAttendanceStatus(input.attendanceStatus) ?? "Belum Hadir",
+    gender: getOptionalString(input.gender),
+    notes: getOptionalString(input.notes),
+    teamName: getOptionalString(input.teamName),
+    verificationNotes: getOptionalString(input.verificationNotes),
   }
 
   getCompetitionSystemState().participants.set(participant.id, participant)
@@ -242,7 +304,14 @@ export function createCompetitionParticipant(auth: AuthContext, input: Record<st
 }
 
 export function updateCompetitionParticipant(auth: AuthContext, id: string, input: Record<string, unknown>) {
-  assertAllowed(auth, "competitions.update")
+  const nextStatus = getParticipantStatus(input.status)
+
+  if (nextStatus === "Verified" || nextStatus === "Disqualified") {
+    assertAllowed(auth, "participants.verify")
+  } else {
+    assertAllowed(auth, "participants.update")
+  }
+
   const participant = mustFind(getCompetitionSystemState().participants, id, "participant")
   const competition = mustFind(getCompetitionSystemState().competitions, participant.competitionId, "competition")
   ensureCompetitionScope(auth, participant.competitionId)
@@ -253,9 +322,26 @@ export function updateCompetitionParticipant(auth: AuthContext, id: string, inpu
   participant.name = getOptionalString(input.name) ?? participant.name
   participant.className = getOptionalString(input.className) ?? participant.className
   participant.major = getOptionalString(input.major) ?? participant.major
-  participant.status = getParticipantStatus(input.status) ?? participant.status
+  const participantNation = getNationIdentity(participant.className)
+  participant.countryName = getOptionalString(input.countryName) ?? participantNation.countryName
+  participant.countryFlag = getOptionalString(input.countryFlag) ?? participantNation.countryFlag
+  participant.status = nextStatus ?? participant.status
+  participant.attendanceStatus = getParticipantAttendanceStatus(input.attendanceStatus) ?? participant.attendanceStatus
+  participant.gender = getOptionalString(input.gender) ?? participant.gender
+  participant.notes = getOptionalString(input.notes) ?? participant.notes
+  participant.teamName = getOptionalString(input.teamName) ?? participant.teamName
+  participant.verificationNotes = getOptionalString(input.verificationNotes) ?? participant.verificationNotes
 
-  writeCompetitionLog(auth, "participant.updated", "participants", participant.id, previousValue, participant)
+  writeCompetitionLog(
+    auth,
+    participant.status !== previousStatus && (participant.status === "Verified" || participant.status === "Disqualified")
+      ? "participant.verified"
+      : "participant.updated",
+    "participants",
+    participant.id,
+    previousValue,
+    participant,
+  )
 
   if (participant.status === "Verified" && previousStatus !== "Verified") {
     createCompetitionNotification(
@@ -270,6 +356,22 @@ export function updateCompetitionParticipant(auth: AuthContext, id: string, inpu
   return participant
 }
 
+export function deleteCompetitionParticipant(auth: AuthContext, id: string) {
+  assertAllowed(auth, "participants.delete")
+  const state = getCompetitionSystemState()
+  const participant = mustFind(state.participants, id, "participant")
+  const competition = mustFind(state.competitions, participant.competitionId, "competition")
+  ensureCompetitionScope(auth, participant.competitionId)
+  ensureCompetitionWritable(competition)
+
+  state.participants.delete(id)
+  competition.participantCount = Math.max((competition.participantCount ?? 1) - 1, 0)
+  competition.updatedDate = new Date().toISOString()
+  writeCompetitionLog(auth, "participant.deleted", "participants", id, participant, undefined)
+
+  return { id, deleted: true }
+}
+
 export function listCompetitionTeams(auth: AuthContext, competitionId?: string) {
   assertAllowed(auth, "competitions.read")
   return [...getCompetitionSystemState().teams.values()].filter((team) => (competitionId ? team.competitionId === competitionId : true))
@@ -281,12 +383,16 @@ export function createCompetitionTeam(auth: AuthContext, input: Record<string, u
   const competition = mustFind(getCompetitionSystemState().competitions, competitionId, "competition")
   ensureCompetitionScope(auth, competitionId)
   ensureCompetitionWritable(competition)
+  const className = getRequiredString(input, "className")
+  const nation = getNationIdentity(className)
   const team: CompetitionTeam = {
     id: createId("team"),
-    name: getRequiredString(input, "name"),
+    name: nation.countryName,
     captain: getRequiredString(input, "captain"),
     members: getStringArray(input.members),
-    className: getRequiredString(input, "className"),
+    className,
+    countryName: nation.countryName,
+    countryFlag: nation.countryFlag,
     competitionId,
     status: getTeamStatus(input.status) ?? "Pending",
   }
@@ -311,6 +417,10 @@ export function updateCompetitionTeam(auth: AuthContext, id: string, input: Reco
   team.captain = getOptionalString(input.captain) ?? team.captain
   team.members = input.members ? getStringArray(input.members) : team.members
   team.className = getOptionalString(input.className) ?? team.className
+  const teamNation = getNationIdentity(team.className)
+  team.countryName = getOptionalString(input.countryName) ?? teamNation.countryName
+  team.countryFlag = getOptionalString(input.countryFlag) ?? teamNation.countryFlag
+  team.name = team.countryName
   team.status = getTeamStatus(input.status) ?? team.status
 
   writeCompetitionLog(auth, "team.updated", "teams", team.id, previousValue, team)
@@ -336,7 +446,7 @@ export function generateCompetitionBracket(auth: AuthContext, competitionId: str
   const participants = [...state.participants.values()].filter(
     (participant) => participant.competitionId === competitionId && ["Verified", "Active"].includes(participant.status)
   )
-  const entrants = teams.length > 0 ? teams.map((team) => team.name) : participants.map((participant) => participant.name)
+  const entrants = teams.length > 0 ? teams.map((team) => team.countryName) : participants.map((participant) => participant.countryName)
 
   if (entrants.length < 2) {
     throw new McsError(400, "not_enough_entrants", "Bracket generation requires at least two approved entrants.")
@@ -349,15 +459,15 @@ export function generateCompetitionBracket(auth: AuthContext, competitionId: str
       id: createId("bracket_match"),
       competitionId,
       slots: [
-        { seed: index + 1, name: entrants[index], status: "Scheduled" as CompetitionMatchStatus },
-        { seed: index + 2, name: entrants[index + 1] ?? "BYE", status: "Scheduled" as CompetitionMatchStatus },
+        { seed: index + 1, name: entrants[index], flag: getCountryFlagByName(entrants[index]), status: "Scheduled" as CompetitionMatchStatus },
+        { seed: index + 2, name: entrants[index + 1] ?? "BYE", flag: getCountryFlagByName(entrants[index + 1]), status: "Scheduled" as CompetitionMatchStatus },
       ],
     })
   }
 
   state.brackets = state.brackets.filter((round) => !round.matches.some((match) => match.competitionId === competitionId))
-  state.brackets.unshift({ title: "Generated Round", matches })
-  competition.currentRound = "Generated Round"
+  state.brackets.unshift({ title: "Competition Round", matches })
+  competition.currentRound = "Competition Round"
   competition.matchCount = matches.length
   competition.updatedDate = new Date().toISOString()
   writeCompetitionLog(auth, "bracket.generated", "brackets", competitionId, undefined, matches)
@@ -386,6 +496,9 @@ export function updateCompetitionMatch(auth: AuthContext, id: string, input: Rec
   match.endTime = getOptionalString(input.endTime) ?? match.endTime
   match.teamA = getOptionalString(input.teamA) ?? match.teamA
   match.teamB = getOptionalString(input.teamB) ?? match.teamB
+  match.liveClock = getOptionalString(input.liveClock) ?? match.liveClock
+  match.matchFormat = getOptionalString(input.matchFormat) ?? match.matchFormat
+  match.timeline = getTimelineItems(input.timeline) ?? match.timeline
   match.winner = getOptionalString(input.winner) ?? match.winner
   match.status = nextStatus ? transitionMatchStatus(match, nextStatus) : match.status
   match.notes = getOptionalString(input.notes) ?? match.notes
@@ -407,8 +520,10 @@ export function updateCompetitionScore(auth: AuthContext, id: string, input: Rec
   ensureCompetitionWritable(competition)
   const previousValue = { scoreA: match.scoreA, scoreB: match.scoreB, winner: match.winner, status: match.status }
 
-  match.scoreA = getNumber(input.scoreA, match.scoreA)
-  match.scoreB = getNumber(input.scoreB, match.scoreB)
+  match.scoreA = getScoreNumber(input.scoreA, match.scoreA, "scoreA")
+  match.scoreB = getScoreNumber(input.scoreB, match.scoreB, "scoreB")
+  match.liveClock = getOptionalString(input.liveClock) ?? match.liveClock
+  match.timeline = getTimelineItems(input.timeline) ?? match.timeline
   match.status = getMatchStatus(input.status) ?? "Live"
   match.winner = getOptionalString(input.winner) ?? inferWinner(match)
 
@@ -423,6 +538,44 @@ export function updateCompetitionScore(auth: AuthContext, id: string, input: Rec
     status: match.status,
   })
   createCompetitionNotification("score_updated", "Score updated", `${match.teamA} ${match.scoreA} - ${match.scoreB} ${match.teamB}`, "matches", match.id)
+
+  return match
+}
+
+export function createCompetitionMatch(auth: AuthContext, input: Record<string, unknown>) {
+  assertAllowed(auth, "competitions.update")
+  const state = getCompetitionSystemState()
+  const competitionId = getRequiredString(input, "competitionId")
+  const competition = mustFind(state.competitions, competitionId, "competition")
+  ensureCompetitionScope(auth, competitionId)
+  ensureCompetitionWritable(competition)
+  const teamA = getRequiredString(input, "teamA")
+  const teamB = getRequiredString(input, "teamB")
+
+  if (normalizeComparableName(teamA) === normalizeComparableName(teamB)) {
+    throw new McsError(400, "duplicate_match_side", "Team A and Team B must be different.")
+  }
+
+  const match: CompetitionMatch = {
+    id: createId("match"),
+    competitionId,
+    round: getOptionalString(input.round) ?? "Custom Match",
+    venue: getOptionalString(input.venue) ?? competition.venue,
+    date: getOptionalString(input.date) ?? new Date().toISOString().slice(0, 10),
+    startTime: getOptionalString(input.startTime) ?? "Data Not Published Yet",
+    teamA,
+    teamB,
+    scoreA: getScoreNumber(input.scoreA, 0, "scoreA"),
+    scoreB: getScoreNumber(input.scoreB, 0, "scoreB"),
+    status: getMatchStatus(input.status) ?? "Scheduled",
+    liveClock: getOptionalString(input.liveClock) ?? "Data Not Published Yet",
+    matchFormat: getOptionalString(input.matchFormat),
+    timeline: getTimelineItems(input.timeline) ?? [],
+    notes: getOptionalString(input.notes),
+  }
+
+  state.matches.set(match.id, match)
+  writeCompetitionLog(auth, "match.created", "matches", match.id, undefined, match)
 
   return match
 }
@@ -567,35 +720,161 @@ export function listCompetitionNotifications(auth: AuthContext) {
 
 function getCompetitionSystemState() {
   if (!globalForCompetitionSystem.__mcsCompetitionSystem) {
-    globalForCompetitionSystem.__mcsCompetitionSystem = {
-      competitions: new Map(competitionCenterItems.map((competition) => [competition.id, { ...competition }])),
-      participants: new Map(competitionParticipants.map((participant) => [participant.id, { ...participant }])),
-      teams: new Map(competitionTeams.map((team) => [team.id, { ...team, members: [...team.members] }])),
-      matches: new Map(competitionMatches.map((match) => [match.id, { ...match }])),
-      brackets: competitionBracketRounds.map((round) => ({
-        ...round,
-        matches: round.matches.map((match) => ({ ...match, slots: match.slots.map((slot) => ({ ...slot })) })),
-      })),
-      criteria: new Map(judgingCriteria.map((criteria) => [criteria.id, { ...criteria }])),
-      judgeScores: new Map(judgeScores.map((score) => [score.id, { ...score }])),
-      results: new Map(competitionResults.map((result) => [result.id, { ...result }])),
-      logs: [
-        {
-          id: createId("competition_log"),
-          userId: "system",
-          userName: "Competition System",
-          role: "super_admin",
-          action: "competition_system.seeded",
-          resource: "competitions",
-          timestamp: new Date("2026-06-01T00:00:00.000+07:00").toISOString(),
-        },
-      ],
-      notifications: [],
-    }
+    globalForCompetitionSystem.__mcsCompetitionSystem = hydrateCompetitionSystemStateFromLocal(createInitialCompetitionSystemState())
   }
 
   applyRegistrationAutoClose(globalForCompetitionSystem.__mcsCompetitionSystem)
   return globalForCompetitionSystem.__mcsCompetitionSystem
+}
+
+export async function ensureCompetitionSystemReady() {
+  if (!globalForCompetitionSystem.__mcsCompetitionSystemReady) {
+    globalForCompetitionSystem.__mcsCompetitionSystemReady = hydrateCompetitionSystemState()
+  }
+
+  await globalForCompetitionSystem.__mcsCompetitionSystemReady
+}
+
+function createInitialCompetitionSystemState(): CompetitionSystemState {
+  return {
+    competitions: new Map(competitionCenterItems.map((competition) => [competition.id, { ...competition }])),
+    participants: new Map(competitionParticipants.map((participant) => [participant.id, { ...participant }])),
+    teams: new Map(competitionTeams.map((team) => [team.id, { ...team, members: [...team.members] }])),
+    matches: new Map(competitionMatches.map((match) => [match.id, { ...match }])),
+    brackets: competitionBracketRounds.map((round) => ({
+      ...round,
+      matches: round.matches.map((match) => ({ ...match, slots: match.slots.map((slot) => ({ ...slot })) })),
+    })),
+    criteria: new Map(judgingCriteria.map((criteria) => [criteria.id, { ...criteria }])),
+    judgeScores: new Map(judgeScores.map((score) => [score.id, { ...score }])),
+    results: new Map(competitionResults.map((result) => [result.id, { ...result }])),
+    logs: [],
+    notifications: [],
+  }
+}
+
+async function hydrateCompetitionSystemState() {
+  globalForCompetitionSystem.__mcsCompetitionSystem = applyCompetitionSystemSnapshot(
+    createInitialCompetitionSystemState(),
+    await readCompetitionSystemSnapshot()
+  )
+}
+
+function hydrateCompetitionSystemStateFromLocal(state: CompetitionSystemState): CompetitionSystemState {
+  return applyCompetitionSystemSnapshot(state, readCompetitionSystemSnapshotFromLocal())
+}
+
+function applyCompetitionSystemSnapshot(state: CompetitionSystemState, snapshot: CompetitionSystemSnapshot | undefined): CompetitionSystemState {
+
+  if (!snapshot) {
+    return state
+  }
+
+  if (snapshot.competitions?.length) {
+    state.competitions = new Map(snapshot.competitions.map((competition) => [competition.id, competition]))
+  }
+  state.participants = new Map((snapshot.participants ?? []).map((participant) => [participant.id, enrichParticipantNation(participant)]))
+  state.teams = new Map((snapshot.teams ?? []).map((team) => [team.id, enrichTeamNation(team)]))
+  if (snapshot.matches?.length) {
+    state.matches = new Map(snapshot.matches.map((match) => [match.id, match]))
+  }
+  if (snapshot.brackets?.length) {
+    state.brackets = snapshot.brackets
+  }
+  state.criteria = new Map((snapshot.criteria ?? []).map((criteria) => [criteria.id, criteria]))
+  state.judgeScores = new Map((snapshot.judgeScores ?? []).map((score) => [score.id, score]))
+  state.results = new Map((snapshot.results ?? []).map((result) => [result.id, result]))
+  state.logs = snapshot.logs?.length ? snapshot.logs : state.logs
+  state.notifications = snapshot.notifications ?? state.notifications
+
+  return state
+}
+
+async function readCompetitionSystemSnapshot(): Promise<CompetitionSystemSnapshot | undefined> {
+  if (isSupabaseSnapshotConfigured()) {
+    try {
+      const snapshot = readSnapshotPayload(await readMcsSnapshot("competition"))
+
+      if (snapshot) {
+        return snapshot
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  return readCompetitionSystemSnapshotFromLocal()
+}
+
+function readCompetitionSystemSnapshotFromLocal(): CompetitionSystemSnapshot | undefined {
+  try {
+    if (!existsSync(/*turbopackIgnore: true*/ competitionStorePath)) {
+      return undefined
+    }
+
+    const parsed = JSON.parse(readFileSync(/*turbopackIgnore: true*/ competitionStorePath, "utf8")) as Partial<CompetitionSystemSnapshot>
+
+    if (parsed.version !== 1) {
+      return undefined
+    }
+
+    return parsed as CompetitionSystemSnapshot
+  } catch {
+    return undefined
+  }
+}
+
+export function persistCompetitionSystemState() {
+  const state = globalForCompetitionSystem.__mcsCompetitionSystem
+
+  if (!state) {
+    return
+  }
+
+  const snapshot = createCompetitionSystemSnapshot(state)
+
+  mkdirSync(dirname(/*turbopackIgnore: true*/ competitionStorePath), { recursive: true })
+  writeFileSync(/*turbopackIgnore: true*/ competitionStorePath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8")
+
+  if (isSupabaseSnapshotConfigured()) {
+    void writeMcsSnapshot("competition", snapshot).catch((error) => {
+      console.error(error)
+    })
+  }
+}
+
+export function getMcsCompetitionSnapshot() {
+  return createCompetitionSystemSnapshot(getCompetitionSystemState())
+}
+
+function createCompetitionSystemSnapshot(state: CompetitionSystemState): CompetitionSystemSnapshot {
+  return {
+    brackets: state.brackets,
+    competitions: [...state.competitions.values()],
+    criteria: [...state.criteria.values()],
+    judgeScores: [...state.judgeScores.values()],
+    logs: state.logs,
+    matches: [...state.matches.values()],
+    notifications: state.notifications,
+    participants: [...state.participants.values()],
+    results: [...state.results.values()],
+    teams: [...state.teams.values()],
+    version: 1,
+  }
+}
+
+function readSnapshotPayload(payload: unknown): CompetitionSystemSnapshot | undefined {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return undefined
+  }
+
+  const snapshot = payload as Partial<CompetitionSystemSnapshot>
+
+  if (snapshot.version !== 1) {
+    return undefined
+  }
+
+  return snapshot as CompetitionSystemSnapshot
 }
 
 function applyRegistrationAutoClose(state: CompetitionSystemState) {
@@ -673,6 +952,7 @@ function writeCompetitionLog(
     previousValue,
     newValue,
   })
+  persistCompetitionSystemState()
 }
 
 function createCompetitionNotification(
@@ -698,6 +978,7 @@ function createCompetitionNotification(
       createdAt: new Date().toISOString(),
     })
   })
+  persistCompetitionSystemState()
 }
 
 function assertAllowed(auth: AuthContext, permission: Parameters<typeof can>[1]) {
@@ -760,6 +1041,20 @@ function getNumber(value: unknown, fallback: number) {
     return Number.isFinite(parsed) ? parsed : fallback
   }
   return fallback
+}
+
+function getScoreNumber(value: unknown, fallback: number, key: string) {
+  const score = getNumber(value, fallback)
+
+  if (!Number.isInteger(score) || score < 0) {
+    throw new McsError(400, "invalid_score", `${key} must be a non-negative integer.`)
+  }
+
+  return score
+}
+
+function normalizeComparableName(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ")
 }
 
 function getNullableNumber(value: unknown) {
@@ -825,11 +1120,48 @@ function getParticipantStatus(value: unknown): ParticipantStatus | undefined {
   return undefined
 }
 
+function getParticipantAttendanceStatus(value: unknown): ParticipantAttendanceStatus | undefined {
+  if (value === "Belum Hadir" || value === "Hadir" || value === "Tidak Hadir") {
+    return value
+  }
+
+  return undefined
+}
+
 function getTeamStatus(value: unknown): TeamStatus | undefined {
   if (value === "Pending" || value === "Verified" || value === "Active" || value === "Disqualified" || value === "Withdrawn" || value === "Completed") {
     return value
   }
   return undefined
+}
+
+function getTimelineItems(value: unknown): MatchTimelineItem[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined
+  }
+
+  return value.flatMap((item, index) => {
+    if (!item || typeof item !== "object") {
+      return []
+    }
+
+    const candidate = item as Record<string, unknown>
+    const time = getOptionalString(candidate.time)
+    const label = getOptionalString(candidate.label)
+
+    if (!time || !label) {
+      return []
+    }
+
+    return [
+      {
+        id: getOptionalString(candidate.id) ?? `timeline-${index + 1}`,
+        time,
+        label,
+        team: getOptionalString(candidate.team),
+      },
+    ]
+  })
 }
 
 function getMatchStatus(value: unknown): CompetitionMatchStatus | undefined {
@@ -850,6 +1182,109 @@ function getMatchStatus(value: unknown): CompetitionMatchStatus | undefined {
 function inferWinner(match: CompetitionMatch) {
   if (match.scoreA === match.scoreB) return undefined
   return match.scoreA > match.scoreB ? match.teamA : match.teamB
+}
+
+function calculateNationRanking(matches: CompetitionMatch[], results: CompetitionResult[]) {
+  const ranking = new Map<
+    string,
+    { country: string; flag: string; points: number; gold: number; silver: number; bronze: number }
+  >()
+
+  function ensure(country: string) {
+    const nation = getNationByCountryName(country)
+    const current = ranking.get(country)
+
+    if (current) {
+      return current
+    }
+
+    const next = {
+      country,
+      flag: nation?.countryFlag ?? "",
+      points: 0,
+      gold: 0,
+      silver: 0,
+      bronze: 0,
+    }
+
+    ranking.set(country, next)
+    return next
+  }
+
+  matches.forEach((match) => {
+    ensure(match.teamA)
+    ensure(match.teamB)
+
+    if (match.status === "Finished" && match.winner) {
+      ensure(match.winner).points += 1
+    }
+  })
+
+  results.forEach((result) => {
+    if (result.winner) {
+      const winner = ensure(result.winner)
+      winner.points += 5
+      winner.gold += 1
+    }
+
+    if (result.runnerUp) {
+      const runnerUp = ensure(result.runnerUp)
+      runnerUp.points += 3
+      runnerUp.silver += 1
+    }
+
+    if (result.thirdPlace) {
+      const thirdPlace = ensure(result.thirdPlace)
+      thirdPlace.points += 2
+      thirdPlace.bronze += 1
+    }
+  })
+
+  return [...ranking.values()].sort((first, second) => {
+    if (second.points !== first.points) return second.points - first.points
+    if (second.gold !== first.gold) return second.gold - first.gold
+    if (second.silver !== first.silver) return second.silver - first.silver
+    if (second.bronze !== first.bronze) return second.bronze - first.bronze
+    return first.country.localeCompare(second.country)
+  })
+}
+
+function enrichParticipantNation(participant: CompetitionParticipant): CompetitionParticipant {
+  const nation = getNationIdentity(participant.className)
+
+  return {
+    ...participant,
+    countryName: participant.countryName || nation.countryName,
+    countryFlag: participant.countryFlag || nation.countryFlag,
+  }
+}
+
+function enrichTeamNation(team: CompetitionTeam): CompetitionTeam {
+  const nation = getNationIdentity(team.className)
+  const countryName = team.countryName || nation.countryName
+
+  return {
+    ...team,
+    members: [...team.members],
+    name: countryName,
+    countryName,
+    countryFlag: team.countryFlag || nation.countryFlag,
+  }
+}
+
+function getNationIdentity(className: string) {
+  const nation = getNationByClassName(className)
+
+  return {
+    countryName: nation?.countryName ?? className,
+    countryFlag: nation?.countryFlag ?? "",
+  }
+}
+
+function getCountryFlagByName(countryName?: string) {
+  if (!countryName) return undefined
+
+  return getNationByCountryName(countryName)?.countryFlag
 }
 
 function createAvatar(name: string) {
