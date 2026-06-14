@@ -1272,7 +1272,7 @@ function ScheduleTable({
   schedules: DashboardSummary["todaySchedule"]
 }) {
   if (schedules.length === 0) {
-    return <EmptyState title={emptyTitle} description="Official schedule data is not available for this view." />
+    return <EmptyState title={emptyTitle} description="Official schedule data is coming soon for this view." />
   }
 
   return (
@@ -1637,7 +1637,7 @@ function formatNationName(value: string) {
 
 function MatchScheduleTable({ schedules }: { schedules: DashboardSummary["todaySchedule"] }) {
   if (schedules.length === 0) {
-    return <EmptyState title="No Match Scheduled" description="Official match schedule records are not available for this view." />
+    return <EmptyState title="No Match Scheduled" description="Official match schedule records are coming soon for this view." />
   }
 
   return (

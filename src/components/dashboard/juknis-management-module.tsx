@@ -229,7 +229,7 @@ export function JuknisManagementModule({ title = "Juknis Management" }: { title?
   if (!activeDocument) {
     return (
       <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-        <p className="text-sm font-semibold text-[#111827]">No Data Available</p>
+        <p className="text-sm font-semibold text-[#111827]">Coming Soon</p>
       </section>
     )
   }

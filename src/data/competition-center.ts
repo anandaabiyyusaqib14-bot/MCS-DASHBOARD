@@ -7,7 +7,7 @@ import {
   type JuknisDocument,
 } from "@/data/mcs"
 
-export const NO_DATA = "No Data Available"
+export const NO_DATA = "Coming Soon"
 export const DATA_NOT_PUBLISHED = "Data Not Published Yet"
 
 export type CompetitionCenterCategory = "Sport Championship" | "Art & Media Stage"

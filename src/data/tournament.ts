@@ -49,9 +49,9 @@ export type SystemAlert = {
 }
 
 export const tournamentSummary = {
-  title: "No Data Available",
+  title: "Coming Soon",
   phase: "Data Not Published Yet",
-  category: "No Data Available",
+  category: "Coming Soon",
   organizer: "MELATI CHAMPIONSHIP SERIES 1",
   venue: "SMKN 20 Jakarta",
   totalMatches: 0,

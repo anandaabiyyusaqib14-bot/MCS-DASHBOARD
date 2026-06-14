@@ -1,18 +1,18 @@
 import type { Metadata } from "next"
 
-import { NotificationCenterScreen } from "@/components/dashboard/operational-center-screens"
-import { listNotifications } from "@/server/mcs/service"
-import { getDashboardOverviewContext } from "../_lib/dashboard-overview-context"
+import { NotificationCenterV2 } from "@/components/dashboard/event-operating-system-modules"
+import { getNotificationCenterSnapshot } from "@/server/mcs/operating-system"
+import { getOperatingDashboardAuth } from "../_lib/operating-context"
 
 export const metadata: Metadata = {
-  title: "Pusat Notifikasi - MCS 1",
-  description: "Feed notifikasi kepanitiaan penuh untuk MCS 1.",
+  title: "Notification Center V2 - MCS 1",
+  description: "Feed notifikasi operasional penuh untuk MCS 1.",
 }
 
 export const dynamic = "force-dynamic"
 
 export default async function NotificationsPage() {
-  const { auth } = await getDashboardOverviewContext("/dashboard/notifications")
+  const auth = await getOperatingDashboardAuth("/dashboard/notifications")
 
-  return <NotificationCenterScreen notifications={listNotifications(auth)} permissions={auth.permissions} />
+  return <NotificationCenterV2 notifications={getNotificationCenterSnapshot(auth)} />
 }

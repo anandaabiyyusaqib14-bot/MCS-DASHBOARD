@@ -164,7 +164,7 @@ export function AnnouncementBroadcastScreen() {
       { label: "Active Broadcasts", value: String(announcements.filter((item) => item.priority !== "Normal").length), helper: "Currently active", icon: Radio, tone: "red" },
       { label: "Scheduled Messages", value: String(scheduled.length), helper: "Upcoming", icon: CalendarDays, tone: "gray" },
       { label: "Read Rate", value: "Data Not Published Yet", helper: "This week", icon: Eye, tone: "green" },
-      { label: "Unread Alerts", value: "No Data Available", helper: "Require attention", icon: Bell, tone: "gold" },
+      { label: "Unread Alerts", value: "Coming Soon", helper: "Require attention", icon: Bell, tone: "gold" },
       { label: "Critical Notices", value: String(announcements.filter((item) => item.priority === "Critical").length), helper: "High priority", icon: AlertTriangle, tone: "red" },
     ],
     [announcements, scheduled]

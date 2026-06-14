@@ -49,6 +49,17 @@ Competition Center tables:
 - `mcs_center_logs`
 - `mcs_center_notifications`
 
+### Auto Bracket Flow
+
+When all `Babak 1` matches for one match-based competition are finished, the server writes the generated next-round matches and bracket rows into the existing `competition` snapshot.
+
+The normalized sync then mirrors that snapshot into:
+
+- `mcs_center_matches`
+- `mcs_center_bracket_rounds`
+
+No extra migration is required for the automatic bracket generator because the generated bracket still uses the current Competition Center snapshot shape.
+
 ## Security
 
 All normalized tables enable RLS and allow access only through the Supabase `service_role` role. Do not expose the service role key to the browser.

@@ -317,7 +317,7 @@ function EventDayControlRoom({
       icon: Radio,
       label: "Pertandingan",
       tone: summary.liveMatches.length > 0 ? "success" : "neutral",
-      value: summary.liveMatches.length > 0 ? `${summary.liveMatches.length} aktif` : "Match data not available.",
+      value: summary.liveMatches.length > 0 ? `${summary.liveMatches.length} aktif` : "Coming Soon",
     },
     {
       detail: "Tiket terbuka",
@@ -536,7 +536,7 @@ function LiveMatchList({ matches }: { matches: MatchRecord[] }) {
   if (matches.length === 0) {
     return (
       <EmptyState
-        title="Match data not available."
+        title="Coming Soon"
         description="Belum ada pertandingan live, check-in, atau paused dari data resmi."
         nextAction="buka Pantauan Pertandingan saat PJ lomba mulai mengisi skor."
       />
@@ -1725,7 +1725,7 @@ function formatDisplayLabel(value: string) {
     Live: "Live",
     live: "Live",
     "No Active Competition": "Belum Ada Lomba Aktif",
-    "No Data Available": "Belum Ada Data",
+    "Coming Soon": "Belum Ada Data",
     "Not Published Yet": "Belum Dipublikasikan",
     paused: "Paused",
     Preparation: "Persiapan",

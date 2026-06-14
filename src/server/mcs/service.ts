@@ -2167,6 +2167,7 @@ function getIssueStatus(value: unknown): IssueStatus | undefined {
     value === "Terbuka" ||
     value === "Ditugaskan" ||
     value === "Diproses" ||
+    value === "Eskalasi" ||
     value === "Selesai" ||
     value === "Ditutup"
   ) {
@@ -2176,6 +2177,7 @@ function getIssueStatus(value: unknown): IssueStatus | undefined {
   if (value === "Open") return "Terbuka"
   if (value === "Assigned") return "Ditugaskan"
   if (value === "In Progress") return "Diproses"
+  if (value === "Escalated") return "Eskalasi"
   if (value === "Resolved") return "Selesai"
   if (value === "Closed") return "Ditutup"
 
@@ -2185,10 +2187,14 @@ function getIssueStatus(value: unknown): IssueStatus | undefined {
 function getIssueCategory(value: unknown): IssueCategory | undefined {
   if (
     value === "Venue" ||
+    value === "Peralatan" ||
     value === "Jadwal" ||
     value === "Perlengkapan" ||
     value === "Keamanan" ||
+    value === "Sponsor" ||
+    value === "Dokumentasi" ||
     value === "Peserta" ||
+    value === "Panitia" ||
     value === "Media" ||
     value === "Pengumuman" ||
     value === "Lainnya"
@@ -2197,9 +2203,11 @@ function getIssueCategory(value: unknown): IssueCategory | undefined {
   }
 
   if (value === "Schedule") return "Jadwal"
-  if (value === "Equipment") return "Perlengkapan"
+  if (value === "Equipment") return "Peralatan"
   if (value === "Security") return "Keamanan"
   if (value === "Participant") return "Peserta"
+  if (value === "Committee") return "Panitia"
+  if (value === "Documentation") return "Dokumentasi"
   if (value === "Announcement") return "Pengumuman"
   if (value === "Other") return "Lainnya"
 

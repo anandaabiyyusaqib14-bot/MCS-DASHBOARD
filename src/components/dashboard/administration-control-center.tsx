@@ -255,7 +255,7 @@ export function AdministrationControlCenter({ summary, user }: { summary: Dashbo
     const date = String(formData.get("date") || todayInput())
     const pic = String(formData.get("pic") || user.displayName)
     const evidenceFile = formData.get("evidence")
-    const evidence = evidenceFile instanceof File && evidenceFile.name ? evidenceFile.name : "No Data Available"
+    const evidence = evidenceFile instanceof File && evidenceFile.name ? evidenceFile.name : "Coming Soon"
     if (amount <= 0) {
       setToast("Nominal transaksi harus lebih dari 0.")
       return
@@ -280,7 +280,7 @@ export function AdministrationControlCenter({ summary, user }: { summary: Dashbo
       amount,
       date: String(formData.get("date") || todayInput()),
       status: String(formData.get("status") || "Pending") as SponsorStatus,
-      note: String(formData.get("note") || "No Data Available"),
+      note: String(formData.get("note") || "Coming Soon"),
       pic: user.displayName,
     }
     setSponsorFunds((items) => [record, ...items])
@@ -310,7 +310,7 @@ export function AdministrationControlCenter({ summary, user }: { summary: Dashbo
 
   const onDocumentSubmit = (formData: FormData) => {
     const file = formData.get("file")
-    const fileName = file instanceof File && file.name ? file.name : "No Data Available"
+    const fileName = file instanceof File && file.name ? file.name : "Coming Soon"
     const record: DocumentRecord = {
       id: `DOC-${Date.now()}`,
       name: String(formData.get("name") || "Dokumen MCS 1"),
@@ -415,9 +415,9 @@ export function AdministrationControlCenter({ summary, user }: { summary: Dashbo
 
       <StatStrip
         items={[
-          { label: "Dokumen Aktif", value: activeDocuments.length || "No Data Available", tone: activeDocuments.length ? "info" : "neutral" },
+          { label: "Dokumen Aktif", value: activeDocuments.length || "Coming Soon", tone: activeDocuments.length ? "info" : "neutral" },
           { label: "Persetujuan Menunggu", value: pendingApprovals.length, tone: pendingApprovals.length ? "warning" : "success" },
-          { label: "Total Laporan", value: reports.length || "No Data Available", tone: reports.length ? "success" : "neutral" },
+          { label: "Total Laporan", value: reports.length || "Coming Soon", tone: reports.length ? "success" : "neutral" },
           { label: "Saldo Keuangan", value: formatRupiah(finance.balance), tone: finance.balance >= 0 ? "gold" : "danger" },
         ]}
       />
@@ -710,14 +710,14 @@ function NotificationItem({ item }: { item: NotificationRecord }) {
 
 function FolderChips({ folders }: { folders: string[] }) {
   if (folders.length === 0) {
-    return <p className="mb-4 rounded-xl border border-dashed border-[#E5E7EB] bg-[#FFFDF8] p-3 text-sm font-semibold text-[#94A3B8]">No Data Available</p>
+    return <p className="mb-4 rounded-xl border border-dashed border-[#E5E7EB] bg-[#FFFDF8] p-3 text-sm font-semibold text-[#94A3B8]">Coming Soon</p>
   }
 
   return <div className="mb-4 flex flex-wrap gap-2">{folders.map((folder) => <StatusBadge key={folder} label={folder} tone="gold" />)}</div>
 }
 
 function DocumentTable({ documents, onArchive, onDownload, onEdit, onView }: { documents: DocumentRecord[]; onArchive: (document: DocumentRecord) => void; onDownload: (document: DocumentRecord) => void; onEdit: (document: DocumentRecord) => void; onView: (document: DocumentRecord) => void }) {
-  if (documents.length === 0) return <EmptyState title="No Data Available" description="Dokumen administrasi resmi belum diunggah." />
+  if (documents.length === 0) return <EmptyState title="Coming Soon" description="Dokumen administrasi resmi belum diunggah." />
   return (
     <ResponsiveTable headings={["ID", "Nama", "Kategori", "Versi", "Uploader", "Tanggal", "Status", "File", "Aksi"]}>
       {documents.map((document) => (
@@ -761,13 +761,13 @@ function RundownControl({ summary }: { summary: DashboardSummary }) {
   return (
     <div className="grid gap-4">
       <div className="grid gap-2 sm:grid-cols-2">
-        <MiniStat label="Total Aktivitas" value={activities.length || "No Data Available"} />
+        <MiniStat label="Total Aktivitas" value={activities.length || "Coming Soon"} />
         <MiniStat label="Aktivitas Berjalan" value={running} />
         <MiniStat label="Aktivitas Selesai" value={completed} />
         <MiniStat label="Perubahan Hari Ini" value={changes.length} />
       </div>
       <div className="grid gap-2">
-        {changes.length ? changes.map((item) => <TimelineItem key={`${item.time}-${item.text}`} time={item.time} text={item.text} />) : <EmptyState title="No Data Available" description="Timeline perubahan rundown belum tersedia." />}
+        {changes.length ? changes.map((item) => <TimelineItem key={`${item.time}-${item.text}`} time={item.time} text={item.text} />) : <EmptyState title="Coming Soon" description="Timeline perubahan rundown belum tersedia." />}
       </div>
     </div>
   )
@@ -800,7 +800,7 @@ function FinanceSummary({ finance }: { finance: { income: number; expense: numbe
 }
 
 function TransactionTable({ transactions }: { transactions: TransactionRecord[] }) {
-  if (transactions.length === 0) return <EmptyState title="No Data Available" description="Catatan transaksi akan muncul setelah Tambah Transaksi disimpan." />
+  if (transactions.length === 0) return <EmptyState title="Coming Soon" description="Catatan transaksi akan muncul setelah Tambah Transaksi disimpan." />
   return (
     <ResponsiveTable headings={["ID", "Jenis", "Kategori", "Nominal", "Tanggal", "Deskripsi", "Bukti", "PIC"]}>
       {transactions.map((item) => <tr key={item.id}><Cell strong>{item.id}</Cell><Cell>{item.type}</Cell><Cell>{item.category}</Cell><Cell>{formatRupiah(item.amount)}</Cell><Cell>{item.date}</Cell><Cell>{item.description}</Cell><Cell>{item.evidence}</Cell><Cell>{item.pic}</Cell></tr>)}
@@ -838,7 +838,7 @@ function ArchivePanel({ archives, archivedDocuments, onDelete, onDownload, onRes
         <ResponsiveTable headings={["Archive ID", "Kategori", "Judul", "Archived By", "Archived Date", "Restore Status", "Aksi"]}>
           {rows.map((archive) => <tr key={archive.id}><Cell strong>{archive.id}</Cell><Cell>{archive.category}</Cell><Cell>{archive.title}</Cell><Cell>{archive.archivedBy}</Cell><Cell>{archive.archivedDate}</Cell><Cell><StatusBadge label={archive.restoreStatus} tone={archive.restoreStatus === "Restored" ? "success" : "warning"} /></Cell><Cell><TableActions actions={[["Restore", RotateCcw, () => onRestore(archive)], ["Download", Download, () => onDownload(archive)], ["Delete Permanen", Trash2, () => onDelete(archive.id)]]} /></Cell></tr>)}
         </ResponsiveTable>
-      ) : <EmptyState title="No Data Available" description={archivedDocuments.length ? "Tidak ada arsip sesuai pencarian." : "Arsip akan muncul setelah dokumen diarchive."} />}
+      ) : <EmptyState title="Coming Soon" description={archivedDocuments.length ? "Tidak ada arsip sesuai pencarian." : "Arsip akan muncul setelah dokumen diarchive."} />}
     </div>
   )
 }
@@ -848,7 +848,7 @@ function AuditLog({ filter, items, onFilter }: { filter: string; items: AuditRec
     <div className="grid gap-4">
       <div className="flex flex-wrap gap-2">{["Hari Ini", "7 Hari", "30 Hari", "Semua"].map((item) => <button key={item} type="button" className={cn("h-9 rounded-lg border px-3 text-sm font-bold", filter === item ? "border-[#F97316] bg-[#FFF7ED] text-[#F97316]" : "border-[#E5E7EB] bg-white text-[#6B7280]")} onClick={() => onFilter(item)}>{item}</button>)}</div>
       <div className="grid gap-2">
-        {items.length ? items.map((item) => <TimelineItem key={item.id} time={item.time} text={`${item.action} - ${item.actor}`} />) : <EmptyState title="No Data Available" description="Audit activity log akan muncul setelah aksi dilakukan." />}
+        {items.length ? items.map((item) => <TimelineItem key={item.id} time={item.time} text={`${item.action} - ${item.actor}`} />) : <EmptyState title="Coming Soon" description="Audit activity log akan muncul setelah aksi dilakukan." />}
       </div>
     </div>
   )
@@ -859,7 +859,7 @@ function GlobalSearch({ onQuery, query, results }: { onQuery: (value: string) =>
     <div className="grid gap-4">
       <SearchInput value={query} onChange={onQuery} placeholder="Cari dokumen, sponsor, peserta, panitia, keuangan, laporan" />
       <div className="grid gap-2">
-        {results.length ? results.map((result) => <article key={`${result.type}-${result.title}`} className="rounded-xl border border-[#E5E7EB] bg-[#FFFDF8] p-3"><div className="flex items-start justify-between gap-3"><div><p className="font-bold text-[#111827]">{result.title}</p><p className="mt-1 text-sm font-medium text-[#6B7280]">{result.detail}</p></div><StatusBadge label={result.type} tone="info" /></div></article>) : <EmptyState title={query ? "No Data Available" : "Data Not Published Yet"} description="Hasil realtime muncul setelah kata kunci cocok dengan data administrasi." />}
+        {results.length ? results.map((result) => <article key={`${result.type}-${result.title}`} className="rounded-xl border border-[#E5E7EB] bg-[#FFFDF8] p-3"><div className="flex items-start justify-between gap-3"><div><p className="font-bold text-[#111827]">{result.title}</p><p className="mt-1 text-sm font-medium text-[#6B7280]">{result.detail}</p></div><StatusBadge label={result.type} tone="info" /></div></article>) : <EmptyState title={query ? "Coming Soon" : "Data Not Published Yet"} description="Hasil realtime muncul setelah kata kunci cocok dengan data administrasi." />}
       </div>
     </div>
   )
@@ -868,7 +868,7 @@ function GlobalSearch({ onQuery, query, results }: { onQuery: (value: string) =>
 function SecurityDashboard({ auditCount, failedLogin, uploadCount }: { auditCount: number; failedLogin: number; uploadCount: number }) {
   return (
     <div className="grid gap-2 sm:grid-cols-2">
-      <MiniStat label="Jumlah Login Hari Ini" value="No Data Available" />
+      <MiniStat label="Jumlah Login Hari Ini" value="Coming Soon" />
       <MiniStat label="Role Aktif" value="Super Admin" />
       <MiniStat label="Permission Rules" value={`${permissionRoles.length} Role`} />
       <MiniStat label="Failed Login" value={failedLogin} />

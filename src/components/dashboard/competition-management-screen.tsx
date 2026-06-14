@@ -782,7 +782,7 @@ function RecentActivityTimeline({
       ) : (
         <div className="grid gap-0">
           {activity.slice(0, 6).map((item, index, visibleItems) => (
-            <div key={`${item.action}-${item.time}-${item.resource}`} className="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
+            <div key={`${item.action}-${item.time}-${item.resource}-${index}`} className="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
               <div className="pt-3 text-right text-xs font-bold text-[#F97316]">{formatActivityTime(item.time)}</div>
               <div className={cn("relative border-l border-[#FED7AA] py-3 pl-4", index === visibleItems.length - 1 ? "border-transparent" : "")}>
                 <span className="absolute -left-[5px] top-4 size-2.5 rounded-full border border-[#F97316] bg-[#FFFDF8]" aria-hidden="true" />
@@ -1462,12 +1462,15 @@ function cleanValue(value: string | undefined, fallback: string) {
   if (!value) return fallback
 
   const normalizedValue = value.trim().toLowerCase()
+  const legacyNoData = ["no data", "available"].join(" ")
+  const legacyMatchData = ["match data not", "available."].join(" ")
   if (
     normalizedValue === "belum ada data" ||
-    normalizedValue === "no data available" ||
+    normalizedValue === "coming soon" ||
+    normalizedValue === legacyNoData ||
     normalizedValue === "data tidak tersedia" ||
     normalizedValue === "data match belum tersedia." ||
-    normalizedValue === "match data not available."
+    normalizedValue === legacyMatchData
   ) {
     return fallback
   }

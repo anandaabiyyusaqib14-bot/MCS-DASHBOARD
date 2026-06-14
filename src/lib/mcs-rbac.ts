@@ -74,10 +74,17 @@ const divisionOperationsPermissions: Permission[] = [
 
 const operatingCenterNavigation: DashboardNavigationItem[] = [
   {
+    key: "command-center",
+    label: "Event Command Center",
+    href: "/dashboard/command-center",
+    icon: "monitor-play",
+    requiredPermission: "event_day.read",
+  },
+  {
     key: "event-day",
     label: "Hari Kegiatan",
     href: "/dashboard/event-day",
-    icon: "monitor-play",
+    icon: "calendar",
     requiredPermission: "event_day.read",
   },
   {
@@ -92,8 +99,51 @@ const operatingCenterNavigation: DashboardNavigationItem[] = [
     key: "active-issues",
     label: "Kendala Aktif",
     href: "/dashboard/issues",
+    icon: "shield",
+    requiredPermission: "issues.read",
+    aliases: ["/dashboard/incidents"],
+  },
+  {
+    key: "incident-center",
+    label: "Incident Center",
+    href: "/dashboard/incidents",
     icon: "triangle-alert",
     requiredPermission: "issues.read",
+  },
+  {
+    key: "nation-ranking",
+    label: "Nation Ranking",
+    href: "/dashboard/nation-ranking",
+    icon: "trophy",
+    requiredPermission: "competitions.read",
+  },
+  {
+    key: "master-brackets",
+    label: "Master Bracket",
+    href: "/dashboard/brackets",
+    icon: "git-branch",
+    requiredPermission: "competitions.read",
+  },
+  {
+    key: "attendance-system",
+    label: "QR Attendance",
+    href: "/dashboard/attendance",
+    icon: "clipboard-check",
+    requiredPermission: "committees.read",
+  },
+  {
+    key: "certificate-engine",
+    label: "Certificate Engine",
+    href: "/dashboard/certificates",
+    icon: "file-check",
+    requiredPermission: "documents.read",
+  },
+  {
+    key: "judge-panel",
+    label: "Judge Panel",
+    href: "/dashboard/judging",
+    icon: "clipboard",
+    requiredPermission: "competitions.update",
   },
   {
     key: "division-handoffs",
@@ -111,10 +161,17 @@ const operatingCenterNavigation: DashboardNavigationItem[] = [
   },
   {
     key: "notification-center",
-    label: "Pusat Notifikasi",
+    label: "Notification Center V2",
     href: "/dashboard/notifications",
     icon: "bell-ring",
     requiredPermission: "notifications.read",
+  },
+  {
+    key: "workflow-automation",
+    label: "Workflow Automation",
+    href: "/dashboard/workflow-automation",
+    icon: "activity",
+    requiredPermission: "event_operations.read",
   },
   {
     key: "approval-center",

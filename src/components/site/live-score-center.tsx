@@ -118,7 +118,7 @@ export function LiveScoreCenterSection() {
           {featuredMatches.length > 0 ? (
             featuredMatches.map((match) => <LiveMatchCard key={match.id} match={match} compact />)
           ) : (
-            <EmptyPanel label="Match data not available." />
+            <EmptyPanel label="Coming Soon" />
           )}
         </div>
       </div>
@@ -177,7 +177,7 @@ export function MatchDetailContent({ matchId }: { matchId: string }) {
   }
 
   if (!match) {
-    return <main className="min-h-screen bg-[#081c3a] p-8 text-white">Match data not available.</main>
+    return <main className="min-h-screen bg-[#081c3a] p-8 text-white">Coming Soon</main>
   }
 
   return (
@@ -196,7 +196,7 @@ export function MatchDetailContent({ matchId }: { matchId: string }) {
           </div>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <DetailFact label="Venue" value={match.venue} />
-            <DetailFact label="PJ Lomba" value={competition?.pic.join(", ") ?? "No Data Available"} />
+            <DetailFact label="PJ Lomba" value={competition?.pic.join(", ") ?? "Coming Soon"} />
             <DetailFact label="Status" value={formatStatus(match.status)} />
           </div>
         </div>
@@ -396,7 +396,7 @@ function ScoreboardTable({ loading, matches }: { loading: boolean; matches: Comp
           </tbody>
         </table>
       </div>
-      {matches.length === 0 ? <EmptyPanel label="Match data not available." light /> : null}
+      {matches.length === 0 ? <EmptyPanel label="Coming Soon" light /> : null}
     </div>
   )
 }

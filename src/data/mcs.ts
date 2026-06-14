@@ -211,8 +211,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
   {
     id: "emina",
@@ -221,8 +221,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
   {
     id: "yup",
@@ -231,8 +231,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
   {
     id: "sosro",
@@ -241,8 +241,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
   {
     id: "pt-campina-aice-industry",
@@ -251,8 +251,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
   {
     id: "pt-cipta-niaga-semesta",
@@ -261,8 +261,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
   {
     id: "pt-sinar-niaga-sejahtera",
@@ -271,8 +271,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
   {
     id: "pt-sinar-sosro-gunung-selamat",
@@ -281,8 +281,8 @@ export const sponsorProspects: SponsorRecord[] = [
     proposalStatus: "On Going",
     partnershipType: "Sponsor",
     pic: "Humas",
-    contact: "No Data Available",
-    followUpDate: "No Data Available",
+    contact: "Coming Soon",
+    followUpDate: "Coming Soon",
   },
 ]
 
@@ -1246,7 +1246,7 @@ export const supporterGuidelines = [
 export const landingStats = [
   { value: "2025/2026", label: "Anniversary" },
   { value: "9", label: "Competition Categories" },
-  { value: "No Data Available", label: "Committee Members" },
+  { value: "Coming Soon", label: "Committee Members" },
 ]
 
 export const timeline: TimelineItem[] = [

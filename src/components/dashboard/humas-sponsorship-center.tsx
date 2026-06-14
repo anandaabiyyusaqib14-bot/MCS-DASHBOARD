@@ -141,7 +141,7 @@ function createInitialSponsors(): Sponsor[] {
     id: sponsor.id,
     name: sponsor.name,
     pic: sponsor.pic || "Humas",
-    contact: sponsor.contact === "No Data Available" ? "" : sponsor.contact,
+    contact: sponsor.contact === "Coming Soon" ? "" : sponsor.contact,
     email: "",
     category: "Cash",
     value: sponsor.receivedAmount ?? 0,
@@ -156,7 +156,7 @@ function createInitialSponsors(): Sponsor[] {
     status: mapInitialSponsorStatus(sponsor.pipelineStatus),
     notes: "",
     lastContact: "",
-    nextFollowUp: sponsor.followUpDate === "No Data Available" ? "" : sponsor.followUpDate,
+    nextFollowUp: sponsor.followUpDate === "Coming Soon" ? "" : sponsor.followUpDate,
   }))
 }
 
@@ -693,7 +693,7 @@ export function HumasSponsorshipCenter({
                       <p className="mt-1 text-xs font-medium text-[#64748B]">{sponsor.pic} / {formatCurrency(sponsor.value)}</p>
                     </button>
                   ))}
-                  {sponsors.length === 0 ? <p className="rounded-xl border border-dashed border-[#CBD5E1] p-3 text-xs font-semibold text-[#94A3B8]">No Data Available</p> : null}
+                  {sponsors.length === 0 ? <p className="rounded-xl border border-dashed border-[#CBD5E1] p-3 text-xs font-semibold text-[#94A3B8]">Coming Soon</p> : null}
                 </div>
               </div>
             )
@@ -730,7 +730,7 @@ export function HumasSponsorshipCenter({
         >
           <DataTable
             columns={["Sponsor", "Last Contact", "Next Follow Up", "PIC", "Status", "Catatan"]}
-            rows={state.followUps.map((item) => [item.sponsorName, item.lastContact, item.nextFollowUp, item.pic, item.status, item.notes || "No Data Available"])}
+            rows={state.followUps.map((item) => [item.sponsorName, item.lastContact, item.nextFollowUp, item.pic, item.status, item.notes || "Coming Soon"])}
           />
         </Panel>
 
@@ -1071,12 +1071,12 @@ function SponsorDetailModal({ logs, onClose, open, sponsor }: { logs: ActivityLo
             items={[
               ["Nama Sponsor", sponsor.name],
               ["PIC", sponsor.pic],
-              ["Kontak", sponsor.contact || "No Data Available"],
-              ["Email", sponsor.email || "No Data Available"],
+              ["Kontak", sponsor.contact || "Coming Soon"],
+              ["Email", sponsor.email || "Coming Soon"],
               ["Kategori", sponsor.category],
               ["Value Sponsor", formatCurrency(sponsor.value)],
               ["Status", sponsor.status],
-              ["Catatan Follow Up", sponsor.notes || "No Data Available"],
+              ["Catatan Follow Up", sponsor.notes || "Coming Soon"],
             ]}
           />
           <div>

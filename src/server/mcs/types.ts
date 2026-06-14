@@ -319,13 +319,17 @@ export type TaskRecord = {
 }
 
 export type IssueSeverity = "Rendah" | "Sedang" | "Tinggi" | "Kritis"
-export type IssueStatus = "Terbuka" | "Ditugaskan" | "Diproses" | "Selesai" | "Ditutup"
+export type IssueStatus = "Terbuka" | "Ditugaskan" | "Diproses" | "Eskalasi" | "Selesai" | "Ditutup"
 export type IssueCategory =
   | "Venue"
+  | "Peralatan"
   | "Jadwal"
   | "Perlengkapan"
   | "Keamanan"
+  | "Sponsor"
+  | "Dokumentasi"
   | "Peserta"
+  | "Panitia"
   | "Media"
   | "Pengumuman"
   | "Lainnya"

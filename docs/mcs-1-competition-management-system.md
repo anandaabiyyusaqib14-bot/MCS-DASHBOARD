@@ -2,7 +2,7 @@
 
 This module is the operational center for Melati Championship Series 1 competitions. It must use only official owner-provided content from `src/data/mcs.ts`, uploaded files, database records, or manually entered records.
 
-No fictional teams, participants, schedules, scores, standings, winners, announcements, committee data, or media are seeded here. When official data is unavailable, the API returns empty collections or nullable fields and the UI displays `No Data Available`, `Data Not Published Yet`, or `Match data not available.`
+No fictional teams, participants, schedules, scores, standings, winners, announcements, committee data, or media are seeded here. When official data is pending, the API returns empty collections or nullable fields and the UI displays `Coming Soon` or `Data Not Published Yet`.
 
 ## Official Competition Scope
 

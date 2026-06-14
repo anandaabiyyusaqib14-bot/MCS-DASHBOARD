@@ -391,7 +391,7 @@ matches/{matchId} = {
   sportType: "official-competition-type",
   round: "Data Not Published Yet",
   matchNumber: null,
-  venue: "No Data Available",
+  venue: "Coming Soon",
   participantA: null,
   participantB: null,
   score: {

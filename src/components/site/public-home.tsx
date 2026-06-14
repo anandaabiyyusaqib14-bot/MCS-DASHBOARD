@@ -408,7 +408,7 @@ export function PublicHome() {
                 {activeDay?.dayName}, {activeDay?.label}
               </p>
               <h3 className="mt-3 font-display text-5xl leading-none text-white">
-                {dayCompetitionNames.length > 0 ? dayCompetitionNames.join(", ") : "Match data not available."}
+                {dayCompetitionNames.length > 0 ? dayCompetitionNames.join(", ") : "Coming Soon"}
               </h3>
               <p className="mt-4 text-sm font-semibold leading-6 text-white/62">
                 Seluruh daftar di sisi kanan berasal dari jadwal lomba resmi MCS 1.
@@ -445,7 +445,7 @@ export function PublicHome() {
                   </article>
                 ))
               ) : (
-                <EmptyState label="Match data not available." />
+                <EmptyState label="Coming Soon" />
               )}
             </div>
           </div>
@@ -531,7 +531,7 @@ export function PublicHome() {
               ))}
             </div>
 
-            {activeJuknis ? <JuknisDetail document={activeJuknis} /> : <EmptyState label="No Data Available" />}
+            {activeJuknis ? <JuknisDetail document={activeJuknis} /> : <EmptyState label="Coming Soon" />}
           </div>
 
           <div className="mt-8 rounded-lg border border-[#081c3a]/14 bg-white p-5 shadow-[0_18px_50px_rgba(8,28,58,0.07)]">
@@ -564,8 +564,8 @@ export function PublicHome() {
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <ContactButton href={toWhatsappHref(settings.contacts.hotline)} icon={MessageCircle} title="WhatsApp Official" label={settings.contacts.hotline || "No Data Available"} />
-            <ContactButton href={toWhatsappHref(settings.contacts.whatsappChairperson)} icon={MessageCircle} title="Ketua Pelaksana" label={settings.contacts.whatsappChairperson || "No Data Available"} />
+            <ContactButton href={toWhatsappHref(settings.contacts.hotline)} icon={MessageCircle} title="WhatsApp Official" label={settings.contacts.hotline || "Coming Soon"} />
+            <ContactButton href={toWhatsappHref(settings.contacts.whatsappChairperson)} icon={MessageCircle} title="Ketua Pelaksana" label={settings.contacts.whatsappChairperson || "Coming Soon"} />
             <ContactButton href={settings.contacts.instagram || contact.instagram} icon={AtSign} title="Instagram" label={settings.contacts.instagram || contact.instagramLabel} />
             <ContactButton href={settings.contacts.tiktok || contact.tiktok} icon={Music2} title="TikTok" label={settings.contacts.tiktok || contact.tiktokLabel} />
           </div>

@@ -11,6 +11,13 @@ type Payload = {
   matches: CompetitionMatch[]
 }
 
+type ScoreMutationResult = CompetitionMatch | {
+  autoBracketGenerated?: boolean
+  autoBracketMatchCount?: number
+  autoBracketRound?: string
+  match: CompetitionMatch
+}
+
 const liveScoreCompetitionIds = ["futsal", "basket", "volly", "badminton", "mobile-legends"]
 const fieldClassName = "h-10 rounded-lg border border-[#111827]/14 bg-white px-3 text-sm font-medium text-[#111827] outline-none focus:border-[#F97316]"
 
@@ -109,7 +116,7 @@ export function LiveScoreControlRoom() {
               </button>
             )) : (
               <div className="rounded-lg border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-4 text-sm font-semibold text-[#64748B]">
-                Match data not available.
+                Coming Soon
               </div>
             )}
           </div>
@@ -148,7 +155,7 @@ function MatchEditor({ match, onSaved }: { match: CompetitionMatch; onSaved: () 
     setMessage("")
 
     try {
-      await mutate(`/api/mcs/competition-center/scores/${match.id}`, {
+      const result = await mutate<ScoreMutationResult>(`/api/mcs/competition-center/scores/${match.id}`, {
         liveClock,
         scoreA,
         scoreB,
@@ -156,7 +163,7 @@ function MatchEditor({ match, onSaved }: { match: CompetitionMatch; onSaved: () 
         timeline: parseTimeline(timelineText),
         winner,
       })
-      setMessage("Score updated.")
+      setMessage(getScoreMutationMessage(result))
       await onSaved()
     } catch (error) {
       setMessage(getMutationErrorMessage(error))
@@ -398,7 +405,7 @@ function useCompetitionCenter() {
   return { data, error, loading, reload }
 }
 
-async function mutate(url: string, body: Record<string, unknown>) {
+async function mutate<T = unknown>(url: string, body: Record<string, unknown>): Promise<T> {
   const response = await fetch(url, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -407,6 +414,10 @@ async function mutate(url: string, body: Record<string, unknown>) {
   })
 
   if (!response.ok) throw new Error(await readMutationError(response))
+
+  const payload = (await response.json().catch(() => null)) as { data?: T } | null
+
+  return payload?.data as T
 }
 
 async function post(url: string, body: Record<string, unknown>) {
@@ -451,4 +462,15 @@ async function readMutationError(response: Response) {
 
 function getMutationErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Aksi live score belum berhasil disimpan."
+}
+
+function getScoreMutationMessage(result: ScoreMutationResult) {
+  if ("autoBracketGenerated" in result && result.autoBracketGenerated) {
+    const round = result.autoBracketRound ?? "ronde berikutnya"
+    const count = result.autoBracketMatchCount ? ` (${result.autoBracketMatchCount} match)` : ""
+
+    return `Score updated. Bracket ${round} otomatis dibuat${count}.`
+  }
+
+  return "Score updated."
 }

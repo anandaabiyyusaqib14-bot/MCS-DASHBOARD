@@ -309,7 +309,7 @@ export function PddCenterScreen() {
         doc.text(asset.name, x + 12, y + 22, { maxWidth: 202 })
         doc.setFont("helvetica", "normal")
         doc.setFontSize(8)
-        doc.text(asset.previewName || "No Data Available", x + 12, y + 42, { maxWidth: 202 })
+        doc.text(asset.previewName || "Coming Soon", x + 12, y + 42, { maxWidth: 202 })
         if (asset.previewUrl && asset.previewKind === "image") {
           doc.addImage(asset.previewUrl, "PNG", x + 12, y + 54, 70, 48, undefined, "FAST")
         } else {
@@ -372,9 +372,9 @@ export function PddCenterScreen() {
         Status: asset.status,
         Approval: asset.approval,
         Deadline: asset.deadline,
-        "Link Canva": asset.canvaUrl || "No Data Available",
-        "Link Drive": asset.driveUrl || "No Data Available",
-        Revisi: asset.revisionNote || "No Data Available",
+        "Link Canva": asset.canvaUrl || "Coming Soon",
+        "Link Drive": asset.driveUrl || "Coming Soon",
+        Revisi: asset.revisionNote || "Coming Soon",
       }))), "Daftar Asset")
       XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(timeline.map((asset) => ({
         Asset: asset.name,
@@ -635,9 +635,9 @@ function AssetDetailDialog({ asset, onClose, onEdit }: { asset: PddAsset | null;
                 <InfoRow label="Progress" value={`${asset.progress}%`} />
                 <InfoRow label="Approval" value={<StatusBadge label={asset.approval} tone={approvalStatusTone(asset.approval)} />} />
                 <InfoRow label="Status" value={<StatusBadge label={asset.status} tone={assetStatusTone(asset.status)} />} />
-                <InfoRow label="Catatan Revisi" value={asset.revisionNote || "No Data Available"} />
-                <InfoRow label="Link Canva" value={asset.canvaUrl ? <a className="text-[#F97316] underline" href={asset.canvaUrl} target="_blank" rel="noreferrer">Buka Canva</a> : "No Data Available"} />
-                <InfoRow label="Link Drive" value={asset.driveUrl ? <a className="text-[#F97316] underline" href={asset.driveUrl} target="_blank" rel="noreferrer">Buka Drive</a> : "No Data Available"} />
+                <InfoRow label="Catatan Revisi" value={asset.revisionNote || "Coming Soon"} />
+                <InfoRow label="Link Canva" value={asset.canvaUrl ? <a className="text-[#F97316] underline" href={asset.canvaUrl} target="_blank" rel="noreferrer">Buka Canva</a> : "Coming Soon"} />
+                <InfoRow label="Link Drive" value={asset.driveUrl ? <a className="text-[#F97316] underline" href={asset.driveUrl} target="_blank" rel="noreferrer">Buka Drive</a> : "Coming Soon"} />
               </div>
             </div>
             <DialogFooter className="mcs-dialog-footer mt-5 bg-[#FFFDF8]">
@@ -725,7 +725,7 @@ function HeaderProgressDialog({ assets, onClose, onSubmit, open }: { assets: Pdd
 function ProgressInlineForm({ asset, onCancel, onSubmit }: { asset: PddAsset | null; onCancel: () => void; onSubmit: (values: Pick<AssetFormState, "approval" | "previewKind" | "previewName" | "previewUrl" | "progress" | "revisionNote" | "status">) => void }) {
   const [form, setForm] = useState(assetToForm(asset))
 
-  if (!asset) return <p className="text-sm font-semibold text-[#6B7280]">No Data Available</p>
+  if (!asset) return <p className="text-sm font-semibold text-[#6B7280]">Coming Soon</p>
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -790,7 +790,7 @@ function PhotoDocumentation({ onAdd, onDelete, photos }: { onAdd: (item: MediaIt
               <button className="grid size-8 place-items-center rounded-md bg-[#FEF2F2] text-[#B91C1C]" onClick={() => onDelete(photo.id)} type="button"><Trash2 className="size-4" /></button>
             </div>
           </div>
-        )) : <EmptyMessage message="No Data Available" />}
+        )) : <EmptyMessage message="Coming Soon" />}
       </div>
     </>
   )
@@ -813,7 +813,7 @@ function VideoDocumentation({ onAdd, onDelete, videos }: { onAdd: (item: MediaIt
               <button className="grid size-8 place-items-center rounded-md bg-[#FEF2F2] text-[#B91C1C]" onClick={() => onDelete(video.id)} type="button"><Trash2 className="size-4" /></button>
             </div>
           </div>
-        )) : <EmptyMessage message="No Data Available" />}
+        )) : <EmptyMessage message="Coming Soon" />}
       </div>
     </>
   )
@@ -865,7 +865,7 @@ function AlbumDocumentation({ albums, onAdd }: { albums: AlbumItem[]; onAdd: (al
             <h3 className="font-heading text-base font-bold text-[#111827]">{album.name}</h3>
             <p className="mt-2 text-sm font-semibold text-[#6B7280]">{album.items.length} media</p>
           </div>
-        )) : <EmptyMessage message="No Data Available" />}
+        )) : <EmptyMessage message="Coming Soon" />}
       </div>
     </>
   )

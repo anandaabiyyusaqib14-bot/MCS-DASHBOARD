@@ -17,6 +17,7 @@ import {
   competitionParticipants,
   competitionResults,
   competitionTeams,
+  DATA_NOT_PUBLISHED,
   judgeScores,
   judgingCriteria,
   officialCompetitionIdSet,
@@ -107,6 +108,8 @@ const globalForCompetitionSystem = globalThis as typeof globalThis & {
 
 const competitionStorePath =
   process.env.MCS_COMPETITION_STORE_PATH ?? join(/*turbopackIgnore: true*/ process.cwd(), ".data", "mcs-competition-store.json")
+
+const autoBracketCompetitionIds = new Set(["futsal", "basket", "volly", "badminton", "mobile-legends"])
 
 export function getCompetitionSystemOverview(auth: AuthContext) {
   assertAllowed(auth, "competitions.read")
@@ -514,8 +517,9 @@ export function updateCompetitionMatch(auth: AuthContext, id: string, input: Rec
 
 export function updateCompetitionScore(auth: AuthContext, id: string, input: Record<string, unknown>) {
   assertAllowed(auth, "scores.update")
-  const match = mustFind(getCompetitionSystemState().matches, id, "match")
-  const competition = mustFind(getCompetitionSystemState().competitions, match.competitionId, "competition")
+  const state = getCompetitionSystemState()
+  const match = mustFind(state.matches, id, "match")
+  const competition = mustFind(state.competitions, match.competitionId, "competition")
   ensureCompetitionScope(auth, match.competitionId)
   ensureCompetitionWritable(competition)
   const previousValue = { scoreA: match.scoreA, scoreB: match.scoreB, winner: match.winner, status: match.status }
@@ -539,7 +543,16 @@ export function updateCompetitionScore(auth: AuthContext, id: string, input: Rec
   })
   createCompetitionNotification("score_updated", "Score updated", `${match.teamA} ${match.scoreA} - ${match.scoreB} ${match.teamB}`, "matches", match.id)
 
-  return match
+  const autoBracket = match.status === "Finished"
+    ? maybeGenerateNextRoundAfterFinishedMatch(auth, state, match)
+    : undefined
+
+  return {
+    match,
+    autoBracketGenerated: Boolean(autoBracket),
+    autoBracketRound: autoBracket?.roundTitle,
+    autoBracketMatchCount: autoBracket?.matchCount,
+  }
 }
 
 export function createCompetitionMatch(auth: AuthContext, input: Record<string, unknown>) {
@@ -649,7 +662,7 @@ export function publishCompetitionResult(auth: AuthContext, input: Record<string
     runnerUp: getRequiredString(input, "runnerUp"),
     thirdPlace: getRequiredString(input, "thirdPlace"),
     specialAwardLabel: getOptionalString(input.specialAwardLabel) ?? "Special Award",
-    specialAwardWinner: getOptionalString(input.specialAwardWinner) ?? "No Data Available",
+    specialAwardWinner: getOptionalString(input.specialAwardWinner) ?? "Coming Soon",
     finalNotes: getOptionalString(input.finalNotes) ?? "",
     approvedBy: auth.user.displayName,
     publishedAt: now,
@@ -912,6 +925,171 @@ function transitionCompetitionStatus(auth: AuthContext, competition: Competition
   }
 
   return nextStatus
+}
+
+function maybeGenerateNextRoundAfterFinishedMatch(
+  auth: AuthContext,
+  state: CompetitionSystemState,
+  match: CompetitionMatch
+) {
+  if (!autoBracketCompetitionIds.has(match.competitionId)) {
+    return undefined
+  }
+
+  const competition = mustFind(state.competitions, match.competitionId, "competition")
+  const currentRound = match.round
+  const roundMatches = [...state.matches.values()]
+    .filter((item) => item.competitionId === match.competitionId && item.round === currentRound)
+    .sort(compareCompetitionMatches)
+
+  if (roundMatches.length === 0 || roundMatches.some((item) => !isMatchCompleteForAutoBracket(item))) {
+    return undefined
+  }
+
+  const advancers = roundMatches.flatMap(getMatchAdvancer)
+
+  if (advancers.length < 2) {
+    return undefined
+  }
+
+  const roundTitle = getNextRoundTitle(currentRound, advancers.length)
+
+  if (hasGeneratedRound(state, match.competitionId, roundTitle)) {
+    return undefined
+  }
+
+  const generatedMatches: CompetitionMatch[] = []
+  const bracketMatches: BracketRound["matches"] = []
+  const byeAdvancers: string[] = []
+
+  for (let index = 0; index < advancers.length; index += 2) {
+    const teamA = advancers[index]
+    const teamB = advancers[index + 1] ?? "BYE"
+    const isBye = teamB === "BYE"
+    const generatedMatch: CompetitionMatch = {
+      id: createAutoMatchId(match.competitionId, roundTitle, index / 2),
+      competitionId: match.competitionId,
+      round: roundTitle,
+      venue: getAutoMatchVenue(competition),
+      date: DATA_NOT_PUBLISHED,
+      startTime: DATA_NOT_PUBLISHED,
+      teamA,
+      teamB,
+      scoreA: 0,
+      scoreB: 0,
+      status: isBye ? "Walkover" : "Scheduled",
+      liveClock: DATA_NOT_PUBLISHED,
+      matchFormat: competition.name,
+      timeline: [],
+      winner: isBye ? teamA : undefined,
+      notes: isBye ? `${teamA} otomatis lolos karena BYE.` : undefined,
+    }
+
+    generatedMatches.push(generatedMatch)
+    bracketMatches.push({
+      id: `${generatedMatch.id}-bracket`,
+      competitionId: match.competitionId,
+      slots: [
+        {
+          seed: index + 1,
+          name: teamA,
+          flag: getCountryFlagByName(teamA),
+          score: isBye ? 1 : undefined,
+          status: isBye ? "Walkover" : "Scheduled",
+        },
+        {
+          seed: index + 2,
+          name: teamB,
+          flag: getCountryFlagByName(teamB),
+          score: isBye ? 0 : undefined,
+          status: isBye ? "Walkover" : "Scheduled",
+        },
+      ],
+    })
+
+    if (isBye) {
+      byeAdvancers.push(teamA)
+    }
+  }
+
+  generatedMatches.forEach((generatedMatch) => {
+    state.matches.set(generatedMatch.id, generatedMatch)
+  })
+
+  state.brackets = [
+    { title: `${competition.name} - ${roundTitle}`, matches: bracketMatches },
+    ...state.brackets.filter((round) => !round.matches.some((roundMatch) => roundMatch.competitionId === match.competitionId && round.title.endsWith(roundTitle))),
+  ]
+  competition.currentRound = roundTitle
+  competition.matchCount = [...state.matches.values()].filter((item) => item.competitionId === match.competitionId).length
+  competition.updatedDate = new Date().toISOString()
+
+  writeCompetitionLog(auth, "bracket.auto_generated", "brackets", match.competitionId, undefined, {
+    fromRound: currentRound,
+    round: roundTitle,
+    matches: bracketMatches,
+    generatedMatchIds: generatedMatches.map((generatedMatch) => generatedMatch.id),
+    byeAdvancers,
+  })
+
+  return {
+    matchCount: generatedMatches.length,
+    roundTitle,
+  }
+}
+
+function isMatchCompleteForAutoBracket(match: CompetitionMatch) {
+  return (match.status === "Finished" || match.status === "Walkover") && getMatchAdvancer(match).length === 1
+}
+
+function getMatchAdvancer(match: CompetitionMatch) {
+  const winner = match.winner ?? getByeWinner(match)
+
+  return winner ? [winner] : []
+}
+
+function getByeWinner(match: CompetitionMatch) {
+  if (match.teamA === "BYE" && match.teamB !== "BYE") return match.teamB
+  if (match.teamB === "BYE" && match.teamA !== "BYE") return match.teamA
+  return undefined
+}
+
+function hasGeneratedRound(state: CompetitionSystemState, competitionId: string, roundTitle: string) {
+  const hasMatch = [...state.matches.values()].some((match) => match.competitionId === competitionId && match.round === roundTitle)
+  const hasBracket = state.brackets.some((round) =>
+    round.title.endsWith(roundTitle) && round.matches.some((match) => match.competitionId === competitionId)
+  )
+
+  return hasMatch || hasBracket
+}
+
+function getNextRoundTitle(currentRound: string, advancerCount: number) {
+  if (advancerCount === 8) return "Perempat Final"
+  if (advancerCount === 4) return "Semi Final"
+  if (advancerCount === 2) return "Final"
+
+  const currentRoundNumber = currentRound.match(/babak\s+(\d+)/i)?.[1]
+  const nextRoundNumber = currentRoundNumber ? Number(currentRoundNumber) + 1 : undefined
+
+  return nextRoundNumber ? `Babak ${nextRoundNumber}` : "Babak Berikutnya"
+}
+
+function getAutoMatchVenue(competition: CompetitionCenterItem) {
+  return competition.venue && competition.venue !== DATA_NOT_PUBLISHED ? competition.venue : DATA_NOT_PUBLISHED
+}
+
+function createAutoMatchId(competitionId: string, roundTitle: string, index: number) {
+  return `${competitionId}-auto-${slugify(roundTitle)}-${index + 1}`
+}
+
+function compareCompetitionMatches(first: CompetitionMatch, second: CompetitionMatch) {
+  const dateCompare = first.date.localeCompare(second.date)
+  if (dateCompare !== 0) return dateCompare
+
+  const timeCompare = first.startTime.localeCompare(second.startTime)
+  if (timeCompare !== 0) return timeCompare
+
+  return first.id.localeCompare(second.id)
 }
 
 function transitionMatchStatus(match: CompetitionMatch, nextStatus: CompetitionMatchStatus) {

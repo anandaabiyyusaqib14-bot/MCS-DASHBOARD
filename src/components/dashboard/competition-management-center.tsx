@@ -198,7 +198,7 @@ export function CompetitionManagementCenter() {
                 ))}
               </div>
             ) : (
-              <EmptyState title="Match data not available." body="Official bracket data has not been published yet." />
+              <EmptyState title="Coming Soon" body="Official bracket data has not been published yet." />
             )}
           </div>
         </section>
@@ -543,7 +543,7 @@ function LiveCompetitions({ matches }: { matches: typeof competitionMatches }) {
             </div>
           </div>
         )) : (
-          <EmptyState title="Match data not available." body="Official live match data has not been published yet." />
+          <EmptyState title="Coming Soon" body="Official live match data has not been published yet." />
         )}
       </div>
     </section>
