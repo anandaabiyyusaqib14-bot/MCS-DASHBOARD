@@ -10,7 +10,13 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/logos/mcs-logo.png",
+      "src": "/icons/mcs-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/mcs-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
