@@ -1599,13 +1599,6 @@ export const partners: Partner[] = [
     category: "official",
   },
   {
-    id: "yummy-coin",
-    name: "Yummy Coin",
-    role: "Official Food Partner",
-    logo: "/images/sponsors/yummy-coin.png",
-    category: "f&b",
-  },
-  {
     id: "campina",
     name: "Campina",
     role: "Official Ice Cream Partner",
@@ -1623,6 +1616,6 @@ export const partners: Partner[] = [
 
 export const partnerMetadata = {
   title: "Official Partners MCS 1",
-  description: "Official Partners MCS 1: YUP, Synde HT, Yummy Coin, Campina, Hop Hop.",
+  description: "Official Partners MCS 1: YUP, Synde HT, Campina, Hop Hop.",
   names: partners.map((partner) => partner.name),
 }

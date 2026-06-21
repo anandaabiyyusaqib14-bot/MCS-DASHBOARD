@@ -43,7 +43,6 @@ import {
   sponsorProspects,
 } from "@/data/mcs"
 import { cn } from "@/lib/utils"
-import { OfficialPartnersSection } from "@/components/site/official-partners"
 import { getPublicLiveScoreCenter } from "@/server/mcs/competition-system"
 import { roleLabels, type DashboardSummary, type Permission, type UserDTO, type UserRole } from "@/server/mcs/types"
 
@@ -859,7 +858,6 @@ function MediaCenterScreen() {
   return (
     <div className="grid gap-5">
       <PddCenterScreen />
-      <OfficialPartnersSection compact className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-10" />
     </div>
   )
 }
@@ -922,7 +920,6 @@ function NationRankingScreen() {
           <EmptyState title="Data Not Published Yet" description="Nation Ranking akan tampil setelah hasil resmi dipublikasikan dari Live Score Center." />
         )}
       </InfoPanel>
-      <OfficialPartnersSection compact className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-10" />
     </div>
   )
 }
@@ -1156,19 +1153,63 @@ function LiveMatchOperationsScreen() {
 }
 
 function BracketManagementScreen() {
+  const bracketRounds = ["Round 1", "Quarter Final", "Semi Final", "Grand Final"]
+
   return (
     <div className="grid gap-6">
       <OperationsHeader
         actions={[
-          { href: "/dashboard/bracket", icon: GitBranch, label: "Buat Bracket" },
-          { href: "/dashboard/bracket", icon: FileText, label: "Ekspor Bracket" },
+          { href: "/dashboard/brackets", icon: GitBranch, label: "Generate Bracket" },
+          { href: "/dashboard/brackets", icon: FileText, label: "Export PDF" },
         ]}
         icon={GitBranch}
-        subtitle="Kelola bracket turnamen dengan layout yang rapi."
-        title="Manajemen Bracket"
+        subtitle="Tournament Control Center untuk visual bracket, match result, winner advance, print, dan export."
+        title="Bracket Management"
       />
-      <InfoPanel icon={GitBranch} title="Header Bracket" description="Ikhtisar round, kartu match, progres pemenang, dan aksi bracket.">
-        <EmptyState title="Bracket Belum Dibuat" description="Data bracket resmi belum dipublikasikan." />
+
+      <StatStrip
+        items={[
+          { label: "Current Round", value: "Data Not Published Yet", tone: "neutral" },
+          { label: "Total Match", value: NO_DATA, tone: "neutral" },
+          { label: "Match Finished", value: NO_DATA, tone: "success" },
+          { label: "Match Pending", value: NO_DATA, tone: "warning" },
+        ]}
+      />
+
+      <InfoPanel icon={GitBranch} title="Visual Bracket" description="Round 1, Quarter Final, Semi Final, dan Grand Final tampil dari data pertandingan resmi.">
+        <div className="grid gap-4 lg:grid-cols-4">
+          {bracketRounds.map((round) => (
+            <div key={round} className="rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] p-4">
+              <p className="font-sport text-xs font-black uppercase tracking-[0.08em] text-[#F97316]">{round}</p>
+              <div className="mt-4 rounded-md border border-dashed border-[#CBD5E1] bg-white p-4">
+                <EmptyState title="Match data not available." description="Bracket akan terisi setelah operator generate bracket." />
+              </div>
+            </div>
+          ))}
+        </div>
+      </InfoPanel>
+
+      <InfoPanel icon={Trophy} title="Match Management" description="Aksi bracket untuk operator pertandingan tanpa area sponsorship.">
+        <ActionGrid
+          actions={[
+            { href: "/dashboard/brackets", icon: GitBranch, label: "Generate Bracket" },
+            { href: "/dashboard/brackets", icon: Users, label: "Auto Seeding" },
+            { href: "/dashboard/live-score", icon: FileText, label: "Manual Override" },
+            { href: "/dashboard/live-score", icon: Trophy, label: "Advance Winner" },
+            { href: "/dashboard/match-results", icon: ClipboardList, label: "Match Result" },
+            { href: "/dashboard/brackets", icon: FileText, label: "Print / Export PDF" },
+          ]}
+        />
+      </InfoPanel>
+
+      <InfoPanel icon={Activity} title="Bracket Analytics" description="Progress completion dan remaining match dihitung dari hasil pertandingan resmi.">
+        <DocumentStatusList
+          items={[
+            "Completion Progress: Data Not Published Yet",
+            "Remaining Match: Data Not Published Yet",
+            "Champion Prediction: Data Not Published Yet",
+          ]}
+        />
       </InfoPanel>
     </div>
   )

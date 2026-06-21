@@ -176,7 +176,7 @@ const quickLinks = [
   { href: "/dashboard/participants", icon: Users, label: "Peserta", tone: "neutral" as Tone },
   { href: "/dashboard/media", icon: Video, label: "Media", tone: "neutral" as Tone },
   { href: "/dashboard/business", icon: Store, label: "Kewirausahaan", tone: "neutral" as Tone },
-  { href: "/dashboard/humas-sponsorship", icon: ShieldCheck, label: "Humas & Sponsor", tone: "neutral" as Tone },
+  { href: "/dashboard/humas-sponsor", icon: ShieldCheck, label: "Humas & Sponsor", tone: "neutral" as Tone },
   { href: "/dashboard/incidents", icon: AlertTriangle, label: "Kendala 🚨", tone: "danger" as Tone },
 ]
 

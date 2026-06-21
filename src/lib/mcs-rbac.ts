@@ -304,10 +304,10 @@ const tournamentOperationNavigation: DashboardNavigationItem[] = [
   {
     key: "humas-sponsorship",
     label: "Humas & Sponsor",
-    href: "/dashboard/humas-sponsorship",
+    href: "/dashboard/humas-sponsor",
     icon: "handshake",
     requiredPermission: "publications.read",
-    aliases: ["/dashboard/announcements"],
+    aliases: ["/dashboard/announcements", "/dashboard/humas-sponsorship"],
   },
 
   // ── KEWIRAUSAHAAN ──────────────────────────────────────────────
@@ -677,7 +677,7 @@ export const roleNavigation = {
     {
       key: "humas-sponsorship",
       label: "Humas & Sponsorship",
-      href: "/dashboard/humas-sponsorship",
+      href: "/dashboard/humas-sponsor",
       icon: "handshake",
       requiredPermission: "publications.read",
     },
@@ -764,7 +764,7 @@ export const roleNavigation = {
     {
       key: "humas-sponsorship",
       label: "Humas & Sponsorship",
-      href: "/dashboard/humas-sponsorship",
+      href: "/dashboard/humas-sponsor",
       icon: "handshake",
       requiredPermission: "publications.read",
     },
@@ -851,7 +851,7 @@ export const roleNavigation = {
     {
       key: "humas-sponsorship",
       label: "Humas & Sponsorship",
-      href: "/dashboard/humas-sponsorship",
+      href: "/dashboard/humas-sponsor",
       icon: "handshake",
       requiredPermission: "publications.read",
     },
@@ -1083,7 +1083,7 @@ export const roleNavigation = {
     {
       key: "humas-sponsorship",
       label: "Humas & Sponsorship",
-      href: "/dashboard/humas-sponsorship",
+      href: "/dashboard/humas-sponsor",
       icon: "handshake",
       requiredPermission: "publications.read",
     },
@@ -1347,6 +1347,7 @@ export const dashboardRouteAccessRules = dedupeRouteRules([
   { href: "/dashboard/operator", roles: ["operator"], requiredPermission: "dashboard.read" },
   { href: "/dashboard/users", roles: ["super_admin"], requiredPermission: "users.read" },
   { href: "/dashboard/audit", roles: ["super_admin"], requiredPermission: "audit.read" },
+  { href: "/dashboard/humas-sponsorship", roles: ["super_admin", "ketua_pelaksana", "wakil_ketua", "humas"], requiredPermission: "publications.read" },
   { href: "/dashboard/live-match", roles: ["pj_lomba"], requiredPermission: "competitions.read" },
   { href: "/dashboard/live-score", roles: ["pj_lomba"], requiredPermission: "competitions.read" },
 ]).sort((first, second) => second.href.length - first.href.length)

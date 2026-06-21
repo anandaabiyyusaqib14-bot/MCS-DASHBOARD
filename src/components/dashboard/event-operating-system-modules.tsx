@@ -31,7 +31,6 @@ import type {
 } from "@/server/mcs/operating-system"
 import type { IssueRecord } from "@/server/mcs/types"
 import { cn } from "@/lib/utils"
-import { OfficialPartnersSection } from "@/components/site/official-partners"
 
 type IncidentStatus = "Open" | "Assigned" | "In Progress" | "Escalated" | "Resolved" | "Closed"
 type IncidentSeverity = "Low" | "Medium" | "High" | "Critical"
@@ -230,7 +229,6 @@ export function NationRankingCenter({ rows }: { rows: NationRankingRow[] }) {
           ))}
         </DataTable>
       </OperatingCard>
-      <OfficialPartnersSection compact className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-10" />
     </OperatingShell>
   )
 }
@@ -288,11 +286,13 @@ export function MasterBracketCenter({ snapshot }: { snapshot: BracketCenterSnaps
       {message ? <p className="text-sm font-bold text-[#F97316]">{message}</p> : null}
       <div className="grid gap-3 md:grid-cols-4">
         <ActionCard icon={GitBranch} label="Generate Round" onClick={() => void generateRound()} />
+        <ActionCard icon={Users} label="Auto Seeding" onClick={() => void generateRound()} />
         <ActionCard icon={Trophy} label="Manual Override" onClick={() => { window.location.href = "/dashboard/live-score" }} />
+        <ActionCard icon={Trophy} label="Advance Winner" onClick={() => { window.location.href = "/dashboard/live-score" }} />
+        <ActionCard icon={FileCheck} label="Match Result" onClick={() => { window.location.href = "/dashboard/live-score" }} />
         <ActionCard icon={Printer} label="Print Bracket" onClick={() => window.print()} />
         <ActionCard icon={FileCheck} label="Export PDF" onClick={() => window.print()} />
       </div>
-      <OfficialPartnersSection compact className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-10" />
     </OperatingShell>
   )
 }
@@ -375,7 +375,6 @@ export function CertificateEngine({ snapshot }: { snapshot: CertificateCenterSna
       <OperatingCard title="Recipient List">
         {filtered.length ? <DataTable headings={["Nama", "Tipe", "Meta"]}>{filtered.map((item) => <tr key={item.id}><Cell strong>{item.name}</Cell><Cell>{item.type}</Cell><Cell>{item.meta}</Cell></tr>)}</DataTable> : <EmptyBlock label="No Data Available" />}
       </OperatingCard>
-      <OfficialPartnersSection compact className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-10" />
     </OperatingShell>
   )
 }
@@ -460,9 +459,6 @@ export function TvDisplayMode({ snapshot }: { snapshot: DisplaySnapshot }) {
         <div className="grid gap-5">
           <DisplayPanel icon={GitBranch} title="Bracket">
             <p className="text-2xl font-black">{snapshot.brackets[0]?.title ?? "Bracket belum dibuat"}</p>
-          </DisplayPanel>
-          <DisplayPanel icon={BadgeCheck} title="Official Partners">
-            <OfficialPartnersSection compact dark showWall={false} className="bg-transparent px-0 py-0" />
           </DisplayPanel>
           <DisplayPanel icon={BellRing} title="Announcement">
             <p className="text-2xl font-black">{snapshot.announcements[0]?.title ?? "Data Not Published Yet"}</p>

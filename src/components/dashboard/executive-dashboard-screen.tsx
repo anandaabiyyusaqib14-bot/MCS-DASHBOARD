@@ -583,41 +583,16 @@ function SponsorshipOverview() {
     return <EmptyState title="Belum Ada Sponsor Aktif" description="Catatan sponsor resmi belum dipublikasikan." />
   }
 
-  return (
-    <div className="grid gap-4">
-      <div className="grid gap-2 sm:grid-cols-3">
-        {sponsorshipPipelineStatuses.slice(0, 6).map((status) => {
-          const count = sponsorProspects.filter((sponsor) => sponsor.pipelineStatus === status).length
+  const fnbPartners = sponsorProspects.filter((sponsor) =>
+    ["pt-campina-aice-industry", "hop-hop", "pt-cipta-niaga-semesta", "pt-sinar-sosro-gunung-selamat"].includes(sponsor.id),
+  ).length
 
-          return <MetricCard key={status} label={status} value={count ? String(count) : NO_DATA} />
-        })}
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
-          <thead>
-            <tr className="text-xs font-semibold uppercase tracking-[0.08em] text-[#64748B]">
-              {["Nama Sponsor", "Kategori", "Status", "Nilai Kontribusi", "PIC"].map((heading) => (
-                <th key={heading} className="border-b border-[#E5E7EB] px-4 py-3 first:pl-0 last:pr-0">
-                  {heading}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sponsorProspects.slice(0, 6).map((sponsor) => (
-              <tr key={sponsor.id}>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 font-semibold text-[#111827] first:pl-0">{sponsor.name}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{sponsor.partnershipType}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4">
-                  <StatusBadge label={sponsor.pipelineStatus} tone={getSponsorTone(sponsor.pipelineStatus)} />
-                </td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B]">{sponsor.receivedAmount ? formatRupiah(sponsor.receivedAmount) : NO_DATA}</td>
-                <td className="border-b border-[#F1F5F9] px-4 py-4 text-[#64748B] last:pr-0">{sponsor.pic}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <MetricCard label="Official Sponsors" value={String(sponsorProspects.length)} />
+      <MetricCard label="Digital Partner" value="YUP" />
+      <MetricCard label="Communication Partner" value="Synde HT" />
+      <MetricCard label="F&B Partner" value={fnbPartners ? String(fnbPartners) : NO_DATA} />
     </div>
   )
 }

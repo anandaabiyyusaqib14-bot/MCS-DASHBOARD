@@ -7,7 +7,6 @@ import { ArrowRight, Medal, Star, Trophy } from "lucide-react"
 import { competitions } from "@/data/mcs"
 import { competitionResults } from "@/data/competition-center"
 import { cn } from "@/lib/utils"
-import { OfficialPartnersSection } from "@/components/site/official-partners"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -139,7 +138,6 @@ export function HallOfChampionsModule() {
       <p className="text-center text-xs font-medium text-[#9CA3AF]">
         Data juara diperbarui secara otomatis saat operator menginput hasil pertandingan. Belum ada data berarti belum ada hasil yang dikonfirmasi.
       </p>
-      <OfficialPartnersSection compact className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-10" />
     </div>
   )
 }

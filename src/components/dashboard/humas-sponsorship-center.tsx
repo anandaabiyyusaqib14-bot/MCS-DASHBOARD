@@ -663,6 +663,53 @@ export function HumasSponsorshipCenter({
         </Panel>
       </section>
 
+      <section className="grid gap-5 xl:grid-cols-3">
+        <Panel icon={Upload} title="Sponsor Assets" description="Logo, banner, dan media kit sponsor resmi.">
+          <div className="grid gap-3">
+            {["Logo Sponsor", "Banner Sponsor", "Media Kit"].map((label) => (
+              <label key={label} className="grid gap-2 rounded-xl border border-[#E5E7EB] bg-[#FFFDF8] p-3">
+                <span className="text-sm font-bold text-[#111827]">{label}</span>
+                <Input
+                  accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf"
+                  className="bg-white"
+                  type="file"
+                  onChange={(event) => {
+                    const fileName = event.currentTarget.files?.[0]?.name
+                    if (!fileName) return
+                    setToast(`${label} berhasil dipilih: ${fileName}`)
+                    addLog(`${label} sponsor dipilih: ${fileName}`)
+                  }}
+                />
+              </label>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel icon={Eye} title="Sponsor Exposure" description="Penempatan eksposur sponsor yang dikelola Humas.">
+          <MiniStats
+            items={[
+              ["Landing Page", "Aktif"],
+              ["Live Score", "Managed by Humas"],
+              ["Broadcast", state.announcements.filter((item) => item.status === "Publish").length],
+              ["LED Screen", "Data Not Published Yet"],
+              ["Sertifikat", "Data Not Published Yet"],
+            ]}
+          />
+        </Panel>
+
+        <Panel icon={Activity} title="Sponsor Analytics" description="Ringkasan jumlah sponsor, value, dan kategori.">
+          <MiniStats
+            items={[
+              ["Total Sponsor", state.sponsors.length],
+              ["Sponsor Value", formatCurrency(totalValue)],
+              ["Cash", state.sponsors.filter((sponsor) => sponsor.category === "Cash").length],
+              ["Product", state.sponsors.filter((sponsor) => sponsor.category === "Product").length],
+              ["Media Partner", state.sponsors.filter((sponsor) => sponsor.category === "Media Partner").length],
+            ]}
+          />
+        </Panel>
+      </section>
+
       <Panel icon={Handshake} title="Alur Sponsor" description="Drag sponsor antar status untuk update tahap otomatis.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
           {sponsorStatuses.map((status) => {

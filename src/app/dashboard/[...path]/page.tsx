@@ -45,6 +45,7 @@ const moduleRouteMap: Record<string, DashboardModuleKey> = {
   "event-rundown": "event-rundown",
   "financial-reports": "financial-reports",
   "hall-of-champions": "hall-of-champions",
+  "humas-sponsor": "humas-sponsorship",
   "humas-sponsorship": "humas-sponsorship",
   incidents: "incident-center",
   inventory: "equipment-inventory",

@@ -5,7 +5,6 @@ import Link from "next/link"
 import { MapPin, Table2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { OfficialPartnersSection } from "@/components/site/official-partners"
 import {
   MCS_SETTINGS_EVENT_NAME,
   MCS_SETTINGS_STORAGE_KEY,
@@ -163,7 +162,6 @@ export function ScoreboardPageContent() {
 
         {settings.enableBracket ? <BracketBoard brackets={data?.brackets ?? []} filter={activeFilter} /> : null}
       </section>
-      <OfficialPartnersSection compact className="bg-white" />
     </main>
   )
 }
