@@ -176,38 +176,38 @@ export function PublicHome() {
         style={{ transform: `scaleX(${scrollProgress})` }}
       />
 
-      <header className="fixed inset-x-0 top-0 z-[60] border-b border-white/14 bg-[#081c3a]/90 text-white backdrop-blur-xl">
-        <div className="mx-auto flex min-h-16 max-w-[1500px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:min-h-20 lg:px-10">
-          <a href="#home" className="flex min-w-0 items-center gap-3">
-            <div className="flex items-center gap-1.5">
+      <header className="fixed inset-x-0 top-0 z-[60] border-b border-white/14 bg-[#081c3a]/92 text-white backdrop-blur-xl">
+        <div className="mx-auto flex min-h-16 max-w-[1560px] items-center justify-between gap-3 px-3 py-2.5 sm:px-5 lg:px-8 xl:px-10">
+          <a href="#home" className="flex min-w-0 shrink items-center gap-2 sm:gap-3">
+            <div className="flex min-w-0 items-center gap-1 overflow-hidden sm:gap-1.5">
               {logoAssets.map((asset) => (
                 <LogoMark key={asset.name} asset={asset} compact />
               ))}
             </div>
-            <span className="font-display text-3xl leading-none sm:text-4xl">MCS 1</span>
+            <span className="hidden whitespace-nowrap font-display text-2xl leading-none sm:block lg:text-3xl xl:text-4xl">MCS 1</span>
           </a>
 
-          <nav className="hidden items-center justify-center gap-6 font-sport text-xs font-black uppercase text-white/82 lg:flex xl:gap-8">
+          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-4 font-sport text-[0.68rem] font-black uppercase text-white/82 2xl:flex 2xl:gap-6">
             {publicNavItems.map((item) => (
-              <a key={item.href} href={item.href} className="transition hover:text-[color:var(--mcs-gold-soft)]">
+              <a key={item.href} href={item.href} className="whitespace-nowrap transition hover:text-[color:var(--mcs-gold-soft)]">
                 {item.label}
               </a>
             ))}
           </nav>
 
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
             <SocialLink href={settings.contacts.instagram || contact.instagram} icon={AtSign} label="Instagram" />
             <SocialLink href={settings.contacts.tiktok || contact.tiktok} icon={Music2} label="TikTok" />
             <Link
               href="/login"
-              className="inline-flex h-9 items-center justify-center rounded-md border border-white/24 px-3 font-sport text-[0.68rem] font-black uppercase text-white/88 transition hover:border-[color:var(--mcs-gold)] hover:text-[color:var(--mcs-gold-soft)]"
+              className="inline-flex h-9 items-center justify-center rounded-md border border-white/24 px-2.5 font-sport text-[0.64rem] font-black uppercase text-white/88 transition hover:border-[color:var(--mcs-gold)] hover:text-[color:var(--mcs-gold-soft)] sm:px-3 sm:text-[0.68rem]"
             >
               Login Panitia
             </Link>
           </div>
         </div>
 
-        <nav className="no-scrollbar flex gap-5 overflow-x-auto border-t border-white/10 px-4 py-2 font-sport text-[0.68rem] font-black uppercase text-white/70 sm:px-6 lg:hidden">
+        <nav className="no-scrollbar flex gap-4 overflow-x-auto border-t border-white/10 px-3 py-2 font-sport text-[0.64rem] font-black uppercase text-white/70 sm:gap-5 sm:px-5 sm:text-[0.68rem] 2xl:hidden">
           {publicNavItems.map((item) => (
             <a key={item.href} href={item.href} className="shrink-0 transition hover:text-[color:var(--mcs-gold-soft)]">
               {item.label}
@@ -235,7 +235,7 @@ export function PublicHome() {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,28,58,0.98)_0%,rgba(8,28,58,0.84)_42%,rgba(8,28,58,0.48)_74%,rgba(8,28,58,0.28)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,28,58,0.08)_0%,rgba(8,28,58,0.08)_54%,#081c3a_100%)]" />
 
-        <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1260px] flex-col justify-center px-5 pb-10 pt-32 sm:px-8 md:min-h-[820px] md:pt-36 lg:min-h-[900px] lg:px-10 xl:min-h-[920px]">
+        <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-[1260px] flex-col justify-center px-5 pb-10 pt-36 sm:px-8 md:min-h-[820px] md:pt-40 lg:min-h-[900px] lg:px-10 xl:min-h-[920px] 2xl:pt-28">
           <motion.div
             variants={sectionReveal}
             initial="hidden"
@@ -243,13 +243,13 @@ export function PublicHome() {
             transition={{ duration: 0.65, ease: "easeOut" }}
             className="max-w-[850px]"
           >
-            <div className="mb-7 flex items-center gap-3">
+            <div className="mb-5 flex max-w-full flex-wrap items-center gap-2 sm:mb-7 sm:gap-3">
               {logoAssets.map((asset) => (
                 <LogoMark key={asset.name} asset={asset} />
               ))}
             </div>
 
-            <h1 className="font-display text-6xl leading-[0.9] text-white sm:text-8xl lg:text-[8.5rem]">
+            <h1 className="max-w-[11ch] break-words font-display text-[clamp(4rem,16vw,8.5rem)] leading-[0.9] text-white sm:max-w-[10ch] lg:max-w-[9.4ch]">
               {formatHeroTitle(settings.general.eventName)}
             </h1>
             <p className="mt-7 font-sport text-xl font-black uppercase leading-tight text-[color:var(--mcs-gold-soft)] sm:text-3xl">
@@ -643,10 +643,10 @@ function LogoMark({ asset, compact = false }: { asset: { name: string; src: stri
   return (
     <span
       className={`relative grid shrink-0 place-items-center rounded-md border border-white/18 bg-white shadow-[0_10px_30px_rgba(0,0,0,0.22)] ${
-        compact ? "size-9 p-1" : "size-15 p-2 sm:size-16"
+        compact ? "size-8 p-1 sm:size-9" : "size-14 p-2 sm:size-16"
       }`}
     >
-      <Image src={asset.src} alt={asset.name} fill className="object-contain p-1.5" sizes={compact ? "36px" : "64px"} />
+      <Image src={asset.src} alt={asset.name} fill className="object-contain p-1.5" sizes={compact ? "(min-width: 640px) 36px, 32px" : "(min-width: 640px) 64px, 56px"} />
     </span>
   )
 }
