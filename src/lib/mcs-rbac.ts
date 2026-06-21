@@ -189,6 +189,156 @@ const operatingCenterNavigation: DashboardNavigationItem[] = [
   },
 ]
 
+const tournamentOperationNavigation: DashboardNavigationItem[] = [
+  // ── DASHBOARD ──────────────────────────────────────────────────
+  {
+    key: "dashboard",
+    label: "🏠 Dashboard",
+    href: "/dashboard",
+    icon: "dashboard",
+    requiredPermission: "dashboard.read",
+    aliases: [
+      "/dashboard/admin",
+      "/dashboard/ketua",
+      "/dashboard/wakil-ketua",
+      "/dashboard/sekretaris",
+      "/dashboard/bendahara",
+      "/dashboard/acara",
+      "/dashboard/pj-lomba",
+      "/dashboard/humas",
+      "/dashboard/dokumentasi",
+      "/dashboard/kewirausahaan",
+      "/dashboard/operator",
+    ],
+  },
+
+  // ── COMPETITION CENTER ─────────────────────────────────────────
+  {
+    key: "competition-management",
+    label: "🎯 Manajemen Lomba",
+    href: "/dashboard/tournament",
+    icon: "trophy",
+    requiredPermission: "competitions.read",
+  },
+  {
+    key: "schedule-management",
+    label: "Jadwal Pertandingan",
+    href: "/dashboard/schedules",
+    icon: "calendar",
+    requiredPermission: "schedules.read",
+    aliases: ["/dashboard/schedule-monitoring"],
+  },
+  {
+    key: "bracket-management",
+    label: "Bracket Management",
+    href: "/dashboard/brackets",
+    icon: "git-branch",
+    requiredPermission: "competitions.read",
+    aliases: ["/dashboard/bracket"],
+  },
+  {
+    key: "live-score",
+    label: "Live Score Center",
+    href: "/dashboard/live-score",
+    icon: "activity",
+    requiredPermission: "competitions.read",
+    aliases: ["/dashboard/live-match"],
+  },
+  {
+    key: "hall-of-champions",
+    label: "Hall of Champions",
+    href: "/dashboard/hall-of-champions",
+    icon: "trophy",
+    requiredPermission: "competitions.read",
+  },
+  {
+    key: "nation-ranking",
+    label: "Nation Ranking",
+    href: "/dashboard/nation-ranking",
+    icon: "chart",
+    requiredPermission: "competitions.read",
+  },
+
+  // ── OPERATIONS / HARI-H ────────────────────────────────────────
+  {
+    key: "event-rundown",
+    label: "📅 Rundown Hari-H",
+    href: "/dashboard/event-rundown",
+    icon: "calendar",
+    requiredPermission: "schedules.read",
+    aliases: ["/dashboard/event-day"],
+  },
+  {
+    key: "incident-center",
+    label: "🚨 Incident Center",
+    href: "/dashboard/incidents",
+    icon: "triangle-alert",
+    requiredPermission: "issues.read",
+    aliases: ["/dashboard/issues"],
+  },
+
+  // ── PESERTA & PANITIA ──────────────────────────────────────────
+  {
+    key: "participant-management",
+    label: "Peserta",
+    href: "/dashboard/participants",
+    icon: "users",
+    requiredPermission: "participants.read",
+  },
+  {
+    key: "panitia-management",
+    label: "Panitia",
+    href: "/dashboard/panitia",
+    icon: "briefcase-business",
+    requiredPermission: "committees.read",
+  },
+
+  // ── MEDIA & HUMAS ──────────────────────────────────────────────
+  {
+    key: "media-center",
+    label: "Media Center",
+    href: "/dashboard/media",
+    icon: "images",
+    requiredPermission: "media.read",
+  },
+  {
+    key: "humas-sponsorship",
+    label: "Humas & Sponsor",
+    href: "/dashboard/humas-sponsorship",
+    icon: "handshake",
+    requiredPermission: "publications.read",
+    aliases: ["/dashboard/announcements"],
+  },
+
+  // ── KEWIRAUSAHAAN ──────────────────────────────────────────────
+  {
+    key: "business-operations",
+    label: "Kewirausahaan",
+    href: "/dashboard/business",
+    icon: "store",
+    requiredPermission: "dashboard.read",
+  },
+
+  // ── MANAGEMENT ────────────────────────────────────────────────
+  {
+    key: "users",
+    label: "Manajemen User",
+    href: "/dashboard/users",
+    icon: "users",
+    requiredPermission: "users.read",
+  },
+
+  // ── SETTINGS ──────────────────────────────────────────────────
+  {
+    key: "settings",
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: "settings",
+    requiredPermission: "settings.read",
+  },
+]
+
+
 export const rolePermissions = {
   super_admin: allPermissions,
   ketua_pelaksana: [
@@ -1170,7 +1320,7 @@ export const roleNavigation = {
 
 const navigationRoutes = Object.entries(roleNavigation)
   .flatMap(([role, items]) =>
-    getUniqueNavigationItems([...items, ...operatingCenterNavigation])
+    getUniqueNavigationItems([...items, ...operatingCenterNavigation, ...tournamentOperationNavigation])
       .filter((item) => canRole(role as UserRole, item.requiredPermission))
       .map((item) => ({
         href: item.href,
@@ -1223,7 +1373,7 @@ export function getRoleHomePath(role: UserRole) {
 }
 
 export function getRoleNavigation(role: UserRole) {
-  return getUniqueNavigationItems([...roleNavigation[role], ...operatingCenterNavigation]).filter((item) =>
+  return getUniqueNavigationItems(tournamentOperationNavigation).filter((item) =>
     canRole(role, item.requiredPermission)
   )
 }

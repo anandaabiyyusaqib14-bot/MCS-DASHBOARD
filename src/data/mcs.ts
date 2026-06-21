@@ -154,6 +154,11 @@ export const brandColors = {
   lightGray: "#E6EAF0",
 }
 
+export const eventLogo = {
+  name: "Logo Melati Championship Series 1",
+  src: "/logos/mcs-logo.png",
+}
+
 export const brandAssets = [
   {
     name: "Logo SMKN 20 Jakarta",
@@ -1568,4 +1573,56 @@ export const committee = [
 
 function normalizeClassName(value: string) {
   return value.trim().replace(/\s+/g, " ").toUpperCase()
+}
+
+export interface Partner {
+  id: string
+  name: string
+  role: string
+  logo: string
+  category: "official" | "f&b"
+}
+
+export const partners: Partner[] = [
+  {
+    id: "yup",
+    name: "YUP",
+    role: "Official Digital Payment Partner",
+    logo: "/images/sponsors/yup.png",
+    category: "official",
+  },
+  {
+    id: "synde-ht",
+    name: "Synde HT",
+    role: "Official Communication Partner",
+    logo: "/images/sponsors/synde.png",
+    category: "official",
+  },
+  {
+    id: "yummy-coin",
+    name: "Yummy Coin",
+    role: "Official Food Partner",
+    logo: "/images/sponsors/yummy-coin.png",
+    category: "f&b",
+  },
+  {
+    id: "campina",
+    name: "Campina",
+    role: "Official Ice Cream Partner",
+    logo: "/images/sponsors/campina.png",
+    category: "f&b",
+  },
+  {
+    id: "hop-hop",
+    name: "Hop Hop",
+    role: "Official Beverage Partner",
+    logo: "/images/sponsors/hop-hop.png",
+    category: "f&b",
+  },
+]
+
+export const partnerMetadata = {
+  title: "Official Partners MCS 1",
+  description: "Official Partners MCS 1: YUP, Synde HT, Yummy Coin, Campina, Hop Hop.",
+  names: partners.map((partner) => partner.name),
 }

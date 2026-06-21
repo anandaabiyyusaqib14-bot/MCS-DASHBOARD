@@ -29,12 +29,12 @@ export const roleLabels: Record<UserRole, string> = {
   acara: "Acara",
   pj_lomba: "PJ Lomba",
   humas: "Humas",
-  dokumentasi: "Dokumentasi",
+  dokumentasi: "Media",
   kebersihan: "Kebersihan",
   perlengkapan: "Perlengkapan",
   keamanan: "Keamanan",
   kewirausahaan: "Kewirausahaan",
-  operator: "Operator",
+  operator: "Operator Skor",
 }
 
 export const permissionKeys = [

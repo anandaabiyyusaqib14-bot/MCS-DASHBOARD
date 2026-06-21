@@ -61,7 +61,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { brandAssets, event } from "@/data/mcs"
+import { brandAssets, event, eventLogo } from "@/data/mcs"
 import type { DashboardNavigationIcon, DashboardNavigationItem } from "@/lib/mcs-rbac"
 import { cn } from "@/lib/utils"
 import type { UserDTO } from "@/server/mcs/types"
@@ -864,6 +864,14 @@ function SidebarLink({
 function OfficialLogoStrip({ compact }: { compact: boolean }) {
   return (
     <div className={cn("flex shrink-0 items-center", compact ? "gap-0.5" : "gap-1.5")}>
+      <div
+        className={cn(
+          "relative grid place-items-center",
+          compact ? "h-7 w-5" : "h-10 w-8",
+        )}
+      >
+        <Image src={eventLogo.src} alt={eventLogo.name} fill sizes={compact ? "20px" : "32px"} className="object-contain" />
+      </div>
       {brandAssets.map((asset) => (
         <div
           key={asset.name}

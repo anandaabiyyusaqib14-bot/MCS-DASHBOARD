@@ -661,8 +661,9 @@ export function publishCompetitionResult(auth: AuthContext, input: Record<string
     winner: getRequiredString(input, "winner"),
     runnerUp: getRequiredString(input, "runnerUp"),
     thirdPlace: getRequiredString(input, "thirdPlace"),
+    fourthPlace: getOptionalString(input.fourthPlace),
     specialAwardLabel: getOptionalString(input.specialAwardLabel) ?? "Special Award",
-    specialAwardWinner: getOptionalString(input.specialAwardWinner) ?? "Coming Soon",
+    specialAwardWinner: getOptionalString(input.specialAwardWinner) ?? "Data Not Published Yet",
     finalNotes: getOptionalString(input.finalNotes) ?? "",
     approvedBy: auth.user.displayName,
     publishedAt: now,
@@ -1401,20 +1402,24 @@ function calculateNationRanking(matches: CompetitionMatch[], results: Competitio
   results.forEach((result) => {
     if (result.winner) {
       const winner = ensure(result.winner)
-      winner.points += 5
+      winner.points += 10
       winner.gold += 1
     }
 
     if (result.runnerUp) {
       const runnerUp = ensure(result.runnerUp)
-      runnerUp.points += 3
+      runnerUp.points += 7
       runnerUp.silver += 1
     }
 
     if (result.thirdPlace) {
       const thirdPlace = ensure(result.thirdPlace)
-      thirdPlace.points += 2
+      thirdPlace.points += 5
       thirdPlace.bronze += 1
+    }
+
+    if (result.fourthPlace) {
+      ensure(result.fourthPlace).points += 3
     }
   })
 

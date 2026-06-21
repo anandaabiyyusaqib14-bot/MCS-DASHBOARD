@@ -166,6 +166,7 @@ export type CompetitionResult = {
   winner: string
   runnerUp: string
   thirdPlace: string
+  fourthPlace?: string
   specialAwardLabel: string
   specialAwardWinner: string
   finalNotes: string

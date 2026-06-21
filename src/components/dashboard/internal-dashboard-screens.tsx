@@ -14,6 +14,7 @@ import {
   Download,
   FileCheck,
   FileText,
+  Flag,
   GitBranch,
   Globe,
   Handshake,
@@ -37,10 +38,13 @@ import {
   event,
   getNationByClassName,
   getNationByCountryName,
+  mcsNations,
   scheduleDays,
   sponsorProspects,
 } from "@/data/mcs"
 import { cn } from "@/lib/utils"
+import { OfficialPartnersSection } from "@/components/site/official-partners"
+import { getPublicLiveScoreCenter } from "@/server/mcs/competition-system"
 import { roleLabels, type DashboardSummary, type Permission, type UserDTO, type UserRole } from "@/server/mcs/types"
 
 const ExecutiveDashboardScreen = dynamic(() =>
@@ -79,6 +83,9 @@ const AnalyticsCenterScreen = dynamic(() =>
 const AnnouncementCommandCenter = dynamic(() =>
   import("@/components/dashboard/announcement-command-center").then((module) => module.AnnouncementCommandCenter),
 )
+const HallOfChampionsModule = dynamic(() =>
+  import("@/components/dashboard/hall-of-champions-module").then((module) => module.HallOfChampionsModule),
+)
 
 export type DashboardModuleKey =
   | "administration"
@@ -94,7 +101,9 @@ export type DashboardModuleKey =
   | "equipment-inventory"
   | "event-rundown"
   | "financial-reports"
+  | "hall-of-champions"
   | "humas-sponsorship"
+  | "incident-center"
   | "juknis-management"
   | "live-match"
   | "match-results"
@@ -104,6 +113,7 @@ export type DashboardModuleKey =
   | "media-highlights"
   | "media-posts"
   | "media-upload"
+  | "nation-ranking"
   | "news-center"
   | "panitia-management"
   | "participant-management"
@@ -830,6 +840,12 @@ export function DashboardModuleScreen({
       return <BracketManagementScreen />
     case "match-results":
       return <MatchResultInputScreen />
+    case "hall-of-champions":
+      return <HallOfChampionsModule />
+    case "nation-ranking":
+      return <NationRankingScreen />
+    case "incident-center":
+      return <IncidentCenterScreen summary={summary} />
     default:
       return <GenericWorkspaceScreen moduleKey={moduleKey} />
   }
@@ -840,7 +856,132 @@ function PanitiaManagementScreen({ user }: { user: UserDTO }) {
 }
 
 function MediaCenterScreen() {
-  return <PddCenterScreen />
+  return (
+    <div className="grid gap-5">
+      <PddCenterScreen />
+      <OfficialPartnersSection compact className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-10" />
+    </div>
+  )
+}
+
+function NationRankingScreen() {
+  const live = getPublicLiveScoreCenter()
+  const ranking = live.ranking.map((row, index) => ({
+    ...row,
+    rank: index + 1,
+  }))
+
+  return (
+    <div className="grid gap-5">
+      <OperationsHeader
+        actions={[
+          { href: "/dashboard/live-score", icon: Radio, label: "Live Score Center" },
+          { href: "/dashboard/hall-of-champions", icon: Trophy, label: "Hall of Champions" },
+        ]}
+        icon={Flag}
+        subtitle="Ranking negara dihitung otomatis dari hasil resmi MCS 1: juara 1 = 10 poin, juara 2 = 7 poin, juara 3 = 5 poin, juara 4 = 3 poin."
+        title="Nation Ranking"
+      />
+
+      <InfoPanel icon={Trophy} title="Klasemen Negara" description="Gold, silver, bronze, dan total point tersortir otomatis dari hasil pertandingan.">
+        {ranking.length > 0 ? (
+          <div className="overflow-hidden rounded-lg border border-[#E5E7EB]">
+            <table className="w-full min-w-[720px] text-left">
+              <thead className="bg-[#F8F9FB] text-xs font-bold uppercase tracking-[0.08em] text-[#64748B]">
+                <tr>
+                  <th className="px-4 py-3">Rank</th>
+                  <th className="px-4 py-3">Flag</th>
+                  <th className="px-4 py-3">Country</th>
+                  <th className="px-4 py-3">Gold</th>
+                  <th className="px-4 py-3">Silver</th>
+                  <th className="px-4 py-3">Bronze</th>
+                  <th className="px-4 py-3">Total Point</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#E5E7EB] bg-white">
+                {ranking.map((row) => (
+                  <tr key={row.country} className="text-sm font-semibold text-[#111827]">
+                    <td className="px-4 py-3">#{row.rank}</td>
+                    <td className="px-4 py-3">{row.flag || "-"}</td>
+                    <td className="px-4 py-3">
+                      <span className="block">{row.country}</span>
+                      <span className="text-xs font-medium text-[#64748B]">{getClassByCountry(row.country)}</span>
+                    </td>
+                    <td className="px-4 py-3">{row.gold}</td>
+                    <td className="px-4 py-3">{row.silver}</td>
+                    <td className="px-4 py-3">{row.bronze}</td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-md bg-[#0F172A] px-2 py-1 text-xs font-bold text-white">{row.points} pt</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <EmptyState title="Data Not Published Yet" description="Nation Ranking akan tampil setelah hasil resmi dipublikasikan dari Live Score Center." />
+        )}
+      </InfoPanel>
+      <OfficialPartnersSection compact className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-10" />
+    </div>
+  )
+}
+
+function IncidentCenterScreen({ summary }: { summary: DashboardSummary }) {
+  const activeIssues = summary.activeIssues.filter((issue) => issue.status !== "Ditutup")
+
+  return (
+    <div className="grid gap-5">
+      <OperationsHeader
+        actions={[
+          { href: "/dashboard/issues?action=create", icon: AlertTriangle, label: "Catat Kendala" },
+          { href: "/dashboard/event-rundown", icon: CalendarDays, label: "Cek Rundown" },
+        ]}
+        icon={AlertTriangle}
+        subtitle="Pantauan kendala Hari-H: lapangan terlambat, wasit belum hadir, mic rusak, listrik mati, kendala peserta, dan eskalasi panitia."
+        title="Incident Center"
+      />
+
+      <StatStrip
+        items={[
+          { label: "Critical", value: activeIssues.filter((issue) => issue.severity === "Kritis").length, tone: "danger" },
+          { label: "High", value: activeIssues.filter((issue) => issue.severity === "Tinggi").length, tone: "warning" },
+          { label: "Medium", value: activeIssues.filter((issue) => issue.severity === "Sedang").length, tone: "info" },
+          { label: "Low", value: activeIssues.filter((issue) => issue.severity === "Rendah").length, tone: "neutral" },
+        ]}
+      />
+
+      <InfoPanel icon={AlertTriangle} title="Kendala Aktif" description="Ketua pelaksana dan operator dapat memantau seluruh kendala real-time dari sini.">
+        {activeIssues.length > 0 ? (
+          <div className="grid gap-3">
+            {activeIssues.map((issue) => (
+              <article key={issue.id} className="rounded-lg border border-[#E5E7EB] bg-white p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#64748B]">{issue.issueCode}</p>
+                    <h2 className="mt-1 text-base font-bold text-[#111827]">{issue.title}</h2>
+                    <p className="mt-1 text-sm font-medium text-[#64748B]">{issue.category} / {issue.venue ?? "Venue belum ditentukan"}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <StatusBadge label={formatIncidentSeverity(issue.severity)} tone={getIncidentSeverityTone(issue.severity)} />
+                    <StatusBadge label={issue.status} tone={issue.status === "Selesai" ? "success" : "warning"} />
+                  </div>
+                </div>
+                <p className="mt-3 text-sm font-medium leading-6 text-[#374151]">{issue.description}</p>
+                <div className="mt-3 grid gap-2 text-xs font-semibold text-[#64748B] sm:grid-cols-3">
+                  <span>PIC: {issue.assignedToName ?? issue.assignedDivisionName ?? "Belum ditugaskan"}</span>
+                  <span>Pelapor: {issue.reportedByName}</span>
+                  <span>Deadline: {formatDate(issue.deadline)}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <EmptyState title="Tidak Ada Kendala Aktif" description="Semua kendala Hari-H sudah selesai atau belum ada laporan baru." />
+        )}
+      </InfoPanel>
+    </div>
+  )
 }
 
 function AnnouncementCenterScreen({ summary }: { summary: DashboardSummary }) {
@@ -2531,16 +2672,19 @@ function getModuleTitle(moduleKey: DashboardModuleKey) {
     "equipment-inventory": "Inventaris Perlengkapan",
     "event-rundown": "Rundown Kegiatan",
     "financial-reports": "Laporan Keuangan",
+    "hall-of-champions": "Hall of Champions",
     "humas-sponsorship": "Humas & Sponsorship",
+    "incident-center": "Incident Center",
     "juknis-management": "Manajemen Juknis",
     "live-match": "Pantauan Pertandingan",
     "match-results": "Input Hasil",
-    "media-archive": "Pusat PDD",
-    "media-center": "Pusat PDD",
-    "media-gallery": "Pusat PDD",
-    "media-highlights": "Pusat PDD",
+    "media-archive": "Media Archive",
+    "media-center": "Media Center",
+    "media-gallery": "Gallery",
+    "media-highlights": "Aftermovie & Video",
     "media-posts": "Posting Media",
-    "media-upload": "Pusat PDD",
+    "media-upload": "Upload Media",
+    "nation-ranking": "Nation Ranking",
     "news-center": "Pusat Berita",
     "panitia-management": "Data Panitia",
     "participant-management": "Data Peserta",

@@ -2,6 +2,40 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@keyframes mcs-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mcs-partner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-mcs-fade-up {
+  animation: mcs-fade-up 300ms ease-out both;
+}
+
+.animate-mcs-partner-marquee {
+  animation: mcs-partner-marquee 36s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mcs-fade-up,
+  .animate-mcs-partner-marquee {
+    animation: none;
+  }
+}
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -574,5 +608,47 @@
 
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Sponsors Marquee & Fade-Up Animation */
+  @keyframes mcs-marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes mcs-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-marquee-container {
+    display: flex;
+    overflow: hidden;
+    user-select: none;
+    position: relative;
+    width: 100%;
+  }
+
+  .animate-marquee-content {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    min-width: 100%;
+    animation: mcs-marquee 30s linear infinite;
+  }
+
+  .animate-fade-up {
+    animation: mcs-fade-up 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }

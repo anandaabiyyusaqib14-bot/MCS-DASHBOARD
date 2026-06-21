@@ -1,4 +1,4 @@
-import { brandAssets, brandColors, contact, event, eventDescriptions } from "@/data/mcs"
+import { brandAssets, brandColors, contact, event, eventDescriptions, eventLogo } from "@/data/mcs"
 import type { UserDTO } from "@/server/mcs/types"
 
 export const MCS_SETTINGS_STORAGE_KEY = "mcs-settings-center"
@@ -224,8 +224,8 @@ export function createDefaultMcsSettings(user?: UserDTO): McsSettingsState {
     brand: {
       accentColor: brandColors.accent,
       dangerColor: "#DC2626",
-      eventLogo: "",
-      eventLogoName: "MCS 1 ditampilkan sebagai teks event",
+      eventLogo: eventLogo.src,
+      eventLogoName: eventLogo.name,
       favicon: brandAssets[0]?.src ?? "",
       faviconName: brandAssets[0]?.name ?? "Favicon Website",
       mpkLogo: brandAssets[2]?.src ?? "",

@@ -1,6 +1,6 @@
 import Image from "next/image"
 
-import { brandAssets, event } from "@/data/mcs"
+import { brandAssets, event, eventLogo } from "@/data/mcs"
 import { cn } from "@/lib/utils"
 
 type BrandMarkProps = {
@@ -12,6 +12,14 @@ export function BrandMark({ compact = false, className }: BrandMarkProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div className="flex shrink-0 items-center gap-1.5">
+        <div
+          className={cn(
+            "relative grid place-items-center",
+            compact ? "h-10 w-8" : "h-12 w-10",
+          )}
+        >
+          <Image src={eventLogo.src} alt={eventLogo.name} fill sizes={compact ? "32px" : "40px"} className="object-contain" />
+        </div>
         {brandAssets.map((asset) => (
           <div
             key={asset.name}

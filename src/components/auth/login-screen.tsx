@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { brandAssets, contact, dashboardFootage, event } from "@/data/mcs"
+import { brandAssets, contact, event, eventLogo } from "@/data/mcs"
 
 const authorizedRoles = [
   "Super Admin",
@@ -113,13 +113,7 @@ export function LoginScreen() {
 
             <div className="min-w-0 px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
               <div className="flex flex-col gap-3 lg:hidden">
-                <div className="inline-flex min-w-0 items-center gap-3 rounded-full bg-white/95 px-4 py-3 shadow-sm ring-1 ring-[#081c3a]/10">
-                  <LogoRow compact />
-                  <div className="min-w-0">
-                    <p className="font-display text-2xl leading-none text-[#07111d]">{event.shortName}</p>
-                    <p className="truncate text-xs font-bold text-[#07111d]/54">{event.organizer}</p>
-                  </div>
-                </div>
+                <BrandingHeader compact />
               </div>
 
               <div className="mt-7 lg:mt-0">
@@ -231,28 +225,9 @@ export function LoginScreen() {
 
 function BrandPanel() {
   return (
-    <aside className="relative hidden min-h-[620px] overflow-hidden bg-[#081c3a] text-white lg:block">
-      <Image
-        src={dashboardFootage[1].src}
-        alt={dashboardFootage[1].label}
-        fill
-        priority
-        sizes="620px"
-        className={`object-cover ${dashboardFootage[1].crop}`}
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,28,58,0.98)_0%,rgba(8,28,58,0.88)_48%,rgba(8,28,58,0.46)_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,28,58,0.12)_0%,rgba(8,28,58,0.1)_50%,rgba(8,28,58,0.86)_100%)]" />
-
-      <div className="relative z-10 flex min-h-[620px] flex-col p-10">
-        <div className="flex items-center gap-3">
-          <div className="inline-flex min-w-0 items-center gap-3 rounded-full bg-white/10 px-4 py-3">
-            <LogoRow compact />
-            <div className="min-w-0">
-              <p className="font-display text-4xl leading-none text-white">{event.shortName}</p>
-              <p className="truncate text-xs font-bold text-white/58">{event.organizer}</p>
-            </div>
-          </div>
-        </div>
+    <aside className="hidden min-h-[620px] overflow-hidden bg-[linear-gradient(145deg,#081C3A_0%,#0D2B50_55%,#081C3A_100%)] text-white lg:block">
+      <div className="flex min-h-[620px] flex-col p-10">
+        <BrandingHeader />
 
         <div className="my-auto max-w-xl">
           <p className="font-sport text-xs font-black uppercase tracking-[0.18em] text-[color:var(--mcs-gold-soft)]">
@@ -346,12 +321,26 @@ function getLoginErrorMessage(error?: { code?: string; message?: string }) {
   return error?.message ?? "Login belum bisa diproses. Coba lagi."
 }
 
-function LogoRow({ compact = false }: { compact?: boolean }) {
+function BrandingHeader({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-2">
-      {brandAssets.map((asset) => (
-        <LogoBadge key={asset.name} name={asset.name} src={asset.src} compact={compact} />
-      ))}
+    <div
+      className={`flex w-full min-w-0 flex-col items-start justify-center gap-4 rounded-xl border border-white/12 bg-[#081C3A] text-white shadow-[0_18px_48px_rgba(0,0,0,0.2)] sm:flex-row sm:items-center sm:justify-start ${
+        compact ? "px-5 py-4" : "px-7 py-5"
+      }`}
+    >
+      <div className="flex shrink-0 items-center gap-4">
+        {[eventLogo, ...brandAssets].map((asset) => (
+          <LogoBadge key={asset.name} name={asset.name} src={asset.src} compact={compact} />
+        ))}
+      </div>
+      <div className="min-w-0">
+        <p className={`${compact ? "text-4xl" : "text-5xl"} font-heading font-black leading-none tracking-[-0.04em] text-white`}>
+          {event.shortName}
+        </p>
+        <p className="mt-1 text-xs font-semibold leading-4 text-white/75 sm:whitespace-nowrap">
+          {event.organizer}
+        </p>
+      </div>
     </div>
   )
 }
@@ -359,11 +348,11 @@ function LogoRow({ compact = false }: { compact?: boolean }) {
 function LogoBadge({ name, src, compact = false }: { name: string; src: string; compact?: boolean }) {
   return (
     <span
-      className={`relative grid shrink-0 place-items-center rounded-full bg-white p-2 shadow-[0_12px_30px_rgba(0,0,0,0.14)] ${
-        compact ? "size-10" : "size-11 sm:size-12"
+      className={`relative grid shrink-0 place-items-center rounded-full bg-white shadow-[0_8px_20px_rgba(0,0,0,0.14)] ring-1 ring-black/5 ${
+        compact ? "size-10 p-1.5" : "size-12 p-2"
       }`}
     >
-      <Image src={src} alt={name} width={42} height={42} className="max-h-full w-auto object-contain" />
+      <Image src={src} alt={name} fill sizes={compact ? "40px" : "48px"} className="object-contain p-1.5" />
     </span>
   )
 }

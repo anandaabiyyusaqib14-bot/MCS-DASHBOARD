@@ -1,0 +1,19 @@
+{
+  "name": "Melati Championship Series 1",
+  "short_name": "MCS 1",
+  "description": "Event operating system and dashboard for Melati Championship Series 1 at SMK Negeri 20 Jakarta.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#081C3A",
+  "theme_color": "#081C3A",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/logos/mcs-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

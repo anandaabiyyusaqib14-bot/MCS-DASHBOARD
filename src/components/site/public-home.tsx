@@ -39,6 +39,7 @@ import {
   type JuknisDocument,
 } from "@/data/mcs"
 import { LiveScoreCenterSection } from "@/components/site/live-score-center"
+import { OfficialPartnersSection } from "@/components/site/official-partners"
 import {
   MCS_SETTINGS_EVENT_NAME,
   MCS_SETTINGS_STORAGE_KEY,
@@ -55,6 +56,7 @@ const navItems = [
   { label: "Gallery", href: "#gallery" },
   { label: "Juknis", href: "#juknis" },
   { label: "Nations", href: "#nations" },
+  { label: "Sponsors", href: "#sponsors" },
   { label: "Contact", href: "#contact" },
 ]
 
@@ -66,12 +68,11 @@ const heroStats = [
 ]
 
 const sectionReveal = {
-  hidden: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0 },
 }
 
 const unpublishedStatus = "Data Not Published Yet"
-const preparationProgress = 83
 
 type CountdownParts = {
   days: number
@@ -127,11 +128,12 @@ export function PublicHome() {
   const logoAssets = useMemo(
     () =>
       [
+        { name: settings.brand.eventLogoName, src: settings.brand.eventLogo },
         { name: settings.brand.schoolLogoName, src: settings.brand.schoolLogo },
         { name: settings.brand.osisLogoName, src: settings.brand.osisLogo },
         { name: settings.brand.mpkLogoName, src: settings.brand.mpkLogo },
       ].filter((asset) => asset.src),
-    [settings.brand.mpkLogo, settings.brand.mpkLogoName, settings.brand.osisLogo, settings.brand.osisLogoName, settings.brand.schoolLogo, settings.brand.schoolLogoName],
+    [settings.brand.eventLogo, settings.brand.eventLogoName, settings.brand.mpkLogo, settings.brand.mpkLogoName, settings.brand.osisLogo, settings.brand.osisLogoName, settings.brand.schoolLogo, settings.brand.schoolLogoName],
   )
   const publicNavItems = useMemo(
     () =>
@@ -140,6 +142,7 @@ export function PublicHome() {
         if (item.href === "#live-score") return settings.landingPage.showLiveScore && settings.liveScore.enableLiveScore
         if (item.href === "#gallery") return settings.landingPage.showGallery
         if (item.href === "#nations") return settings.landingPage.showNationRanking && settings.liveScore.enableNationsRanking
+        if (item.href === "#sponsors") return settings.landingPage.showSponsor
         if (item.href === "#contact") return settings.landingPage.showContact
         return true
       }),
@@ -452,6 +455,8 @@ export function PublicHome() {
         </div>
       </RevealSection>
 
+      {settings.landingPage.showSponsor ? <OfficialPartnersSection /> : null}
+
       {settings.landingPage.showGallery ? <RevealSection id="gallery" className="bg-white px-5 py-16 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -726,19 +731,6 @@ function HeroCountdown({ targetDate }: { targetDate: string }) {
           <span>{event.school}</span>
         </div>
 
-        <div className="mt-5 border-t border-white/[0.08] pt-4">
-          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs font-semibold">
-            <span className="font-sport font-black uppercase tracking-[0.08em] text-white/78">
-              Persiapan MCS 1
-            </span>
-            <span className="shrink-0 font-sport font-black uppercase text-[color:var(--mcs-gold-soft)]">
-              {preparationProgress}% Siap
-            </span>
-          </div>
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full rounded-full bg-[color:var(--mcs-gold)]" style={{ width: `${preparationProgress}%` }} />
-          </div>
-        </div>
       </div>
     </div>
   )
