@@ -41,7 +41,7 @@ export function TournamentOperationCenter({
   const activeIssues = summary.activeIssues.filter((i) => i.status !== "Ditutup")
   const criticalIssues = activeIssues.filter((i) => i.severity === "Kritis" || i.severity === "Tinggi")
   const todaySchedule = summary.todaySchedule.slice(0, 6)
-  const topRanking = live.ranking.slice(0, 5)
+  const topRanking = live.ranking.slice(0, 5).map((row, index) => ({ ...row, rank: index + 1 }))
   const championsPublished = competitionResults.filter((r) => r.winner).length
 
   return (

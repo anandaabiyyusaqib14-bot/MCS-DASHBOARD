@@ -1776,6 +1776,23 @@ function formatNationName(value: string) {
   return nation ? `${nation.countryFlag} ${nation.countryName}` : value
 }
 
+function getClassByCountry(countryName: string) {
+  return getNationByCountryName(countryName)?.className ?? "Class data not available."
+}
+
+function formatIncidentSeverity(severity: string) {
+  return severity || "Severity data not available."
+}
+
+function getIncidentSeverityTone(severity: string): StatusTone {
+  if (severity === "Kritis") return "danger"
+  if (severity === "Tinggi") return "warning"
+  if (severity === "Sedang") return "info"
+  if (severity === "Rendah") return "neutral"
+
+  return "neutral"
+}
+
 function MatchScheduleTable({ schedules }: { schedules: DashboardSummary["todaySchedule"] }) {
   if (schedules.length === 0) {
     return <EmptyState title="No Match Scheduled" description="Official match schedule records are coming soon for this view." />
