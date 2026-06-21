@@ -3,6 +3,7 @@ import { dirname, join, normalize } from "node:path"
 
 import { competitions } from "@/data/mcs"
 import { panitiaDivisions } from "@/data/panitia"
+import { hashPassword } from "./password"
 import { isSupabaseSnapshotConfigured, readMcsSnapshot, writeMcsSnapshot } from "./snapshot-store"
 import {
   MCS_TOURNAMENT_ID,
@@ -121,6 +122,7 @@ export function toUserDTO(user: UserAccount): UserDTO {
 
 function createInitialStore(): McsStoreState {
   const createdAt = new Date("2026-06-01T00:00:00.000+07:00").toISOString()
+  const initialAdmin = createInitialAdmin(createdAt)
 
   const competitionRecords = competitions.map<CompetitionRecord>((competition) => ({
     ...competition,
@@ -140,7 +142,7 @@ function createInitialStore(): McsStoreState {
   }))
 
   return {
-    users: new Map(),
+    users: new Map(initialAdmin ? [[initialAdmin.id, initialAdmin]] : []),
     sessions: new Map(),
     competitions: new Map(competitionRecords.map((item) => [item.id, item])),
     schedules: new Map(),
@@ -157,6 +159,33 @@ function createInitialStore(): McsStoreState {
     venueStatuses: new Map(),
     auditLogs: [],
     notifications: [],
+  }
+}
+
+function createInitialAdmin(createdAt: string): UserAccount | undefined {
+  const email = process.env.MCS_INITIAL_ADMIN_EMAIL?.trim().toLowerCase()
+  const password = process.env.MCS_INITIAL_ADMIN_PASSWORD
+
+  if (!email || !password) {
+    return undefined
+  }
+
+  const credential = hashPassword(password, process.env.MCS_INITIAL_ADMIN_PASSWORD_SALT)
+
+  return {
+    id: "user_env_super_admin",
+    displayName: process.env.MCS_INITIAL_ADMIN_NAME?.trim() || "Super Admin MCS 1",
+    email,
+    role: "super_admin",
+    status: "active",
+    tournamentIds: [MCS_TOURNAMENT_ID],
+    divisionIds: ["system"],
+    assignedCompetitionIds: competitions.map((competition) => competition.id),
+    passwordHash: credential.hash,
+    passwordSalt: credential.salt,
+    passwordIterations: credential.iterations,
+    createdAt,
+    updatedAt: createdAt,
   }
 }
 
@@ -262,9 +291,15 @@ function createOperationalSnapshot(store: McsStoreState): OperationalStoreSnapsh
 }
 
 function writeOperationalStore(snapshot: OperationalStoreSnapshot) {
-  const safePath = normalize(operationalStorePath)
-  mkdirSync(dirname(/*turbopackIgnore: true*/ safePath), { recursive: true })
-  writeFileSync(/*turbopackIgnore: true*/ safePath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8")
+  try {
+    const safePath = normalize(operationalStorePath)
+    mkdirSync(dirname(/*turbopackIgnore: true*/ safePath), { recursive: true })
+    writeFileSync(/*turbopackIgnore: true*/ safePath, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8")
+  } catch (error) {
+    if (!isSupabaseSnapshotConfigured()) {
+      console.warn("MCS operational store could not be persisted locally.", error)
+    }
+  }
 }
 
 function readSnapshotPayload(payload: unknown): OperationalStoreSnapshot | undefined {
